@@ -171,9 +171,19 @@ if "--check" in sys.argv:
 from PIL import Image  # noqa: E402  (so necessario para gerar)
 
 html = open(SRC, encoding="utf-8").read()
-css = re.search(r"<style>(.*?)</style>", html, re.S).group(1)
-body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
-head = re.search(r"<head>(.*?)</head>", html, re.S).group(1)
+
+# Corta o documento no </head> ANTES de procurar o corpo. Sem isso, uma tag
+# escrita dentro de um comentario no <head> (ex.: citar "<body>" num comentario)
+# faz o regex casar no lugar errado e arrastar o head inteiro para o bloco.
+_split = re.search(r"</head\s*>", html, re.I)
+head = html[:_split.start()] if _split else html
+after_head = html[_split.end():] if _split else html
+
+css = re.search(r"<style[^>]*>(.*?)</style>", head, re.S).group(1)
+_b = re.search(r"<body[^>]*>(.*)</body\s*>", after_head, re.S)
+if not _b:
+    sys.exit("nao encontrei o <body> depois do </head>")
+body = _b.group(1)
 
 # hints de fonte do <head> seguem no fragmento (validos no body)
 font_hints = "".join(
