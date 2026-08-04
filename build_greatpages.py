@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+"""
+Gera o bloco GreatPages (dist/greatpages-block.html) a partir de index.html.
+
+O que este script resolve:
+  1. Escopa TODO o CSS em #ix-ws3 (nada vaza para a pagina hospedeira).
+  2. Embute fonte e imagens como data URI (zero request de imagem).
+  3. Converte tudo para ASCII puro - o GreatPages controla o <head> e o
+     charset; sem isso a acentuacao vira mojibake.
+  4. Relatorio de peso com limite rigido.
+
+Uso:
+    python3 build_greatpages.py            # gera o bloco
+    python3 build_greatpages.py --check    # valida o bloco ja gerado
+Requer: Pillow
+"""
+
+import base64
+import gzip
+import io
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(HERE, "index.html")
+OUT_DIR = os.path.join(HERE, "dist")
+OUT = os.path.join(OUT_DIR, "greatpages-block.html")
+
+ROOT_ID = "ix-ws3"
+ROOT = "#" + ROOT_ID
+MAX_RAW = 130 * 1024  # limite rigido de peso do bloco
+
+# ---------------------------------------------------------------- assets
+# receita declarativa: caminho no index.html -> como embutir
+ASSETS = {
+    "assets/marca-itxpro-escuro.png": {
+        "kind": "image",
+        # WebP lossless preserva o alpha antialiasado e ganha ~39% do PNG
+        "save": dict(format="WEBP", lossless=True, method=6),
+        "mime": "image/webp",
+    },
+    "assets/arteiro-recorte.png": {
+        "kind": "image",
+        "autocrop": True,      # 23% do arquivo e margem transparente vazia
+        "resize": (720, None),  # exibido a 400px -> cobre 1.8x DPR
+        "save": dict(format="WEBP", quality=68, alpha_quality=80, method=6),
+        "mime": "image/webp",
+    },
+    "assets/jost-subset.woff2": {"kind": "font", "mime": "font/woff2"},
+}
+
+
+def encode_image(path, spec):
+    im = Image.open(path).convert("RGBA")
+    before = im.size
+    if spec.get("autocrop"):
+        bbox = im.getchannel("A").getbbox()
+        if bbox:
+            im = im.crop(bbox)
+    if spec.get("resize"):
+        w, h = spec["resize"]
+        if h is None:
+            h = round(w * im.size[1] / im.size[0])
+        im = im.resize((w, h), Image.LANCZOS)
+    buf = io.BytesIO()
+    im.save(buf, **spec["save"])
+    raw = buf.getvalue()
+    print("  %-34s %s -> %s  %6.1f KB" % (
+        os.path.basename(path), "x".join(map(str, before)),
+        "x".join(map(str, im.size)), len(raw) / 1024))
+    return raw
+
+
+def data_uri(raw, mime):
+    return "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode())
+
+
+# ---------------------------------------------------------------- CSS scoping
+def prefix_selector_list(sel_list):
+    out = []
+    for s in sel_list.split(","):
+        s = s.strip()
+        if not s:
+            continue
+        if s == "*":
+            out.append(ROOT)
+            out.append(ROOT + " *")
+        elif re.match(r"^(?:html|body|:root)(?=[\s.:\[>+~]|$)", s):
+            # a raiz do bloco assume o papel de body/html, inclusive em
+            # seletores compostos como "body.ix-js .reveal"
+            out.append(re.sub(r"^(?:html|body|:root)", ROOT, s))
+        else:
+            out.append(ROOT + " " + s)
+    return ",".join(out)
+
+
+def transform(css_text):
+    """Prefixa cada regra. Nenhum seletor passa sem escopo."""
+    result, i, n = [], 0, len(css_text)
+    while i < n:
+        if css_text[i].isspace():
+            i += 1
+            continue
+        brace = css_text.find("{", i)
+        if brace == -1:
+            break
+        selector = css_text[i:brace].strip()
+        depth, j = 1, brace + 1
+        while j < n and depth:
+            if css_text[j] == "{":
+                depth += 1
+            elif css_text[j] == "}":
+                depth -= 1
+            j += 1
+        inner = css_text[brace + 1:j - 1]
+        if selector.startswith("@font-face"):
+            result.append(selector + "{" + inner + "}")
+        elif selector.startswith("@keyframes"):
+            result.append(selector + "{" + inner + "}")
+        elif selector.startswith("@media") or selector.startswith("@supports"):
+            result.append(selector + "{" + transform(inner) + "}")
+        else:
+            result.append(prefix_selector_list(selector) + "{" + inner + "}")
+        i = j
+    return "\n".join(result)
+
+
+# ---------------------------------------------------------------- checagens
+def validate(block):
+    errs = []
+    if not block.isascii():
+        bad = sorted({c for c in block if ord(c) > 127})[:12]
+        errs.append("bloco contem nao-ASCII: %r" % bad)
+    if re.search(r'src="assets/|url\(assets/', block):
+        errs.append("sobrou referencia a assets/ nao embutida")
+    if "SUBSTITUIR" in block:
+        print("  AVISO: FORM_URL ainda e o placeholder SUBSTITUIR.")
+    # nenhum seletor fora de escopo dentro do <style>
+    css = re.search(r"<style>(.*?)</style>", block, re.S)
+    if css:
+        for m in re.finditer(r"(?m)^([^@{}\n][^{}\n]*)\{", css.group(1)):
+            sel = m.group(1).strip()
+            if sel and not all(p.strip().startswith(ROOT) for p in sel.split(",") if p.strip()):
+                errs.append("seletor sem escopo: %s" % sel[:70])
+                break
+    return errs
+
+
+def report(block):
+    raw = len(block.encode())
+    gz = len(gzip.compress(block.encode(), 9))
+    print("\n  bloco: %.1f KB cru / %.1f KB gzip" % (raw / 1024, gz / 1024))
+    print("  limite: %.0f KB cru" % (MAX_RAW / 1024))
+    if raw > MAX_RAW:
+        sys.exit("ERRO: bloco acima do limite de peso (%.1f KB)." % (raw / 1024))
+
+
+# ---------------------------------------------------------------- main
+if "--check" in sys.argv:
+    if not os.path.exists(OUT):
+        sys.exit("nada para checar: %s nao existe" % OUT)
+    block = open(OUT, encoding="utf-8").read()
+    errs = validate(block)
+    report(block)
+    if errs:
+        sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
+    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")
+    sys.exit(0)
+
+from PIL import Image  # noqa: E402  (so necessario para gerar)
+
+html = open(SRC, encoding="utf-8").read()
+css = re.search(r"<style>(.*?)</style>", html, re.S).group(1)
+body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
+head = re.search(r"<head>(.*?)</head>", html, re.S).group(1)
+
+# hints de fonte do <head> seguem no fragmento (validos no body)
+font_hints = "".join(
+    m.group(0) + "\n" for m in re.finditer(
+        r'<link rel="(?:preconnect|preload)"[^>]*fonts\.gstatic\.com[^>]*>', head)
+)
+
+print("assets:")
+for path, spec in ASSETS.items():
+    full = os.path.join(HERE, path)
+    if not os.path.exists(full):
+        sys.exit("asset ausente: " + path)
+    if spec["kind"] == "image":
+        raw = encode_image(full, spec)
+    else:
+        raw = open(full, "rb").read()
+        print("  %-34s %6.1f KB" % (os.path.basename(path), len(raw) / 1024))
+    uri = data_uri(raw, spec["mime"])
+    body = body.replace('src="%s"' % path, 'src="%s"' % uri)
+    css = css.replace("url(%s)" % path, "url(%s)" % uri)
+
+# comentarios /* */ fora, depois escopo
+css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+css = transform(css)
+
+# ASCII: CSS usa \XX (com espaco final), HTML usa entidades, JS usa \uXXXX
+css = re.sub(r"[^\x00-\x7F]", lambda m: "\\%X " % ord(m.group()), css)
+
+# ASCII no body: cada <script> escapa com \uXXXX, o resto com entidades HTML.
+# Percorre regiao por regiao para suportar varios blocos de script.
+def escape_body(text):
+    parts, pos = [], 0
+    for m in re.finditer(r"<script\b[^>]*>.*?</script>", text, re.S):
+        chunk = text[pos:m.start()]
+        parts.append(chunk.encode("ascii", "xmlcharrefreplace").decode())
+        parts.append(re.sub(r"[^\x00-\x7F]",
+                            lambda c: "\\u%04x" % ord(c.group()), m.group(0)))
+        pos = m.end()
+    parts.append(text[pos:].encode("ascii", "xmlcharrefreplace").decode())
+    return "".join(parts)
+
+
+body = escape_body(body)
+
+block = (
+    "<!-- ===== INICIO DO BLOCO GREATPAGES - LP WORKSHOP GRC TI COM IA (3a ed.) ===== -->\n"
+    "<!-- Colar em UM bloco de HTML/Codigo. Nao reabrir no editor visual.        -->\n"
+    "<!-- Fundo da pagina no GreatPages deve ser #F6F3EC.                        -->\n"
+    + font_hints
+    + "<style>\n" + css + "\n</style>\n"
+    + '<div id="' + ROOT_ID + '" lang="pt-BR">' + body + "</div>\n"
+    "<!-- ===== FIM DO BLOCO GREATPAGES ===== -->\n"
+)
+
+os.makedirs(OUT_DIR, exist_ok=True)
+open(OUT, "w", encoding="utf-8").write(block)
+
+errs = validate(block)
+report(block)
+print("  escrito: %s" % os.path.relpath(OUT, HERE))
+if errs:
+    sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
+print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")
