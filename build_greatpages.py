@@ -29,7 +29,11 @@ OUT = os.path.join(OUT_DIR, "greatpages-block.html")
 
 ROOT_ID = "ix-ws3"
 ROOT = "#" + ROOT_ID
-MAX_RAW = 130 * 1024  # limite rigido de peso do bloco
+# Limite rigido de peso. 140 KB deixa folga real sobre os ~129 KB atuais (fontes
+# da marca + foto + os tokens das duas versoes). O guard existe para pegar
+# regressao - ja pegou duas: a foto embutida em duplicidade e o <head> vazando
+# para dentro do bloco.
+MAX_RAW = 140 * 1024
 
 # ---------------------------------------------------------------- assets
 # receita declarativa: caminho no index.html -> como embutir
@@ -196,14 +200,21 @@ def report(block):
 
 # ---------------------------------------------------------------- main
 if "--check" in sys.argv:
-    if not os.path.exists(OUT):
-        sys.exit("nada para checar: %s nao existe" % OUT)
-    block = open(OUT, encoding="utf-8").read()
-    errs = validate(block)
-    report(block)
-    if errs:
-        sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
-    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")
+    alvos = [("A (fundo osso)", OUT),
+             ("B (fundo preto)", os.path.join(OUT_DIR, "greatpages-block-b.html"))]
+    problemas = []
+    for nome, caminho in alvos:
+        if not os.path.exists(caminho):
+            sys.exit("nada para checar: %s nao existe" % caminho)
+        bloco = open(caminho, encoding="utf-8").read()
+        print("\n  --- versao %s ---" % nome)
+        errs = validate(bloco)
+        report(bloco)
+        if errs:
+            problemas.append("%s: %s" % (nome, "; ".join(errs)))
+    if problemas:
+        sys.exit("FALHOU:\n  - " + "\n  - ".join(problemas))
+    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas duas versoes.")
     sys.exit(0)
 
 from PIL import Image  # noqa: E402  (so necessario para gerar)
@@ -271,22 +282,46 @@ def escape_body(text):
 
 body = escape_body(body)
 
-block = (
-    "<!-- ===== INICIO DO BLOCO GREATPAGES - LP WORKSHOP GRC TI COM IA (3a ed.) ===== -->\n"
-    "<!-- Colar em UM bloco de HTML/Codigo. Nao reabrir no editor visual.        -->\n"
-    "<!-- Fundo da pagina no GreatPages deve ser #F6F3EC.                        -->\n"
-    + font_hints
-    + "<style>\n" + css + "\n</style>\n"
-    + '<div id="' + ROOT_ID + '" lang="pt-BR">' + body + "</div>\n"
-    "<!-- ===== FIM DO BLOCO GREATPAGES ===== -->\n"
-)
+def montar(classe, fundo_pagina):
+    """Monta o bloco. A unica diferenca entre A e B e a classe no elemento raiz."""
+    cls = (' class="%s"' % classe) if classe else ""
+    return (
+        "<!-- ===== INICIO DO BLOCO GREATPAGES - LP WORKSHOP GRC TI COM IA (3a ed.) ===== -->\n"
+        "<!-- Versao %s. Colar em UM bloco de HTML/Codigo; nao reabrir no editor visual. -->\n"
+        "<!-- Fundo da pagina no GreatPages deve ser %s.                              -->\n"
+        % (classe or "A (fundo claro)", fundo_pagina)
+        + font_hints
+        + "<style>\n" + css + "\n</style>\n"
+        + '<div id="' + ROOT_ID + '"' + cls + ' lang="pt-BR">' + body + "</div>\n"
+        "<!-- ===== FIM DO BLOCO GREATPAGES ===== -->\n"
+    )
+
+
+# A = fundo Branco Osso (padrao) . B = fundo Preto Comando
+VARIANTES = [
+    ("", "#F0EBE1", OUT),
+    ("ix-b", "#0D0D0D", os.path.join(OUT_DIR, "greatpages-block-b.html")),
+]
 
 os.makedirs(OUT_DIR, exist_ok=True)
-open(OUT, "w", encoding="utf-8").write(block)
+falhas = []
+for classe, fundo, destino in VARIANTES:
+    bloco = montar(classe, fundo)
+    open(destino, "w", encoding="utf-8").write(bloco)
+    nome = "B (fundo preto)" if classe else "A (fundo osso)"
+    print("\n  --- versao %s ---" % nome)
+    errs = validate(bloco)
+    report(bloco)
+    print("  escrito: %s" % os.path.relpath(destino, HERE))
+    if errs:
+        falhas.append("%s: %s" % (nome, "; ".join(errs)))
 
-errs = validate(block)
-report(block)
-print("  escrito: %s" % os.path.relpath(OUT, HERE))
-if errs:
-    sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
-print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")
+# preview local da B: mesma fonte, so com a classe no <body>
+prev_b = os.path.join(HERE, "index-b.html")
+open(prev_b, "w", encoding="utf-8").write(
+    html.replace("<body>", '<body class="ix-b">', 1))
+print("\n  preview local da B: %s" % os.path.relpath(prev_b, HERE))
+
+if falhas:
+    sys.exit("FALHOU:\n  - " + "\n  - ".join(falhas))
+print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas duas versoes.")

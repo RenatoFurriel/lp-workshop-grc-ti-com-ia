@@ -55,7 +55,9 @@
 <pre id="probe">carregando…</pre>
 
 <script>
-fetch('greatpages-block.html').then(function(r){return r.text();}).then(function(html){
+var VAR_B=/[?&]bloco=b/.test(location.search);
+document.title=(VAR_B?'B':'A')+' - QA host hostil';
+fetch(VAR_B?'greatpages-block-b.html':'greatpages-block.html').then(function(r){return r.text();}).then(function(html){
   var slot=document.getElementById('slot');
   slot.innerHTML=html;
   // innerHTML nao executa <script>: recria como o construtor faz
@@ -68,6 +70,9 @@ fetch('greatpages-block.html').then(function(r){return r.text();}).then(function
 });
 
 var LARANJA='rgb(242, 97, 1)', PRETO='rgb(13, 13, 13)', OSSO='rgb(240, 235, 225)';
+// a unica coisa que muda entre A e B sao estas duas superficies
+var FUNDO_ESPERADO=function(){return VAR_B?PRETO:OSSO};
+var SEC2_ESPERADO=function(){return VAR_B?'rgb(19, 19, 19)':PRETO};
 
 function audit(){
   var d=document.documentElement, out=[];
@@ -97,8 +102,17 @@ function audit(){
   ok('CTA laranja da marca', bcs.backgroundColor===LARANJA, bcs.backgroundColor);
   ok('CTA com raio 8px (nao 30px do host)', bcs.borderRadius==='8px', bcs.borderRadius);
   ok('box-sizing border-box no bloco', getComputedStyle(R).boxSizing==='border-box');
-  ok('dobra escura = Preto Comando',
-     getComputedStyle(R.querySelector('.ix-escuro')).backgroundColor===PRETO);
+  var fundoReal=getComputedStyle(R).backgroundColor;
+  ok('fundo da pagina correto para a versao', fundoReal===FUNDO_ESPERADO(), fundoReal);
+  var sec2=getComputedStyle(R.querySelector('.ix-escuro')).backgroundColor;
+  ok('faixa da dobra 2 correta', sec2===SEC2_ESPERADO(), sec2);
+  // contraste real do texto sobre o fundo desta versao
+  var h1c=getComputedStyle(R.querySelector('h1')).color;
+  ok('titulo contrasta com o fundo', h1c!==fundoReal, h1c+' vs '+fundoReal);
+  var simb=getComputedStyle(R.querySelector('.ix-marca svg')).color;
+  ok('simbolo da marca visivel', simb!==fundoReal, simb);
+  var neg=getComputedStyle(R.querySelector('.ix-selo .ix-neg-linha'));
+  ok('check do selo nao foi preenchido', neg.fill==='none', neg.fill);
   ok('rodape do bloco = Preto Comando',
      getComputedStyle(R.querySelector('footer')).backgroundColor===PRETO);
   var card=R.querySelector('.ix-card');

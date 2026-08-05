@@ -8,19 +8,32 @@ Dobras: **Hero** · **Conteúdo (5 blocos)** · **E você ainda vai receber** ·
 
 Feita para ser colada em **um bloco de HTML do GreatPages**.
 
+Existem **duas versões** para teste A/B, geradas da mesma fonte:
+
+| Versão | Fundo | Arquivo | Preview local |
+|---|---|---|---|
+| **A** | Branco Osso `#F0EBE1` | `dist/greatpages-block.html` | `index.html` |
+| **B** | Preto Comando `#0D0D0D` | `dist/greatpages-block-b.html` | `index-b.html` |
+
+A única diferença entre as duas é um bloco de tokens (`body.ix-b`). Estrutura,
+copy, layout e JavaScript são idênticos — o que garante que o teste meça a cor
+de fundo, e não duas páginas diferentes.
+
 ---
 
 ## 1. O que entregar no GreatPages
 
-O arquivo a colar é **um só**:
+Cada página recebe **um arquivo só**:
 
 ```
-dist/greatpages-block.html
+dist/greatpages-block.html     (versão A)
+dist/greatpages-block-b.html   (versão B)
 ```
 
-1. No GreatPages, inserir **um bloco de HTML / Código** e colar o arquivo inteiro.
-2. Definir o **fundo da página como `#F0EBE1`** (Branco Osso, a base do bloco).
-   Sem isso, o bloco aparece como um retângulo emoldurado dentro da página.
+1. No GreatPages, inserir **um bloco de HTML / Código** e colar o arquivo inteiro
+   (`greatpages-block.html` na página A, `greatpages-block-b.html` na página B).
+2. Definir o **fundo da página** igual ao da versão: **`#F0EBE1`** na A e
+   **`#0D0D0D`** na B. Sem isso, o bloco aparece como um retângulo emoldurado.
 3. Desativar qualquer bloco nativo de hero/título na mesma página — o bloco já traz
    o `<h1>`.
 4. **Não reabrir o bloco no editor visual** depois de colado: o editor pode
@@ -66,6 +79,20 @@ manual) e **Archivo** em todo o texto corrido. Ambas auto-hospedadas em WOFF2 e
 embutidas no bloco — **zero requisição externa de fonte**. Os arquivos vêm do Google
 Fonts (as mesmas famílias do kit), com subset para os glifos usados.
 
+### Por que a versão B é mais fiel à marca
+
+O manual proíbe laranja como texto sobre o osso — e com razão: são 2,73:1. Sobre o
+Preto Comando, o mesmo `#F26101` rende **6,00:1 e passa AA**. Por isso a versão B
+usa o **laranja puro da marca no texto**, enquanto a A precisa do `#B84300`
+escurecido. Contrastes medidos na B:
+
+| Elemento | Sobre `#0D0D0D` | |
+|---|---|---|
+| Títulos em Branco Osso | 16,36:1 | AAA |
+| Corpo (osso 82%) | 11,06:1 | AAA |
+| Laranja da marca como texto | 6,00:1 | AA |
+| Osso sobre card `#1F1F1F` | 14,03:1 | AAA |
+
 ### A regra de contraste que não deve ser desfeita
 
 O próprio manual mede **laranja sobre osso em 2,7:1** e proíbe texto corrido. Medi
@@ -107,9 +134,9 @@ O que o build faz — e por que cada passo existe:
 | Embute fontes e a foto como data URI | zero request de imagem/fonte; o bloco é autossuficiente |
 | Faz **subset** das fontes | Khand 7,4→5,8 KB · Archivo 34,1→25,7 KB |
 | Converte tudo para **ASCII puro** | o GreatPages controla o `<head>` e o charset; sem isso a acentuação vira mojibake |
-| Relatório de peso, com corte em 130 KB | impede que a página engorde sem ninguém perceber |
+| Relatório de peso, com corte em 140 KB | impede que a página engorde sem ninguém perceber |
 
-Peso atual: **~127 KB cru / ~83 KB gzip**, com **zero requisições externas**.
+Peso atual: **~129 KB cru / ~84 KB gzip** em cada versão, com **zero requisições externas**.
 Para referência, a LP anterior (`insc-hic-b`) tem 152 KB / 96 KB e ainda baixa
 fontes do Google.
 
@@ -120,7 +147,9 @@ fontes do Google.
 ```
 index.html                  ← FONTE DE VERDADE. Editar aqui. Abre direto no navegador.
 build_greatpages.py         ← gera o bloco a partir do index.html
-dist/greatpages-block.html  ← ★ o arquivo que vai para o GreatPages
+index-b.html                ← preview local da versao B (gerado pelo build)
+dist/greatpages-block.html  ← ★ versao A (fundo osso)
+dist/greatpages-block-b.html← ★ versao B (fundo preto)
 dist/host-simulator.html    ← teste: injeta o bloco num host hostil (ver abaixo)
 assets/                     ← fontes da marca + foto (o build otimiza na hora)
 copy/                       ← a copy aprovada, em markdown
@@ -150,12 +179,17 @@ O host-simulator reproduz de propósito um host hostil (reset `content-box`, fon
 serifada global, `img{width:100%!important}`, `svg{width:50px!important}`,
 `section{background:#0f0!important}`, `footer{background:#600!important}`, estilos em
 `.btn`/`.card`, container de 1170px e um ancestral com `transform`, que quebra
-`position:fixed`). Ele injeta o bloco e imprime **22 verificações** no canto — entre
+`position:fixed`). Ele injeta o bloco e imprime **27 verificações** no canto — entre
 elas: nenhum overflow horizontal, os elementos do host intactos, Khand e Archivo
 aplicadas, a dobra preta e o rodapé mantendo o Preto Comando, os ícones não
 esmagados, o círculo do mentor redondo, todo o conteúdo visível e a UTM propagada.
 
 Testar em 390px e em ≥1180px: a CTA fixa só aparece abaixo de 880px.
+
+**As duas versões passam pelo mesmo QA.** Acrescente `?bloco=b` para testar a B:
+`dist/host-simulator.html?bloco=b&utm_source=qa`. O painel checa, além do resto,
+se o fundo, a faixa da dobra 2, o símbolo da marca e o negativo do selo estão
+corretos **para aquela versão**.
 
 ---
 
