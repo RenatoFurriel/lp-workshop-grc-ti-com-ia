@@ -4,678 +4,558 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Workshop GRC TI com IA — 3ª Edição | ITXPRO</title>
-<meta name="description" content="Um dia inteiro montando do zero, ao vivo, uma arquitetura cognitiva robusta, auditável e segura, que roda COBIT, NIST e ISO 27001. Sábado, 22/08/2026, das 9h às 18h. Gratuito.">
-<!-- Este repositorio e publico apenas para servir o preview no GitHub Pages.
-     A pagina real e publicada no GreatPages. O noindex evita que a versao de
-     preview concorra com ela no Google. Nao afeta o bloco do GreatPages, que o
-     build monta so com o estilo e o corpo. Remover se quiser este preview
-     indexado. (Sem tags literais neste comentario: o build procura o corpo por
-     regex e uma tag escrita aqui seria capturada por engano.) -->
+<meta name="description" content="Um dia inteiro montando do zero, ao vivo, uma arquitetura cognitiva robusta, auditável e segura, que roda COBIT, NIST e ISO 27001. Sábado, 22/08/2026. Gratuito.">
+<!-- Repositorio publico apenas para servir o preview do Pages; a pagina real vai
+     para o GreatPages. Nao entra no bloco: o build usa somente estilo e corpo.
+     Sem tags literais neste comentario - o build procura o corpo por regex. -->
 <meta name="robots" content="noindex,nofollow">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/hankengrotesk/v12/ieVn2YZDLWuGJpnzaiwFXS9tYtpd59CxCis4.woff2">
 <style>
-/* ============================================================
-   LP WORKSHOP GRC TI COM IA - 3a EDICAO | ITXPRO
-   Conceito: "a prancha de projeto" - a folha de especificacao
-   de onde o console da marca foi desenhado.
-   Base clara predominante + UMA unica faixa escura (auditabilidade).
+/* ==========================================================================
+   LP WORKSHOP GRC TI COM IA - 3a EDICAO
+   Identidade: Manual da Marca v1.3 (Google Drive / Identidade Visual)
+     Preto Comando #0D0D0D (70%) . Branco Osso #F0EBE1 (20%) . Laranja Nucleo #F26101 (10%)
+     Khand Bold (titulos, caixa-alta) . Archivo (corpo)
+   Layout: conforme PDF "[PAGINA] WORKSHOP GRC TI COM IA" - 4 dobras.
    CSS escrito sem escopo: build_greatpages.py prefixa tudo com #ix-ws3.
-   ============================================================ */
+   ========================================================================== */
 
-/* ---------- FONTES ---------- */
-@font-face{font-family:'Jost';font-style:normal;font-weight:600 700;font-display:swap;
-  src:url(assets/jost-subset.woff2) format('woff2');
-  unicode-range:U+0020-007E,U+00A0-00FF,U+2013-2014,U+2018-201F,U+2022,U+2026,U+20AC}
-@font-face{font-family:'Hanken Grotesk';font-style:normal;font-weight:400 700;font-display:swap;
-  src:url(https://fonts.gstatic.com/s/hankengrotesk/v12/ieVn2YZDLWuGJpnzaiwFXS9tYtpd59CxCis4.woff2) format('woff2');
+/* ---------- FONTES DA MARCA (auto-hospedadas) ---------- */
+@font-face{font-family:'Khand';font-style:normal;font-weight:700;font-display:swap;
+  src:url(assets/khand-700.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;
-  src:url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2) format('woff2');
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400 700;font-display:swap;
+  src:url(assets/archivo-var.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 /* ---------- TOKENS ---------- */
 body{
-  /* base clara predominante */
-  --base:#F6F3EC;
-  --base-2:#FFFDF9;
-  --sunk:#EDE9E0;
+  --preto:#0D0D0D;      /* Preto Comando */
+  --osso:#F0EBE1;       /* Branco Osso  */
+  --laranja:#F26101;    /* Laranja Nucleo - preenchimentos, grafismo, texto sobre preto */
 
-  /* fios de desenho tecnico */
-  --line:#DCD6C9;
-  --line-strong:#C6BFAF;
-  --line-soft:rgba(20,22,24,.06);
+  /* O manual mede laranja sobre osso em 2,7:1 e proibe texto corrido.
+     Medido aqui: 2,73:1 - reprova ate para texto grande (min. 3,0).
+     Por isso TEXTO laranja sobre fundo claro usa esta variante escurecida
+     (4,60:1, AA), mantendo o #F26101 puro em todo preenchimento. */
+  --laranja-texto:#B84300;
 
-  /* rampa de tinta (todas aprovam AA sobre as bases claras) */
-  --ink:#141618;        /* 16.37:1 */
-  --ink-soft:#383E45;   /*  9.75:1 */
-  --ink-mute:#5A6270;   /*  5.55:1 */
+  --osso-2:#F7F4EE;     /* leve elevacao no claro */
+  --card:#1A1A1A;       /* cards da dobra escura - osso 14,6:1 / laranja 5,4:1 */
+  --card-linha:rgba(240,235,225,.14);
+  --tinta-clara:rgba(13,13,13,.78);   /* corpo sobre osso */
+  --tinta-fraca:rgba(13,13,13,.58);
+  --osso-mute:rgba(240,235,225,.76);  /* corpo sobre preto */
 
-  /* laranja POR FUNCAO - a decisao central de acessibilidade:
-     #FF5C00 sobre creme da apenas 2.79:1 e REPROVA. Nunca como texto no claro. */
-  --orange:#FF5C00;       /* preenchimentos e grafismo, nunca texto no claro */
-  --orange-ink:#9A3100;   /* todo texto pequeno / glifo no claro - 6.74:1 */
-  --orange-deep:#C23F00;  /* texto grande >=24px e bordas - 4.73:1 */
-  --orange-hot:#FF7A1A;   /* apenas SOBRE tinta escura - 6.95:1 */
-  --orange-tint:rgba(255,92,0,.12);
-  --orange-edge:rgba(194,63,0,.30);
-  --on-orange:#1A0A00;    /* rotulo sobre laranja - 6.24:1 */
+  --display:'Khand','Archivo Narrow',Impact,sans-serif;
+  --corpo:'Archivo',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --r-btn:8px;
+  --r-card:14px;
 
-  /* tinta invertida (faixa unica) */
-  --paper:#EAE7DF;      /* 14.68:1 sobre --ink */
-  --muted:#B4BAC0;
-
-  --display:'Jost',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --body:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
-  --radius-plate:8px;
-  --radius-btn:4px;
+  /* A foto entra UMA vez aqui e e reaproveitada no hero e no circulo do mentor.
+     Como <img> em dois lugares, o build embutiria o mesmo base64 duas vezes
+     (~48 KB desperdicados no bloco). */
+  --foto:url(assets/arteiro-recorte.png);
 }
 
 /* ---------- RESET ESCOPADO ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   color-scheme:only light;
-  background-color:var(--base);
-  /* papel milimetrado: malha fina 34px + malha maior 170px */
-  background-image:
-    linear-gradient(var(--line-soft) 1px,transparent 1px),
-    linear-gradient(90deg,var(--line-soft) 1px,transparent 1px),
-    linear-gradient(rgba(20,22,24,.045) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,22,24,.045) 1px,transparent 1px);
-  background-size:34px 34px,34px 34px,170px 170px,170px 170px;
-  color:var(--ink-soft);
-  font-family:var(--body);
+  background:var(--osso)!important;
+  color:var(--tinta-clara);
+  font-family:var(--corpo);
   font-size:17px;
-  line-height:1.7;
+  line-height:1.6;
   letter-spacing:normal;
   text-transform:none;
   text-shadow:none;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
-  font-synthesis-weight:none;
   overflow-x:clip;
-  /* fuga da caixa do GreatPages - fallback 100% se o JS nao rodar */
   width:var(--ix-vw,100%);
   margin-inline:calc(50% - var(--ix-vw,100%)/2);
 }
-/* !important aqui nao e preguica: construtores injetam
-   img{width:100%!important} e svg{width:50px!important}, que sem isto
-   estouram a foto e esmagam o diagrama. */
 img{max-width:100%!important;height:auto!important;display:block;border:0!important}
 svg{display:block;max-width:100%!important;height:auto!important}
 ul,ol{list-style:none}
 a{text-decoration:none;color:inherit}
-h1,h2,h3,h4{font-family:var(--display);font-weight:700;line-height:1.1;color:var(--ink);
-  text-transform:uppercase;letter-spacing:.015em;text-wrap:balance}
-p{max-width:62ch}
-b,strong{font-weight:600}
+p{max-width:64ch}
+b,strong{font-weight:700}
 
-/* ---------- ESTRUTURA ---------- */
-.ix-wrap{max-width:1160px;margin-inline:auto;padding-inline:clamp(20px,5vw,56px)}
-.ix-sec{padding-block:clamp(64px,9vw,112px)}
-.ix-sunk{background:var(--sunk);border-block:1px solid var(--line)}
+/* Khand: sempre caixa-alta, peso 700 (regra do manual) */
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.96;
+  text-transform:uppercase;letter-spacing:.005em;color:var(--preto);text-wrap:balance}
 
-/* trilho lateral com o marcador da secao */
-.ix-rail{display:grid;grid-template-columns:72px minmax(0,1fr)}
-.ix-rail-mark{position:relative;border-right:1px solid var(--line)}
-.ix-rail-mark span{
-  position:absolute;top:4px;left:50%;transform:translateX(-50%) rotate(180deg);
-  writing-mode:vertical-rl;font:400 10.5px/1 var(--mono);letter-spacing:.22em;
-  text-transform:uppercase;color:var(--ink-mute);white-space:nowrap}
-@media(max-width:999px){
-  .ix-rail{grid-template-columns:minmax(0,1fr)}
-  .ix-rail-mark{display:none}
-}
+.ix-wrap{max-width:1200px;margin-inline:auto;padding-inline:clamp(20px,5vw,60px)}
+/* !important nas superficies que sustentam o design: construtores estilizam
+   section/footer por TAG e com !important (ex.: section{background:#0f0!important}).
+   Sem isto a dobra preta e o rodape perdem a cor da marca. Verificado no
+   dist/host-simulator.html. */
+.ix-sec{padding:clamp(56px,7vw,96px) 0!important}
 
 /* ---------- COMPONENTES ---------- */
-.ix-eyebrow{display:block;font:400 12px/1 var(--mono);letter-spacing:.14em;
-  text-transform:uppercase;color:var(--orange-ink);margin-bottom:18px}
-.ix-rule{width:28px;height:3px;background:var(--orange);margin-bottom:20px}
+/* eyebrow: tracking 0,3-0,4em conforme manual */
+.ix-eyebrow{display:block;font-family:var(--corpo);font-weight:600;font-size:12.5px;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--laranja-texto);margin-bottom:20px}
+.ix-sobre-preto .ix-eyebrow,.ix-escuro .ix-eyebrow{color:var(--laranja)}
 
 .ix-btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.05em;
-  text-transform:uppercase;cursor:pointer;border:1px solid var(--orange-deep);
-  border-radius:var(--radius-btn);padding:17px 34px;
-  background:var(--orange);color:var(--on-orange);
-  transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
-.ix-btn:hover{background:var(--orange-hot);transform:translateY(-2px);
-  box-shadow:0 12px 26px rgba(194,63,0,.22)}
-.ix-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.ix-btn::after{content:"\2192";font-size:17px;line-height:1}
+  display:inline-flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--corpo);font-weight:700;font-size:clamp(14px,1.5vw,17px);
+  letter-spacing:.02em;text-transform:uppercase;cursor:pointer;border:0;
+  border-radius:var(--r-btn);padding:20px 40px;
+  background:var(--laranja)!important;color:#fff!important;
+  box-shadow:0 6px 18px rgba(242,97,1,.28);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.ix-btn:hover{filter:brightness(1.07);transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(242,97,1,.36)}
+.ix-btn:focus-visible{outline:3px solid var(--preto);outline-offset:3px}
+.ix-btn-wrap{display:flex;justify-content:center;margin-top:clamp(36px,4.5vw,56px)}
 
-.ix-cta-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:32px}
-.ix-cta-note{font:400 11.5px/1.5 var(--mono);letter-spacing:.06em;
-  text-transform:uppercase;color:var(--ink-mute)}
-.ix-scarcity{font-size:13.5px;line-height:1.6;color:var(--ink-mute);
-  margin-top:14px;max-width:52ch}
-
-/* ---------- TARJA + CABECALHO ---------- */
-.ix-tarja{background:var(--sunk);border-bottom:1px solid var(--line);text-align:center;
-  padding:11px clamp(16px,4vw,24px)}
-.ix-tarja p{margin:0 auto;max-width:none;font:400 11.5px/1.5 var(--mono);
-  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute)}
-.ix-tarja b{color:var(--orange-ink);font-weight:400}
-
-/* fundo e padding explicitos: o host costuma estilizar header/footer por tag
-   (header{background:#000}) e sem isto a faixa da marca vira uma tarja preta */
-.ix-head{border-bottom:1px solid var(--line);background:var(--base);padding:0}
-.ix-head-row{display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:16px clamp(20px,5vw,56px);max-width:1160px;margin-inline:auto}
-.ix-head-row img{height:24px!important;width:auto!important}
-.ix-head-meta{display:none;align-items:center;gap:10px;
-  font:400 11.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
-.ix-head-meta i{width:7px;height:7px;border-radius:50%;background:var(--orange);
-  animation:ix-blink 2.2s ease-in-out infinite}
-@media(min-width:760px){.ix-head-meta{display:flex}}
-@keyframes ix-blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* ambientacao: sangria difusa de laranja nos cantos das dobras claras */
+.ix-glow{position:relative;isolation:isolate}
+.ix-glow::before,.ix-glow::after{
+  content:"";position:absolute;top:0;width:38vw;height:min(46vh,420px);
+  pointer-events:none;z-index:-1;opacity:.5}
+.ix-glow::before{left:0;
+  background:radial-gradient(70% 80% at 0% 0%,rgba(242,97,1,.42),rgba(242,97,1,0) 70%)}
+.ix-glow::after{right:0;
+  background:radial-gradient(70% 80% at 100% 0%,rgba(242,97,1,.34),rgba(242,97,1,0) 70%)}
 
 /* ---------- DOBRA 1 - HERO ---------- */
-.ix-hero{padding-block:clamp(48px,7vw,88px) clamp(52px,7vw,92px)}
-.ix-hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
-  gap:clamp(32px,5vw,68px) clamp(32px,5vw,68px);align-items:start}
-/* o diagrama ocupa as duas linhas da coluna direita: assim a altura dele nao
-   empurra o CTA para baixo criando um vao morto no meio da dobra */
-.ix-stackfig{grid-column:2;grid-row:1 / span 2;align-self:center}
-.ix-hero h1{font-size:clamp(40px,6.2vw,74px);line-height:1.04;letter-spacing:0;margin-bottom:26px}
-/* inline-block: a caixa entra no calculo da altura da linha, entao o fundo
-   laranja nao invade a linha de cima (o que acontece com line-height < 1). */
-.ix-mark{display:inline-block;background:var(--orange);color:var(--on-orange);
-  line-height:.94;padding:.1em .18em .16em;border-radius:2px}
-.ix-lede{font-size:clamp(17px,1.8vw,19px);line-height:1.6;color:var(--ink-soft);max-width:46ch}
-.ix-lede b{color:var(--ink);font-weight:600}
-.ix-hl{box-shadow:inset 0 -.34em 0 rgba(255,92,0,.24)}
+.ix-tarja{display:flex;justify-content:center;padding:26px clamp(16px,4vw,24px) 0}
+.ix-tarja span{
+  background:var(--laranja)!important;color:#fff;border-radius:6px;
+  padding:11px 22px;font-weight:700;font-size:clamp(11.5px,1.35vw,15px);
+  letter-spacing:.04em;text-transform:uppercase;text-align:center;line-height:1.35}
 
-/* bloco de legenda tecnica (absorve a microcopy como artefato de prancha) */
-.ix-titleblock{display:grid;grid-template-columns:repeat(4,1fr);
-  border:1px solid var(--line);background:var(--base-2);margin-top:38px}
-.ix-titleblock div{padding:14px 16px;border-right:1px solid var(--line)}
-.ix-titleblock div:last-child{border-right:none}
-.ix-titleblock dt{font:400 10.5px/1 var(--mono);letter-spacing:.14em;
-  text-transform:uppercase;color:var(--ink-mute);margin-bottom:7px}
-.ix-titleblock dd{font-family:var(--display);font-weight:700;font-size:16px;
-  color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap}
-@media(max-width:680px){
-  .ix-titleblock{grid-template-columns:repeat(2,1fr)}
-  .ix-titleblock div:nth-child(2){border-right:none}
-  .ix-titleblock div:nth-child(-n+2){border-bottom:1px solid var(--line)}
-}
+.ix-marca{position:absolute;top:22px;left:clamp(20px,5vw,60px);display:flex;
+  align-items:center;gap:11px;z-index:2}
+.ix-marca svg{width:30px;height:30px}
+.ix-marca b{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--preto)}
 
-/* diagrama axonometrico do hero */
-.ix-stackfig{position:relative}
-.ix-stackfig svg{width:100%!important;max-width:460px!important;height:auto!important;
-  margin-inline:auto}
-@media(max-width:899px){
-  .ix-hero-grid{grid-template-columns:minmax(0,1fr);gap:28px}
-  /* volta a fluir em uma coluna: o diagrama entra entre o texto e o CTA */
-  .ix-stackfig{grid-column:auto;grid-row:auto;order:3;width:62%;margin-inline:auto}
-  .ix-hero-cta{order:4}
-}
+.ix-hero{padding-block:clamp(20px,3vw,34px) 0}
+.ix-hero-grid{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);
+  gap:clamp(20px,3vw,44px);align-items:end}
+.ix-hero-txt{padding-bottom:clamp(28px,5vw,72px)}
+.ix-kicker{font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:clamp(26px,3.4vw,42px);line-height:1;color:var(--laranja-texto);
+  letter-spacing:.01em;margin-bottom:2px}
+.ix-hero h1{font-size:clamp(46px,8.4vw,104px);margin-bottom:22px}
+/* inline-block: a caixa entra no calculo da linha e o fundo laranja nao invade
+   a linha de cima (o que acontece com line-height < 1) */
+.ix-mark{display:inline-block;background:var(--laranja)!important;color:#fff;
+  line-height:.9;padding:.06em .13em .13em;border-radius:3px}
+.ix-lede{font-size:clamp(16px,1.8vw,20px);line-height:1.55;color:var(--tinta-clara);
+  max-width:34ch;margin-bottom:clamp(26px,3.5vw,40px)}
+.ix-lede b{color:var(--preto);font-weight:700}
+.ix-hero .ix-btn{padding:20px 34px}
+.ix-vagas{margin-top:18px;font-size:14.5px;color:var(--tinta-fraca)}
 
-/* barra de prova */
-.ix-proof{padding-block:22px}
-.ix-proof-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  max-width:1160px;margin-inline:auto;padding-inline:clamp(20px,5vw,56px)}
-.ix-chip{font:400 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--orange-ink);border:1px solid var(--orange-edge);background:var(--orange-tint);
-  padding:7px 11px;border-radius:3px;white-space:nowrap}
-.ix-proof-row p{font-size:14.5px;color:var(--ink-soft);margin:0}
-
-/* ---------- DOBRA 2 - CONSTRUCAO ---------- */
-.ix-sechead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);
-  gap:clamp(24px,4vw,52px);align-items:start;margin-bottom:clamp(40px,5vw,60px)}
-.ix-sechead h2{font-size:clamp(26px,3.6vw,42px);max-width:20ch}
-.ix-sechead-aside{border-top:1px solid var(--line-strong);padding-top:16px}
-.ix-sechead-aside p{font-size:16px;color:var(--ink-soft)}
-@media(max-width:860px){.ix-sechead{grid-template-columns:minmax(0,1fr)}}
-
-/* as 5 camadas: pilha de arquitetura, nao grade de cards */
-.ix-stack{position:relative}
-.ix-layer{position:relative;display:grid;
-  grid-template-columns:56px 28px minmax(160px,.9fr) minmax(0,1.6fr) 116px;
-  gap:0 22px;align-items:start;padding-block:26px;border-top:1px solid var(--line);
-  transition:background .25s ease}
-.ix-layer:last-child{border-bottom:1px solid var(--line)}
-/* a espinha continua atravessando os cinco nos */
-.ix-layer::before{content:"";position:absolute;left:70px;top:0;bottom:0;width:1px;
-  background:var(--line-strong)}
-.ix-layer:first-child::before{top:50%}
-.ix-layer:last-child::before{bottom:50%}
-.ix-node{width:11px;height:11px;margin-top:9px;transform:rotate(45deg);
-  background:var(--base-2);border:1.5px solid var(--orange-deep);
-  transition:background .45s ease}
-.ix-layer.is-visible .ix-node{background:var(--orange)}
-.ix-lid{font:400 11px/1 var(--mono);letter-spacing:.14em;color:var(--ink-mute);margin-top:7px;
-  font-variant-numeric:tabular-nums}
-.ix-layer h3{font-size:18px;letter-spacing:.03em}
-.ix-layer p{font-size:15px;color:var(--ink-soft);max-width:52ch}
-.ix-lmeta{font:400 10.5px/1.4 var(--mono);letter-spacing:.14em;color:var(--orange-ink);
-  text-align:right;margin-top:8px}
-.ix-layer:hover{background:linear-gradient(90deg,rgba(255,92,0,.05),transparent 62%)}
+/* a foto: recorte que se dissolve no fundo (a "ambientacao" do PDF) */
+.ix-hero-foto{position:relative;display:flex;justify-content:center;align-items:flex-end}
+.ix-hero-foto i{
+  display:block;width:100%;max-width:560px;aspect-ratio:833/1027;
+  background:var(--foto) no-repeat bottom center/contain;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 72%,rgba(0,0,0,.55) 88%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0,#000 72%,rgba(0,0,0,.55) 88%,transparent 100%)}
 @media(max-width:900px){
-  .ix-layer{grid-template-columns:34px minmax(0,1fr);gap:0 14px}
-  .ix-layer::before{left:16px}
-  .ix-layer h3{padding-left:0}
-  .ix-node{grid-row:1;grid-column:1}
-  .ix-lid{grid-row:1;grid-column:1;margin-left:26px;margin-top:8px}
-  .ix-layer h3,.ix-layer p{grid-column:2}
-  .ix-lmeta{grid-column:2;text-align:left;margin-top:12px}
+  .ix-hero-grid{grid-template-columns:minmax(0,1fr);gap:0}
+  .ix-hero-txt{order:2;padding-bottom:24px;text-align:center}
+  .ix-lede{margin-inline:auto}
+  .ix-hero-foto{order:1;margin-bottom:-8px}
+  .ix-hero-foto i{max-width:340px}
+  /* coluna, nao linha: como flex-row o botao e a microcopy ficavam lado a lado */
+  .ix-hero .ix-cta{display:flex;flex-direction:column;align-items:center}
+  .ix-hero .ix-btn{width:100%;max-width:24rem}
+  /* o simbolo sai do absoluto para nao cobrir a tarja laranja */
+  .ix-marca{position:static;justify-content:center;padding:20px 0 0}
+  .ix-tarja{padding-top:16px}
 }
 
-/* A UNICA faixa escura da pagina: auditabilidade */
-.ix-plate{background:var(--ink);border-radius:var(--radius-plate);
-  padding:clamp(28px,3.5vw,40px);margin-top:clamp(40px,5vw,56px);color:var(--paper)}
-.ix-plate h3{color:var(--paper);font-size:clamp(20px,2.4vw,26px);margin-bottom:14px}
-.ix-plate .ix-eyebrow{color:var(--orange-hot)}
-.ix-plate p{color:var(--muted);font-size:15.5px;max-width:64ch}
-.ix-trace{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:26px;
-  border-top:1px solid rgba(255,255,255,.1);padding-top:22px}
-.ix-trace div{font:400 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted)}
-.ix-trace b{display:block;color:var(--orange-hot);font-weight:400;margin-bottom:5px}
-@media(max-width:700px){.ix-trace{grid-template-columns:repeat(2,1fr);gap:16px 1px}}
+/* ---------- DOBRA 2 - CONTEUDO (Preto Comando) ---------- */
+.ix-escuro{background:var(--preto)!important;color:var(--osso-mute)}
+.ix-escuro h2,.ix-escuro h3{color:var(--osso)}
+.ix-escuro-head{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+  gap:clamp(28px,4vw,60px);align-items:start;margin-bottom:clamp(44px,5.5vw,72px)}
+.ix-escuro-head h2{font-size:clamp(30px,4.4vw,58px);max-width:22ch}
+.ix-escuro-head h2 em{font-style:normal;color:var(--laranja)}
+.ix-apoio{border-top:2px solid var(--laranja);padding-top:20px;margin-top:clamp(8px,2vw,30px)}
+.ix-apoio p{font-size:clamp(15.5px,1.7vw,19px);color:var(--osso);max-width:40ch}
+@media(max-width:900px){.ix-escuro-head{grid-template-columns:minmax(0,1fr)}}
 
-/* demonstracao ao vivo - permanece no claro */
-.ix-demo{margin-top:clamp(28px,3.5vw,36px);border:1px solid var(--line);
-  background:var(--base-2);border-radius:var(--radius-plate);padding:clamp(26px,3.2vw,36px)}
-.ix-demo h3{font-size:clamp(19px,2.2vw,24px);margin-bottom:12px}
-.ix-demo p{font-size:15.5px;color:var(--ink-soft)}
-.ix-progress{margin-top:22px;height:3px;background:var(--line);overflow:hidden}
-.ix-progress i{display:block;height:100%;width:0;background:var(--orange);
-  transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
-.ix-demo.is-visible .ix-progress i{width:100%}
-.ix-progress-legend{display:flex;justify-content:space-between;margin-top:9px;
-  font:400 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute)}
+.ix-blocos{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(12px,1.4vw,20px);
+  align-items:start}
+.ix-bloco-num{font-family:var(--display);font-weight:700;font-size:clamp(15px,1.7vw,21px);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--laranja);
+  text-align:center;margin-bottom:12px}
+.ix-card{background:var(--card)!important;border-radius:var(--r-card);padding:26px 20px 28px;
+  height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;
+  transition:transform .25s ease,background .25s ease}
+.ix-card:hover{transform:translateY(-4px);background:#212121!important}
+.ix-card-ico{width:56px;height:56px;margin-bottom:20px;color:var(--laranja);flex:0 0 auto}
+.ix-card-ico svg{width:100%;height:100%;stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ix-card h3{font-size:clamp(14.5px,1.6vw,17px);letter-spacing:.05em;line-height:1.15;
+  padding-top:18px;border-top:1px solid var(--card-linha);width:100%;margin-bottom:14px}
+.ix-card p{font-size:13.6px;line-height:1.5;color:var(--osso-mute);max-width:32ch}
+@media(max-width:1080px){
+  .ix-blocos{grid-template-columns:repeat(3,1fr);gap:18px}
+  .ix-bloco-item:nth-child(4),.ix-bloco-item:nth-child(5){grid-column:span 1}
+}
+@media(max-width:720px){
+  .ix-blocos{grid-template-columns:repeat(2,1fr);gap:14px}
+  .ix-card{padding:22px 16px 24px}
+  .ix-card p{font-size:13px}
+}
+@media(max-width:430px){.ix-blocos{grid-template-columns:1fr}}
 
-/* entregaveis */
-.ix-manifest{display:grid;grid-template-columns:repeat(2,1fr);gap:0;
-  margin-top:clamp(40px,5vw,56px);border:1px solid var(--line);background:var(--base-2)}
-.ix-manifest > div{padding:26px;border-right:1px solid var(--line)}
-.ix-manifest > div:last-child{border-right:none}
-.ix-mf-label{display:block;font:400 10.5px/1 var(--mono);letter-spacing:.14em;
-  text-transform:uppercase;color:var(--ink-mute);margin-bottom:10px}
-.ix-manifest h4{font-size:15.5px;letter-spacing:.02em;margin-bottom:10px;line-height:1.35}
-.ix-manifest .ix-chip{display:inline-block}
-@media(max-width:680px){
-  .ix-manifest{grid-template-columns:1fr}
-  .ix-manifest > div{border-right:none;border-bottom:1px solid var(--line)}
-  .ix-manifest > div:last-child{border-bottom:none}
+/* ---------- DOBRA 3 - ENTREGAVEIS ---------- */
+.ix-receber h2{font-size:clamp(34px,7vw,88px);text-align:center;
+  margin-bottom:clamp(40px,5vw,64px)}
+.ix-entrega{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.42fr);
+  gap:clamp(24px,4vw,52px);align-items:center;padding-block:clamp(26px,3.4vw,40px)}
+.ix-entrega + .ix-entrega{border-top:2px solid var(--laranja)}
+.ix-entrega h3{font-family:var(--display);font-size:clamp(24px,3.4vw,42px);
+  text-transform:none;letter-spacing:0;color:var(--laranja-texto);margin-bottom:10px;
+  line-height:1.02}
+.ix-entrega p{font-size:clamp(15px,1.7vw,18.5px);color:var(--tinta-clara);max-width:46ch}
+.ix-entrega-fig{display:flex;justify-content:center;align-items:center}
+@media(max-width:820px){
+  .ix-entrega{grid-template-columns:minmax(0,1fr);gap:22px;text-align:center}
+  .ix-entrega p{margin-inline:auto}
+  .ix-entrega-fig{order:-1}
 }
 
-/* linha de fechamento - quebra tipografica deliberada (caixa alta e baixa) */
-.ix-closing{margin-top:clamp(40px,5vw,56px);border-left:3px solid var(--orange);
-  padding-left:22px;max-width:46ch}
-.ix-closing p{font-family:var(--display);font-weight:600;text-transform:none;
-  font-size:clamp(19px,2.3vw,25px);line-height:1.32;color:var(--ink);letter-spacing:0}
+/* mockup do workbook: construido em CSS/SVG (nao existe asset no kit) */
+.ix-book{width:min(200px,54vw);aspect-ratio:1/1.26;position:relative;
+  transform:rotate(-7deg);filter:drop-shadow(0 16px 24px rgba(13,13,13,.28))}
+.ix-book-face{position:absolute;inset:0;background:var(--osso-2);
+  border-radius:3px 8px 8px 3px;overflow:hidden;
+  border-left:9px solid var(--preto)}
+.ix-book-face::before{content:"";position:absolute;top:0;right:0;
+  border-top:52px solid var(--laranja);border-left:52px solid transparent}
+.ix-book-face::after{content:"";position:absolute;bottom:0;left:0;right:0;height:34%;
+  background:var(--preto);
+  clip-path:polygon(0 42%,100% 0,100% 100%,0 100%)}
+.ix-book-txt{position:absolute;left:14px;right:14px;top:28px;z-index:2}
+.ix-book-txt i{display:block;font-family:var(--corpo);font-style:normal;font-weight:600;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-fraca);
+  margin-bottom:3px}
+.ix-book-txt b{display:block;font-family:var(--display);font-weight:700;font-size:26px;
+  line-height:.92;text-transform:uppercase;color:var(--preto)}
+.ix-book-txt b em{font-style:normal;color:var(--laranja)}
+.ix-book-foot{position:absolute;left:14px;right:14px;bottom:16px;z-index:3;
+  font-family:var(--corpo);font-size:8.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--osso)}
+.ix-book-foot span{color:var(--laranja)}
 
-/* ---------- DOBRA 3 - QUEM MONTA ---------- */
-.ix-mentor{padding-bottom:0}
-/* no desktop o trilho lateral ja rotula a secao; evita dizer "quem monta" duas
-   vezes no mesmo campo visual. Abaixo de 1000px o trilho some e o eyebrow volta. */
-.ix-mentor .ix-eyebrow{display:none}
-@media(max-width:999px){.ix-mentor .ix-eyebrow{display:block}}
-.ix-mentor-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
-  gap:clamp(32px,5vw,64px);align-items:end}
-.ix-mentor h2{font-size:clamp(34px,4.6vw,58px);line-height:1;margin-bottom:8px}
-.ix-mentor-cred{font:400 13px/1 var(--mono);letter-spacing:.12em;color:var(--orange-ink);
-  margin-bottom:22px}
-.ix-mentor-lede{font-size:16.5px;color:var(--ink-soft);max-width:52ch;margin-bottom:30px}
+.ix-selo{width:min(140px,38vw);color:var(--laranja)}
 
-/* credenciais como tabela de especificacao, nao lista de checkmarks */
-.ix-spec{display:grid;grid-template-columns:auto 1fr;gap:0 22px}
-.ix-spec dt{font-family:var(--display);font-weight:700;font-size:22px;color:var(--ink);
-  font-variant-numeric:tabular-nums;letter-spacing:.01em;padding-block:15px;
-  border-top:1px solid var(--line);white-space:nowrap}
-.ix-spec dd{font-size:14.5px;color:var(--ink-soft);padding-block:17px;
-  border-top:1px solid var(--line)}
-.ix-spec dt:first-of-type,.ix-spec dd:first-of-type{border-top:none;padding-top:0}
-
-/* a foto: recorte apoiado numa prancha, sem crop circular */
-.ix-mentor-fig{position:relative;display:flex;justify-content:center;align-items:flex-end}
-.ix-mentor-panel{position:relative;width:100%;max-width:430px;
-  background:var(--sunk);border:1px solid var(--line);border-bottom:none;
-  padding-top:34px;display:flex;justify-content:center;align-items:flex-end}
-.ix-mentor-panel::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
-  background:var(--orange)}
-.ix-mentor-panel img{width:100%!important;max-width:400px!important;height:auto!important;
-  aspect-ratio:833/1027;position:relative;margin-top:-34px;
-  filter:drop-shadow(0 18px 26px rgba(20,22,24,.18))}
-.ix-mentor-tag{position:absolute;top:14px;left:-11px;writing-mode:vertical-rl;
-  transform:rotate(180deg);font:400 10px/1 var(--mono);letter-spacing:.2em;
-  text-transform:uppercase;color:var(--ink-mute);white-space:nowrap}
-@media(max-width:860px){
-  .ix-mentor-grid{grid-template-columns:minmax(0,1fr)}
-  .ix-mentor-fig{order:-1;margin-bottom:12px}
-  .ix-mentor-tag{display:none}
+/* ---------- DOBRA 4 - MENTOR ---------- */
+.ix-mentor-grid{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+  gap:clamp(28px,4.5vw,64px);align-items:center}
+.ix-mentor-fig{text-align:center}
+/* mesma foto do hero, recortada em quadrado: laranja por tras do PNG com alpha */
+.ix-circulo{width:min(360px,74vw);aspect-ratio:1;border-radius:50%;
+  background-color:var(--laranja)!important;
+  background-image:var(--foto);
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:50% 6%;
+  margin-inline:auto;box-shadow:0 18px 40px rgba(242,97,1,.24)}
+.ix-mentor-nome{margin-top:22px;font-family:var(--corpo);font-weight:700;
+  font-size:clamp(17px,2vw,21px);color:var(--preto);line-height:1.35}
+.ix-mentor-nome span{display:block;font-weight:600;color:var(--tinta-clara);font-size:.9em}
+.ix-mentor-txt h2{font-size:clamp(30px,5.2vw,66px);margin-bottom:22px}
+.ix-mentor-txt > p{font-size:clamp(15.5px,1.75vw,19px);color:var(--tinta-clara);
+  max-width:52ch;margin-bottom:26px}
+.ix-cred li{position:relative;padding-left:26px;font-weight:700;color:var(--preto);
+  font-size:clamp(14.5px,1.6vw,17.5px);line-height:1.4;margin-bottom:14px}
+.ix-cred li::before{content:"";position:absolute;left:4px;top:.52em;width:9px;height:9px;
+  border-radius:50%;background:var(--laranja)}
+@media(max-width:880px){
+  .ix-mentor-grid{grid-template-columns:minmax(0,1fr);gap:30px}
+  .ix-mentor-txt h2{text-align:center}
+  .ix-mentor-txt > p{margin-inline:auto;text-align:center}
+  .ix-cred{max-width:30rem;margin-inline:auto}
 }
 
-/* fechamento + CTA final (claro, com regra laranja) */
-.ix-final{border-top:1px solid var(--line);margin-top:clamp(48px,6vw,72px);
-  padding-block:clamp(44px,5vw,64px)}
-/* so a frase de fechamento recebe o tratamento de display - a microcopy
-   logo abaixo continua pequena (a regra generica .ix-final p a engolia) */
-.ix-claim{font-family:var(--display);font-weight:600;text-transform:none;letter-spacing:0;
-  font-size:clamp(20px,2.5vw,29px);line-height:1.3;color:var(--ink);max-width:36ch}
-.ix-claim em{font-style:normal;color:var(--orange-deep);display:block}
-
-footer{border-top:1px solid var(--line);padding:26px 0;background:var(--base)}
-footer p{max-width:none;text-align:center;font:400 11.5px/1.6 var(--mono);
-  letter-spacing:.04em;color:var(--ink-mute)}
+footer{background:var(--preto)!important;padding:26px 0!important}
+footer p{max-width:none;text-align:center;font-size:13px;color:var(--osso-mute);
+  line-height:1.6}
 
 /* ---------- CTA FIXA MOBILE ---------- */
 .ix-sticky{position:fixed;left:0;right:0;bottom:0;z-index:999999;
-  background:var(--base-2);border-top:1px solid var(--line-strong);
-  padding:11px clamp(14px,4vw,20px);
-  padding-bottom:calc(11px + env(safe-area-inset-bottom));
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  box-shadow:0 -8px 22px rgba(20,22,24,.12);
+  background:rgba(13,13,13,.96)!important;padding:10px clamp(12px,4vw,18px);
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 -8px 22px rgba(13,13,13,.3);
   transform:translateY(120%);transition:transform .3s ease}
 .ix-sticky.is-visible{transform:translateY(0)}
-.ix-sticky span{font:400 10.5px/1.3 var(--mono);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-mute)}
-.ix-sticky .ix-btn{padding:12px 20px;font-size:12.5px;white-space:nowrap}
+.ix-sticky p{flex:1;margin:0;font-size:11.5px;line-height:1.3;color:var(--osso-mute);
+  max-width:none}
+.ix-sticky b{color:var(--osso);display:block;font-size:12.5px}
+.ix-sticky .ix-btn{padding:13px 18px;font-size:12.5px;white-space:nowrap;box-shadow:none}
 @media(min-width:880px){.ix-sticky{display:none}}
 
 /* ---------- MOVIMENTO ----------
-   A entrada animada so e armada quando o JS confirma que rodou (classe .ix-js).
-   Sem JS, ou se o bloco for adulterado, todo o conteudo aparece normalmente. */
-body.ix-js .reveal{opacity:0;transform:translateY(18px);
+   A entrada animada so e armada quando o JS confirma que rodou (.ix-js).
+   Sem JS, ou se o bloco for adulterado, o conteudo aparece normalmente. */
+body.ix-js .reveal{opacity:0;transform:translateY(20px);
   transition:opacity .6s ease,transform .6s ease;transition-delay:var(--d,0ms)}
 body.ix-js .reveal.is-visible{opacity:1;transform:none}
-/* Rede de seguranca: quando o JS desiste de esperar o observer, some com a
-   animacao por completo - o conteudo aparece na hora, sem depender de transicao. */
+/* rede de seguranca: se o observer nao entregar, desliga a animacao de vez */
 body.ix-noanim .reveal{opacity:1!important;transform:none!important;transition:none!important}
-
 @media(prefers-reduced-motion:reduce){
   body.ix-js .reveal{opacity:1;transform:none;transition:none}
-  .ix-btn,.ix-node,.ix-progress i{transition:none}
-  .ix-head-meta i{animation:none}
+  .ix-btn,.ix-card{transition:none}
 }
-
-/* desempenho: as dobras 2 e 3 sao pintadas so quando entram em cena */
-.ix-cv2{content-visibility:auto;contain-intrinsic-size:auto 1500px}
-.ix-cv3{content-visibility:auto;contain-intrinsic-size:auto 1100px}
+.ix-cv{content-visibility:auto;contain-intrinsic-size:auto 1200px}
 </style>
 </head>
 <body>
-<!-- Arma a animacao de entrada. Roda antes da pintura para nao piscar.
-     Se este script nao rodar, o conteudo simplesmente aparece estatico. -->
+<!-- Arma a animacao de entrada antes da pintura. Se nao rodar, o conteudo
+     simplesmente aparece estatico. -->
 <script>(function(){var r=document.getElementById("ix-ws3")||document.body;
 if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
 
-<!-- ====================== TARJA ====================== -->
-<div class="ix-tarja">
-  <p><b>3ª edição</b> · ao vivo e gratuito · sábado, 22 de agosto</p>
-</div>
-
-<!-- ====================== CABECALHO ====================== -->
-<header class="ix-head">
-  <div class="ix-head-row">
-    <img src="assets/marca-itxpro-escuro.png" alt="ITXPRO" width="300" height="80">
-    <div class="ix-head-meta"><i></i> ao vivo · 22.08.2026 · 9h–18h</div>
+<!-- ============ DOBRA 1 - HERO ============ -->
+<section class="ix-glow">
+  <!-- simbolo da marca: o "diagrama de orquestracao" do manual.
+       Versao isolada, indicada quando o nome do evento ja esta na pagina. -->
+  <div class="ix-marca">
+    <svg viewBox="0 0 1000 1000" role="img" aria-label="ITXPRO">
+      <g stroke="#0D0D0D" stroke-width="30" stroke-linecap="round">
+        <path d="M420 206 285 284M206 422v156M285 716l135 78M580 794l135-78M794 578V422M715 284 580 206"/>
+      </g>
+      <g fill="#0D0D0D">
+        <circle cx="500" cy="160" r="72"/><circle cx="206" cy="330" r="72"/>
+        <circle cx="206" cy="670" r="72"/><circle cx="500" cy="840" r="72"/>
+        <circle cx="794" cy="670" r="72"/><circle cx="794" cy="330" r="72"/>
+      </g>
+      <circle cx="500" cy="500" r="131" fill="none" stroke="#F26101" stroke-width="26"/>
+      <circle cx="500" cy="500" r="92" fill="#F26101"/>
+    </svg>
+    <b>ITXPRO</b>
   </div>
-</header>
 
-<!-- ====================== DOBRA 1 - HERO ====================== -->
-<section class="ix-sec ix-hero">
-  <div class="ix-wrap">
-    <div class="ix-rail">
-      <div class="ix-rail-mark"><span>01 / hero</span></div>
-      <div>
-        <div class="ix-hero-grid">
-          <div>
-            <span class="ix-eyebrow reveal">workshop gratuito · 3ª edição</span>
-            <h1 class="reveal" style="--d:60ms">Workshop GRC TI <span class="ix-mark">com IA</span></h1>
-            <p class="ix-lede reveal" style="--d:120ms">
-              Um dia inteiro montando do zero, ao vivo, uma arquitetura cognitiva robusta,
-              auditável e segura, que roda <b>COBIT, NIST e ISO 27001</b> — e
-              <span class="ix-hl">executa em horas o que hoje leva semanas</span>.
-            </p>
-          </div>
+  <div class="ix-tarja reveal">
+    <span>3ª edição · ao vivo e gratuito · sábado, 22 de agosto</span>
+  </div>
 
-          <!-- diagrama axonometrico: cinco pranchas, rotuladas so L01..L05.
-               A duvida que elas criam e respondida pela dobra 2. -->
-          <div class="ix-stackfig reveal" style="--d:200ms">
-            <svg viewBox="0 0 470 440" role="img" aria-label="Diagrama das cinco camadas da arquitetura, empilhadas">
-              <!-- espinha tracejada: desenhada antes, aparece so nos vaos -->
-              <line x1="200" y1="80" x2="200" y2="350" stroke="#C6BFAF" stroke-width="1" stroke-dasharray="3 7"/>
-              <g stroke-linejoin="round">
-                <!-- L05 -->
-                <path d="M60 338 200 268 340 338 200 408Z" fill="#FFFDF9" stroke="#141618" stroke-width="1.1"/>
-                <path d="M60 338 60 350 200 420 340 350 340 338 200 408Z" fill="#EDE9E0" stroke="#141618" stroke-width="1.1"/>
-                <!-- L04 -->
-                <path d="M60 276 200 206 340 276 200 346Z" fill="#FFFDF9" stroke="#141618" stroke-width="1.1"/>
-                <path d="M60 276 60 288 200 358 340 288 340 276 200 346Z" fill="#EDE9E0" stroke="#141618" stroke-width="1.1"/>
-                <!-- L03 -->
-                <path d="M60 214 200 144 340 214 200 284Z" fill="#FFFDF9" stroke="#141618" stroke-width="1.1"/>
-                <path d="M60 214 60 226 200 296 340 226 340 214 200 284Z" fill="#EDE9E0" stroke="#141618" stroke-width="1.1"/>
-                <!-- L02 -->
-                <path d="M60 152 200 82 340 152 200 222Z" fill="#FFFDF9" stroke="#141618" stroke-width="1.1"/>
-                <path d="M60 152 60 164 200 234 340 164 340 152 200 222Z" fill="#EDE9E0" stroke="#141618" stroke-width="1.1"/>
-                <!-- L01 - a camada de raciocinio, acentuada -->
-                <path d="M60 90 200 20 340 90 200 160Z" fill="#FFFDF9" stroke="#C23F00" stroke-width="1.4"/>
-                <path d="M60 90 60 102 200 172 340 102 340 90 200 160Z" fill="rgba(255,92,0,.14)" stroke="#C23F00" stroke-width="1.4"/>
-              </g>
-              <!-- nos + chamadas -->
-              <g fill="#5A6270" font-family="'IBM Plex Mono',Menlo,monospace" font-size="10" letter-spacing="1.4">
-                <path d="M340 90h18" stroke="#C6BFAF" stroke-width="1"/><text x="363" y="93" fill="#9A3100">L01</text>
-                <path d="M340 152h18" stroke="#C6BFAF" stroke-width="1"/><text x="363" y="155">L02</text>
-                <path d="M340 214h18" stroke="#C6BFAF" stroke-width="1"/><text x="363" y="217">L03</text>
-                <path d="M340 276h18" stroke="#C6BFAF" stroke-width="1"/><text x="363" y="279">L04</text>
-                <path d="M340 338h18" stroke="#C6BFAF" stroke-width="1"/><text x="363" y="341">L05</text>
-              </g>
-              <circle cx="200" cy="90" r="3.5" fill="#FF5C00"/>
-            </svg>
-          </div>
-
-          <div class="ix-hero-cta">
-            <div class="ix-cta-row reveal" style="--d:260ms">
-              <a class="ix-btn" data-form="hero" href="https://form.respondi.app/SUBSTITUIR">Quero minha vaga</a>
-              <span class="ix-cta-note">gratuito · sáb 22/08/2026 · 9h–18h</span>
-            </div>
-            <p class="ix-scarcity reveal" style="--d:300ms">
-              A sala do Zoom tem limite de participantes. Quando lotar, fecha.
-            </p>
-
-            <dl class="ix-titleblock reveal" style="--d:340ms">
-              <div><dt>edição</dt><dd>03</dd></div>
-              <div><dt>data</dt><dd>22.08.2026</dd></div>
-              <div><dt>horário</dt><dd>9h–18h</dd></div>
-              <div><dt>investimento</dt><dd>R$ 0,00</dd></div>
-            </dl>
-          </div>
+  <div class="ix-wrap ix-hero">
+    <div class="ix-hero-grid">
+      <div class="ix-hero-txt">
+        <div class="ix-kicker reveal">Workshop</div>
+        <h1 class="reveal" style="--d:60ms">GRC TI <span class="ix-mark">com IA</span></h1>
+        <p class="ix-lede reveal" style="--d:120ms">
+          Um dia inteiro montando do zero, ao vivo, uma arquitetura cognitiva robusta,
+          auditável e segura, que roda <b>COBIT, NIST e ISO 27001</b> e executa em horas
+          o que hoje leva semanas pra fazer.
+        </p>
+        <div class="ix-cta reveal" style="--d:180ms">
+          <a class="ix-btn" data-form="hero" href="https://form.respondi.app/SUBSTITUIR">
+            Quero me atualizar em GRC TI com IA</a>
+          <p class="ix-vagas">Vagas no Zoom limitadas</p>
         </div>
+      </div>
+      <div class="ix-hero-foto reveal" style="--d:120ms">
+        <i role="img" aria-label="Roberto Arteiro, mentor do workshop"></i>
       </div>
     </div>
   </div>
 </section>
 
-<!-- barra de prova -->
-<div class="ix-sunk ix-proof">
-  <div class="ix-proof-row">
-    <span class="ix-chip">2 edições anteriores</span>
-    <p>Centenas de profissionais de GRC TI já participaram das edições anteriores.</p>
-  </div>
-</div>
-
-<!-- ====================== DOBRA 2 - CONSTRUCAO ====================== -->
-<section class="ix-sec ix-cv2">
+<!-- ============ DOBRA 2 - CONTEUDO ============ -->
+<section class="ix-sec ix-escuro ix-cv">
   <div class="ix-wrap">
-    <div class="ix-rail">
-      <div class="ix-rail-mark"><span>02 / construção</span></div>
+    <div class="ix-escuro-head">
       <div>
-        <div class="ix-sechead">
-          <div>
-            <span class="ix-eyebrow reveal">o que você vai ver sendo montado</span>
-            <h2 class="reveal" style="--d:60ms">A arquitetura completa, construída na tela, peça por peça.</h2>
-          </div>
-          <div class="ix-sechead-aside reveal" style="--d:120ms">
-            <p>Com Claude, Segundo Cérebro (RAG), Skills, Agentes e MCPs.
-               Do zero ao primeiro output auditável, ao vivo.</p>
-          </div>
+        <span class="ix-eyebrow reveal">como vai ser o conteúdo do workshop</span>
+        <h2 class="reveal" style="--d:60ms">A <em>arquitetura cognitiva</em> completa,
+          diante dos seus olhos, peça por peça.</h2>
+      </div>
+      <div class="ix-apoio reveal" style="--d:120ms">
+        <p>Com Claude, Segundo Cérebro (RAG), Skills, Agentes e MCPs.
+           Do zero ao primeiro output auditável, ao vivo.</p>
+      </div>
+    </div>
+
+    <ol class="ix-blocos">
+      <li class="ix-bloco-item reveal" style="--d:0ms">
+        <div class="ix-bloco-num">bloco 1</div>
+        <div class="ix-card">
+          <div class="ix-card-ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="6.5"/>
+            <path d="M24 4.5v6M24 37.5v6M4.5 24h6M37.5 24h6M10.2 10.2l4.3 4.3M33.5 33.5l4.3 4.3M37.8 10.2l-4.3 4.3M14.5 33.5l-4.3 4.3"/>
+            <circle cx="24" cy="24" r="14.5" stroke-dasharray="3 5"/>
+          </svg></div>
+          <h3>Claude</h3>
+          <p>Você vai entender a diferença entre chat, cowork e code e como usar cada um
+             deles para a construção de uma infraestrutura de IA confiável
+             (auditabilidade e privacidade).</p>
         </div>
+      </li>
 
-        <!-- as cinco camadas -->
-        <ol class="ix-stack">
-          <li class="ix-layer reveal" style="--i:0;--d:0ms">
-            <span class="ix-lid">L01</span>
-            <span class="ix-node" aria-hidden="true"></span>
-            <h3>Claude</h3>
-            <p>A camada de raciocínio. Interpreta contexto normativo em vez de completar frase.</p>
-            <span class="ix-lmeta">raciocínio</span>
-          </li>
-          <li class="ix-layer reveal" style="--i:1;--d:70ms">
-            <span class="ix-lid">L02</span>
-            <span class="ix-node" aria-hidden="true"></span>
-            <h3>Segundo Cérebro (RAG)</h3>
-            <p>COBIT, NIST, ISO 27001, políticas e evidências como fonte. A IA responde a partir
-               do que é seu, com origem rastreável.</p>
-            <span class="ix-lmeta">fonte</span>
-          </li>
-          <li class="ix-layer reveal" style="--i:2;--d:140ms">
-            <span class="ix-lid">L03</span>
-            <span class="ix-node" aria-hidden="true"></span>
-            <h3>Skills</h3>
-            <p>O procedimento correto montado uma vez e executado igual na milésima.</p>
-            <span class="ix-lmeta">procedimento</span>
-          </li>
-          <li class="ix-layer reveal" style="--i:3;--d:210ms">
-            <span class="ix-lid">L04</span>
-            <span class="ix-node" aria-hidden="true"></span>
-            <h3>Agentes</h3>
-            <p>Execução, não sugestão. O que levava semanas passa a levar horas.</p>
-            <span class="ix-lmeta">execução</span>
-          </li>
-          <li class="ix-layer reveal" style="--i:4;--d:280ms">
-            <span class="ix-lid">L05</span>
-            <span class="ix-node" aria-hidden="true"></span>
-            <h3>MCPs</h3>
-            <p>A arquitetura conectada às ferramentas onde o trabalho já vive.</p>
-            <span class="ix-lmeta">conexão</span>
-          </li>
-        </ol>
-
-        <!-- A UNICA faixa escura da pagina -->
-        <div class="ix-plate reveal">
-          <span class="ix-eyebrow">auditabilidade</span>
-          <h3>Auditável do início ao fim.</h3>
-          <p>Cada tarefa executada pela IA fica registrada: qual fonte foi usada, qual
-             procedimento rodou, o que entrou e o que saiu. Processo que você abre, rastreia
-             e sustenta na frente do auditor.</p>
-          <div class="ix-trace">
-            <div><b>fonte ▸</b>norma e evidência</div>
-            <div><b>procedimento ▸</b>skill aplicada</div>
-            <div><b>entrada ▸</b>contexto recebido</div>
-            <div><b>saída ▸</b>output rastreável</div>
-          </div>
+      <li class="ix-bloco-item reveal" style="--d:70ms">
+        <div class="ix-bloco-num">bloco 2</div>
+        <div class="ix-card">
+          <div class="ix-card-ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 9v31"/>
+            <path d="M24 12c-2-3-6-4.5-9.5-3S9 14.5 9.5 18c-3 1.5-4 5.5-2 8.5-1.5 3 0 7 3.5 8 1 3.5 5 5.5 8.5 4 1.5 1.5 3 2 4.5 2"/>
+            <path d="M24 12c2-3 6-4.5 9.5-3S39 14.5 38.5 18c3 1.5 4 5.5 2 8.5 1.5 3 0 7-3.5 8-1 3.5-5 5.5-8.5 4-1.5 1.5-3 2-4.5 2"/>
+            <path d="M16 19h4M28 19h4M17 27h5M26 27h5"/>
+          </svg></div>
+          <h3>Segundo cérebro (RAG)</h3>
+          <p>Como instalar e configurar uma arquitetura de informação no Obsidian, com
+             COBIT, NIST, ISO 27001, políticas e evidências como fontes 100% rastreáveis.</p>
         </div>
+      </li>
 
-        <!-- demonstracao ao vivo -->
-        <div class="ix-demo reveal">
-          <span class="ix-eyebrow">demonstração ao vivo</span>
-          <h3>Framework COBIT rodando ao vivo.</h3>
-          <p>Do zero ao resultado, na tela, com as decisões de arquitetura aparecendo no caminho.</p>
-          <div class="ix-progress"><i></i></div>
-          <div class="ix-progress-legend"><span>zero</span><span>output auditável</span></div>
-          <!-- METRICA:INICIO - quando o numero chegar, descomentar e preencher.
-               O bloco acima fecha sozinho sem ele; nada colapsa se ficar comentado.
-          <div class="ix-titleblock" style="margin-top:24px">
-            <div><dt>controles</dt><dd>93</dd></div>
-            <div><dt>tempo</dt><dd>40 min</dd></div>
-          </div>
-          METRICA:FIM -->
+      <li class="ix-bloco-item reveal" style="--d:140ms">
+        <div class="ix-bloco-num">bloco 3</div>
+        <div class="ix-card">
+          <div class="ix-card-ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="7"/>
+            <circle cx="24" cy="7" r="3.4"/><circle cx="41" cy="14.5" r="3.4"/>
+            <circle cx="41" cy="33.5" r="3.4"/><circle cx="24" cy="41" r="3.4"/>
+            <circle cx="7" cy="33.5" r="3.4"/><circle cx="7" cy="14.5" r="3.4"/>
+            <path d="M24 10.4V17M38 16.2l-8 4M38 31.8l-8-4M24 37.6V31M10 31.8l8-4M10 16.2l8 4"/>
+          </svg></div>
+          <h3>MCP</h3>
+          <p>Como conectar a sua arquitetura com segurança às fontes de dados de outras
+             ferramentas, criando possibilidades infinitas.</p>
         </div>
+      </li>
 
-        <!-- entregaveis -->
-        <div class="ix-manifest reveal">
-          <div>
-            <span class="ix-mf-label">anexo 01</span>
-            <h4>Workbook com o passo a passo para configurar você mesmo sua arquitetura</h4>
-            <span class="ix-chip">exclusivo ao vivo</span>
-          </div>
-          <div>
-            <span class="ix-mf-label">anexo 02</span>
-            <h4>Certificado de participação</h4>
-          </div>
+      <li class="ix-bloco-item reveal" style="--d:210ms">
+        <div class="ix-bloco-num">bloco 4</div>
+        <div class="ix-card">
+          <div class="ix-card-ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M17 7h14v5H17z"/>
+            <path d="M31 9.5h4a2.5 2.5 0 0 1 2.5 2.5v26A2.5 2.5 0 0 1 35 40.5H13A2.5 2.5 0 0 1 10.5 38V12A2.5 2.5 0 0 1 13 9.5h4"/>
+            <path d="M16 20.5l2.6 2.6L23 18.5M16 29.5l2.6 2.6L23 27.5"/>
+            <path d="M27 21h6M27 30h6"/>
+          </svg></div>
+          <h3>Skills</h3>
+          <p>Como criar procedimentos versionados, acionados por linguagem natural (GenAI),
+             que executam os fluxos e rotinas dos POPs, acessando as fontes de dados da
+             arquitetura.</p>
         </div>
+      </li>
 
-        <div class="ix-closing reveal">
-          <p>Sem evento motivacional, sem aula de norma, sem lista de prompts para copiar.
-             É a construção, do começo ao fim.</p>
+      <li class="ix-bloco-item reveal" style="--d:280ms">
+        <div class="ix-bloco-num">bloco 5</div>
+        <div class="ix-card">
+          <div class="ix-card-ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="7.5" r="2.6"/><path d="M24 10v4.5"/>
+            <rect x="10" y="14.5" width="28" height="21" rx="4.5"/>
+            <circle cx="18.5" cy="24" r="2.4"/><circle cx="29.5" cy="24" r="2.4"/>
+            <path d="M19 30.5h10M6 21.5v7M42 21.5v7M16 35.5v5M32 35.5v5"/>
+          </svg></div>
+          <h3>Agentes</h3>
+          <p>Como construir instâncias de execução programadas para executar as Skills de
+             forma organizada, estruturada e sistemática, considerando os requisitos de
+             Harness e contexto.</p>
         </div>
+      </li>
+    </ol>
+  </div>
+</section>
 
-        <div class="ix-cta-row reveal">
-          <a class="ix-btn" data-form="conteudo" href="https://form.respondi.app/SUBSTITUIR">Garantir minha vaga — é gratuito</a>
+<!-- ============ DOBRA 3 - ENTREGAVEIS ============ -->
+<section class="ix-sec ix-receber ix-cv">
+  <div class="ix-wrap">
+    <h2 class="reveal">E você ainda vai receber</h2>
+
+    <div class="ix-entrega reveal">
+      <div>
+        <h3>Workbook com o passo a passo</h3>
+        <p>Para você acompanhar ao vivo e usar como guia para configurar e rodar a sua
+           própria arquitetura cognitiva.</p>
+      </div>
+      <div class="ix-entrega-fig">
+        <!-- capa do workbook montada em CSS: o kit da marca nao tem esse mockup -->
+        <div class="ix-book" role="img" aria-label="Workbook GRC TI com IA">
+          <div class="ix-book-face">
+            <div class="ix-book-txt">
+              <i>Workbook</i>
+              <b>GRC TI<br><em>com IA</em></b>
+            </div>
+            <div class="ix-book-foot">Workshop <span>22/08/26</span><br>Com Roberto Arteiro</div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="ix-entrega reveal">
+      <div>
+        <h3>Certificado de participação</h3>
+        <p>Para você fortalecer o seu posicionamento no LinkedIn e dar o recado ao mercado
+           de que você está na frente de 99% dos profissionais de GRC TI.</p>
+      </div>
+      <div class="ix-entrega-fig">
+        <svg class="ix-selo" viewBox="0 0 120 132" role="img" aria-label="Certificado">
+          <path fill="currentColor" d="M45 96l-9 30 24-13 24 13-9-30z"/>
+          <path fill="currentColor" d="M60 4l8.8 6.4 10.7-2.1 5.5 9.4 10.3 3.6-.4 10.9 7.6 7.8-5.3 9.5 2.4 10.6-9.7 5-3.2 10.4-10.9.7L60 94l-8.8-6.3-10.9-.7-3.2-10.4-9.7-5 2.4-10.6-5.3-9.5 7.6-7.8-.4-10.9 10.3-3.6 5.5-9.4 10.7 2.1z"/>
+          <circle cx="60" cy="49" r="24" fill="#F0EBE1"/>
+          <path d="M49 49.5l7.5 7.5L72 42" stroke="currentColor" stroke-width="6"
+                fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ix-btn-wrap reveal">
+      <a class="ix-btn" data-form="entregaveis" href="https://form.respondi.app/SUBSTITUIR">
+        Quero me atualizar em GRC TI com IA</a>
     </div>
   </div>
 </section>
 
-<!-- ====================== DOBRA 3 - QUEM MONTA ====================== -->
-<section class="ix-sec ix-mentor ix-cv3">
+<!-- ============ DOBRA 4 - MENTOR ============ -->
+<section class="ix-sec ix-glow ix-cv">
   <div class="ix-wrap">
-    <div class="ix-rail">
-      <div class="ix-rail-mark"><span>03 / quem monta</span></div>
-      <div>
-        <div class="ix-mentor-grid">
-          <div>
-            <span class="ix-eyebrow reveal">quem monta</span>
-            <div class="ix-rule"></div>
-            <h2 class="reveal" style="--d:60ms">Roberto Arteiro</h2>
-            <div class="ix-mentor-cred reveal" style="--d:100ms">M.Sc. · CGEIT</div>
-            <p class="ix-mentor-lede reveal" style="--d:140ms">
-              Implementa governança desde 2007 e aplica o que ensina: conduz a própria operação
-              de mentoria com uma infraestrutura de IA construída por ele. A arquitetura do
-              sábado não é teoria — é o que roda a operação dele todo dia.
-            </p>
-            <dl class="ix-spec reveal" style="--d:180ms">
-              <dt>40.000 h</dt><dd>de projetos de governança</dd>
-              <dt>200+</dt><dd>profissionais mentorados em GRC TI</dd>
-              <dt>CGEIT</dt><dd>ISACA desde 2012 · Certificado COBIT · DRI CBCP · ISO 20000</dd>
-              <dt>ITXPRO</dt><dd>fundador</dd>
-            </dl>
-          </div>
+    <div class="ix-mentor-grid">
+      <div class="ix-mentor-fig reveal">
+        <div class="ix-circulo" role="img" aria-label="Roberto Arteiro"></div>
+        <div class="ix-mentor-nome">Roberto Arteiro<span>M. Sc. CGEIT</span></div>
+      </div>
 
-          <div class="ix-mentor-fig reveal" style="--d:120ms">
-            <div class="ix-mentor-panel">
-              <span class="ix-mentor-tag">roberto arteiro · m.sc · cgeit</span>
-              <img src="assets/arteiro-recorte.png" alt="Roberto Arteiro, mentor do workshop"
-                   width="720" height="888" loading="lazy" decoding="async">
-            </div>
-          </div>
-        </div>
+      <div class="ix-mentor-txt">
+        <h2 class="reveal">Quem será o seu mentor?</h2>
+        <p class="reveal" style="--d:60ms">
+          Roberto implementa governança desde 2007 e aplica o que ensina: conduz a própria
+          operação de mentoria com uma arquitetura cognitiva de IA construída por ele.
+          A arquitetura do sábado não é teoria, é o que roda a operação dele todo dia.
+        </p>
+        <ul class="ix-cred reveal" style="--d:120ms">
+          <li>Mais de 40.000 horas em projetos de governança</li>
+          <li>Mais de 200 profissionais mentorados em GRC TI</li>
+          <li>CGEIT ISACA desde 2012 · Certificado COBIT · DRI CBCP · ISO 20000</li>
+          <li>Founder ITXPRO</li>
+        </ul>
       </div>
     </div>
 
-    <!-- fechamento + CTA final -->
-    <div class="ix-final">
-      <div class="ix-rail">
-        <div class="ix-rail-mark"></div>
-        <div>
-          <p class="ix-claim reveal">Daqui a um ano esse trabalho vai ser feito com esse tipo de
-             arquitetura. Por alguém. <em>A pergunta é se vai ser por você.</em></p>
-          <div class="ix-cta-row reveal" style="--d:80ms">
-            <a class="ix-btn" data-form="final" href="https://form.respondi.app/SUBSTITUIR">Quero minha vaga</a>
-          </div>
-          <p class="ix-scarcity reveal" style="--d:120ms">
-            Sábado, 22 de agosto · 9h às 18h · Gratuito · Vagas limitadas pela capacidade
-            da sala do Zoom.
-          </p>
-        </div>
-      </div>
+    <div class="ix-btn-wrap reveal">
+      <a class="ix-btn" data-form="mentor" href="https://form.respondi.app/SUBSTITUIR">
+        Quero me atualizar em GRC TI com IA</a>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="ix-wrap"><p>ITXPRO · Workshop GRC TI com IA · 3ª edição</p></div>
+  <div class="ix-wrap">
+    <p>© Conexão Arteiro Marketing e Desenvolvimento Profissional LTDA ·
+       CNPJ 34.591.318/0001-06 · Todos os direitos reservados.</p>
+  </div>
 </footer>
 
 <!-- CTA fixa mobile -->
 <div class="ix-sticky" id="ix-sticky">
-  <span>sáb 22/08 · 9h–18h<br>gratuito</span>
+  <p><b>Sáb 22/08 · 9h–18h</b>Gratuito · vagas limitadas</p>
   <a class="ix-btn" data-form="sticky" href="https://form.respondi.app/SUBSTITUIR">Quero minha vaga</a>
 </div>
 
@@ -691,6 +571,7 @@ if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
   var FORM_URL = "https://form.respondi.app/SUBSTITUIR";
 
   var R = document.getElementById("ix-ws3") || document;
+  var host = document.getElementById("ix-ws3") || document.body;
   var q = function(s){ return R.querySelectorAll(s); };
 
   /* --- CTA: propaga utm_/gclid/fbclid para nao perder atribuicao --- */
@@ -718,7 +599,6 @@ if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
 
   /* --- reveal --- */
   var els = q(".reveal");
-  var host = document.getElementById("ix-ws3") || document.body;
   var showAll = function(){
     if(host) host.classList.add("ix-noanim");
     Array.prototype.forEach.call(els, function(el){ el.classList.add("is-visible"); });
@@ -728,36 +608,16 @@ if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
       entries.forEach(function(en){
         if(en.isIntersecting){ en.target.classList.add("is-visible"); io.unobserve(en.target); }
       });
-    }, {threshold:.15, rootMargin:"0px 0px -40px 0px"});
+    }, {threshold:.12, rootMargin:"0px 0px -40px 0px"});
     Array.prototype.forEach.call(els, function(el){ io.observe(el); });
-    /* Rede de seguranca: em alguns navegadores embutidos e dentro de iframes o
-       IntersectionObserver nunca entrega callback - a pagina ficaria em branco.
-       Se depois de 1.4s NADA apareceu, ele esta quebrado: mostra tudo de uma vez.
-       Se algo ja apareceu, o observer funciona e a animacao de scroll continua. */
+    /* Rede de seguranca: em navegadores embutidos e dentro de iframes o
+       IntersectionObserver as vezes nunca entrega callback - a pagina ficaria
+       em branco. Se nada apareceu em 1,4s, mostra tudo de uma vez. */
     setTimeout(function(){
       if(!R.querySelectorAll(".reveal.is-visible").length){ showAll(); }
     }, 1400);
   } else {
     showAll();
-  }
-
-  /* --- camadas e demo acendem ao entrar em cena --- */
-  var lit = q(".ix-layer, .ix-demo");
-  var litAll = function(){
-    Array.prototype.forEach.call(lit, function(el){ el.classList.add("is-visible"); });
-  };
-  if("IntersectionObserver" in window && !reduce){
-    var lio = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(en.isIntersecting){ en.target.classList.add("is-visible"); lio.unobserve(en.target); }
-      });
-    }, {threshold:.35});
-    Array.prototype.forEach.call(lit, function(el){ lio.observe(el); });
-    setTimeout(function(){
-      if(!R.querySelectorAll(".ix-layer.is-visible").length){ litAll(); }
-    }, 1600);
-  } else {
-    litAll();
   }
 
   /* --- CTA fixa mobile --- */
@@ -771,10 +631,10 @@ if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
     }, {threshold:0});
     cio.observe(hero);
     /* Se um ancestral com transform/filter quebrar o position:fixed, reancora no
-       body. Nao da para confiar so no evento "load": quando o construtor injeta
-       o bloco depois do load, o evento ja passou e o listener nunca dispara. */
+       body. Nao da para confiar so no "load": quando o construtor injeta o bloco
+       depois do load, o evento ja passou e o listener nunca dispara. */
     var anchor = function(){
-      if(getComputedStyle(bar).display === "none") return;   /* desktop: nao se aplica */
+      if(getComputedStyle(bar).display === "none") return;
       var r = bar.getBoundingClientRect();
       if(r.bottom > window.innerHeight + 4 || r.width < 40){ document.body.appendChild(bar); }
     };
@@ -782,12 +642,10 @@ if(r)r.className+=(r.className?" ":"")+"ix-js";})();</script>
     else { window.addEventListener("load", anchor); }
   }
 
-  /* --- altura para o caso de o bloco ser servido em iframe --- */
+  /* --- altura, caso o bloco seja servido em iframe --- */
   if(window.frameElement){
     var report = function(){
-      try{
-        parent.postMessage({ixHeight:document.documentElement.scrollHeight}, "*");
-      }catch(e){}
+      try{ parent.postMessage({ixHeight:document.documentElement.scrollHeight}, "*"); }catch(e){}
     };
     window.addEventListener("load", report);
     window.addEventListener("resize", report);

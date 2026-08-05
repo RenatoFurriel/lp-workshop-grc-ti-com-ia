@@ -1,7 +1,12 @@
 # LP — Workshop GRC TI com IA (3ª edição)
 
-Página de captura de **3 dobras** (Hero · Construção · Quem monta) para o workshop
-de 22/08/2026. Feita para ser colada em **um bloco de HTML do GreatPages**.
+Página de captura de **4 dobras** para o workshop de 22/08/2026, montada a partir do
+PDF de design `[PÁGINA] WORKSHOP GRC TI COM IA` e da identidade oficial do
+**Manual da Marca v1.3** (Google Drive → *Identidade Visual*).
+
+Dobras: **Hero** · **Conteúdo (5 blocos)** · **E você ainda vai receber** · **Quem será o seu mentor**
+
+Feita para ser colada em **um bloco de HTML do GreatPages**.
 
 ---
 
@@ -13,11 +18,9 @@ O arquivo a colar é **um só**:
 dist/greatpages-block.html
 ```
 
-Passo a passo:
-
 1. No GreatPages, inserir **um bloco de HTML / Código** e colar o arquivo inteiro.
-2. Definir o **fundo da página como `#F6F3EC`** (mesma cor de base do bloco).
-   Sem isso, o bloco claro aparece como um retângulo emoldurado dentro da página.
+2. Definir o **fundo da página como `#F0EBE1`** (Branco Osso, a base do bloco).
+   Sem isso, o bloco aparece como um retângulo emoldurado dentro da página.
 3. Desativar qualquer bloco nativo de hero/título na mesma página — o bloco já traz
    o `<h1>`.
 4. **Não reabrir o bloco no editor visual** depois de colado: o editor pode
@@ -43,18 +46,43 @@ O build avisa enquanto o placeholder existir:
 
 **Atribuição de campanha:** os CTAs propagam automaticamente `utm_*`, `gclid`,
 `fbclid`, `ttclid`, `msclkid`, `src` e `sck` da URL da página para o formulário.
-Sem isso o lead chega sem origem.
+Sem isso o lead chega sem origem. Cada CTA tem um `data-form` próprio
+(`hero`, `entregaveis`, `mentor`, `sticky`) para rastrear qual botão converteu.
 
 ---
 
-## 3. Pendências de copy
+## 3. Identidade da marca aplicada
 
-- **Número da demonstração.** A copy previa `X controles em Y minutos`. O bloco foi
-  montado para fechar bem **sem** o número. Quando ele existir, há um slot pronto e
-  comentado no `index.html`, entre `<!-- METRICA:INICIO` e `METRICA:FIM -->`:
-  basta descomentar e preencher. Nada colapsa no layout.
-- **Depoimentos.** Duas edições, centenas de participantes, nenhum depoimento na
-  página. É o maior ganho disponível para a dobra 2.
+Tudo vem do Manual da Marca v1.3. As três cores e a proporção 70/20/10:
+
+| Cor | HEX | Papel |
+|---|---|---|
+| Preto Comando | `#0D0D0D` | dobra 2 e rodapé |
+| Branco Osso | `#F0EBE1` | base das dobras 1, 3 e 4 |
+| Laranja Núcleo | `#F26101` | CTA, marca-texto, ícones, círculo do mentor |
+
+**Tipografia:** **Khand Bold** em títulos (sempre caixa-alta, peso 700, como manda o
+manual) e **Archivo** em todo o texto corrido. Ambas auto-hospedadas em WOFF2 e
+embutidas no bloco — **zero requisição externa de fonte**. Os arquivos vêm do Google
+Fonts (as mesmas famílias do kit), com subset para os glifos usados.
+
+### A regra de contraste que não deve ser desfeita
+
+O próprio manual mede **laranja sobre osso em 2,7:1** e proíbe texto corrido. Medi
+aqui: **2,73:1** — reprova até para texto grande (mínimo 3,0). Por isso:
+
+| Uso | Cor | Contraste |
+|---|---|---|
+| Preenchimento (CTA, marca-texto, ícones, círculo) | `#F26101` | — |
+| **Texto** laranja sobre fundo claro | `#B84300` | 4,60:1 ✓ AA |
+| Texto laranja sobre Preto Comando | `#F26101` | 6,00:1 ✓ AA |
+| Osso sobre Preto Comando | `#F0EBE1` | 16,4:1 ✓ AAA |
+
+O `#B84300` é a **única** licença tomada em relação ao PDF: no PDF os títulos
+"Workbook com o passo a passo" e "Certificado de participação" e a palavra
+"WORKSHOP" usam o laranja puro sobre o osso, o que é ilegível para parte do público.
+Se preferir fidelidade absoluta ao PDF, troque uma linha no `index.html`:
+`--laranja-texto:#B84300` → `--laranja-texto:#F26101`.
 
 ---
 
@@ -64,7 +92,8 @@ Sem isso o lead chega sem origem.
 python3 build_greatpages.py
 ```
 
-Requer Pillow (`pip3 install Pillow`). Para validar um bloco já gerado:
+Requer Pillow e fontTools (`pip3 install Pillow fonttools brotli`).
+Para validar um bloco já gerado:
 
 ```bash
 python3 build_greatpages.py --check
@@ -75,12 +104,14 @@ O que o build faz — e por que cada passo existe:
 | Passo | Motivo |
 |---|---|
 | Escopa todo o CSS em `#ix-ws3` | nada do bloco vaza para a página do GreatPages |
-| Embute fonte e imagens como data URI | zero request de imagem; o bloco é autossuficiente |
+| Embute fontes e a foto como data URI | zero request de imagem/fonte; o bloco é autossuficiente |
+| Faz **subset** das fontes | Khand 7,4→5,8 KB · Archivo 34,1→25,7 KB |
 | Converte tudo para **ASCII puro** | o GreatPages controla o `<head>` e o charset; sem isso a acentuação vira mojibake |
 | Relatório de peso, com corte em 130 KB | impede que a página engorde sem ninguém perceber |
 
-Peso atual: **~113 KB cru / ~70 KB gzip**, com 2 requests de fonte e **nenhum** de
-imagem. Para referência, a LP anterior (`insc-hic-b`) tem 152 KB / 96 KB.
+Peso atual: **~127 KB cru / ~83 KB gzip**, com **zero requisições externas**.
+Para referência, a LP anterior (`insc-hic-b`) tem 152 KB / 96 KB e ainda baixa
+fontes do Google.
 
 ---
 
@@ -91,12 +122,18 @@ index.html                  ← FONTE DE VERDADE. Editar aqui. Abre direto no na
 build_greatpages.py         ← gera o bloco a partir do index.html
 dist/greatpages-block.html  ← ★ o arquivo que vai para o GreatPages
 dist/host-simulator.html    ← teste: injeta o bloco num host hostil (ver abaixo)
-assets/                     ← imagens e fonte de origem (o build otimiza na hora)
+assets/                     ← fontes da marca + foto (o build otimiza na hora)
 copy/                       ← a copy aprovada, em markdown
 ```
 
 O `index.html` referencia `assets/` por caminho, não por base64 — assim continua
 legível e com diff limpo. O base64 existe apenas em `dist/`.
+
+**A foto do Arteiro entra uma única vez** no bloco, via variável CSS `--foto`, e é
+reaproveitada no hero (com fade) e no círculo do mentor (recortada por
+`background-position`). Como duas tags `<img>`, o mesmo base64 seria embutido duas
+vezes — 48 KB jogados fora. O arquivo em `assets/` já está cortado no alpha
+(833×1027) para que o preview local e o bloco final enquadrem a foto igual.
 
 ---
 
@@ -106,51 +143,51 @@ legível e com diff limpo. O base64 existe apenas em `dist/`.
 python3 -m http.server 8753
 ```
 
-Depois abrir `http://localhost:8753/dist/host-simulator.html?utm_source=qa`.
+- Página: `http://localhost:8753/index.html`
+- QA: `http://localhost:8753/dist/host-simulator.html?utm_source=qa`
 
-Essa página simula de propósito um host hostil (reset diferente, fonte serifada,
-`img{width:100%!important}`, `svg{width:50px!important}`, estilos em `.btn`/`.hero`,
-container de 1170px e um ancestral com `transform`, que quebra `position:fixed`).
-Ela injeta o bloco e imprime um painel de verificação no canto — 20 checagens,
-entre elas: nenhum overflow horizontal, os elementos do host intactos, o bloco
-resistindo ao CSS do host, a foto no tamanho certo, todo o conteúdo visível e
-**uma única faixa escura** na página.
+O host-simulator reproduz de propósito um host hostil (reset `content-box`, fonte
+serifada global, `img{width:100%!important}`, `svg{width:50px!important}`,
+`section{background:#0f0!important}`, `footer{background:#600!important}`, estilos em
+`.btn`/`.card`, container de 1170px e um ancestral com `transform`, que quebra
+`position:fixed`). Ele injeta o bloco e imprime **22 verificações** no canto — entre
+elas: nenhum overflow horizontal, os elementos do host intactos, Khand e Archivo
+aplicadas, a dobra preta e o rodapé mantendo o Preto Comando, os ícones não
+esmagados, o círculo do mentor redondo, todo o conteúdo visível e a UTM propagada.
 
-Testar em 390px e em ≥1010px: a CTA fixa só aparece abaixo de 880px.
+Testar em 390px e em ≥1180px: a CTA fixa só aparece abaixo de 880px.
 
 ---
 
-## 7. Decisões de design que não devem ser desfeitas sem motivo
+## 7. Decisões que não devem ser desfeitas sem motivo
 
-**Base clara predominante, uma única faixa escura.** O creme `#F6F3EC` domina as 3
-dobras. Só o bloco de auditabilidade é escuro (`#141618`). O teste automatizado
-verifica que existe exatamente **um** bloco escuro.
-
-**Laranja por função — esta é a regra mais importante.** O laranja da marca
-`#FF5C00` sobre creme rende apenas **2,79:1** de contraste: reprova em qualquer
-texto. Por isso ele é usado só como **preenchimento e grafismo**, nunca como texto
-no claro. Para texto existem variações escurecidas:
-
-| Uso | Cor | Contraste |
-|---|---|---|
-| Preenchimento (botão, marca-texto, nós) | `#FF5C00` | — |
-| Texto pequeno e ícones no claro | `#9A3100` | 6,74:1 ✓ |
-| Texto grande (≥24px) e bordas | `#C23F00` | 4,73:1 ✓ |
-| Texto laranja **sobre** a faixa escura | `#FF7A1A` | 6,95:1 ✓ |
-
-Toda a rampa de tinta (`#141618`, `#383E45`, `#5A6270`) aprova AA sobre o creme.
-`#7D848B` — usado na LP escura — **reprova** no claro (3,42:1) e não deve voltar.
-
-**As 5 camadas não são cards.** São uma pilha com espinha contínua, nós em losango
-e uma coluna de taxonomia à direita. Cinco itens numa grade sempre sobra um; a
-pilha resolve isso e comunica arquitetura, que é o argumento da página.
-
-**O `!important` nas imagens e no SVG é proposital.** Construtores injetam
-`img{width:100%!important}` e `svg{width:50px!important}`. Sem o `!important` a
-foto estoura e o diagrama vira um selo de 50px. Confirmado no host-simulator.
+**O `!important` em imagens, SVG e nos fundos das superfícies é proposital.**
+Construtores injetam `img{width:100%!important}`, `svg{width:50px!important}` e
+estilizam `section`/`footer` por tag com `!important`. Sem isso a foto estoura, os
+ícones viram selos de 50px e a dobra preta perde a cor da marca. As três falhas
+foram observadas no host-simulator antes da correção.
 
 **A animação de entrada tem duas redes de segurança.** O `opacity:0` só é armado
 quando o JS confirma que rodou (classe `.ix-js`), e se o `IntersectionObserver` não
 entregar nada em 1,4s o conteúdo aparece de uma vez. Sem isso, JS quebrado ou
 observer inerte deixaria a página **em branco** — risco real dentro de iframes e
 navegadores embutidos.
+
+**O mockup do Workbook e o selo do certificado são CSS/SVG, não imagens.** O kit da
+marca não tem esses assets. Feitos em código, custam ~0 KB, escalam sem borrar e se
+ajustam se a data mudar (a capa lê `22/08/26` como texto).
+
+**Os 5 ícones dos blocos são SVG inline**, desenhados com traço uniforme de 1,7px.
+Não há dependência de biblioteca de ícones.
+
+---
+
+## 8. Pendências de copy
+
+- A copy dos 5 blocos veio do PDF de design e **difere** da versão em
+  `copy/copy-lp-workshop-grc-ti-ia-v3.md` (que descrevia 3 dobras, sem os blocos
+  numerados). O PDF é a versão mais recente e foi a seguida. Vale consolidar as duas.
+- **Depoimentos.** Duas edições, centenas de participantes, nenhum depoimento na
+  página. Continua sendo o maior ganho de conversão disponível.
+- Corrigi um erro de digitação do PDF no bloco 1: *"infraestrurua"* → *"infraestrutura"*.
+  No bloco 5, *"sistematica"* → *"sistemática"*.

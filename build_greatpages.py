@@ -34,21 +34,59 @@ MAX_RAW = 130 * 1024  # limite rigido de peso do bloco
 # ---------------------------------------------------------------- assets
 # receita declarativa: caminho no index.html -> como embutir
 ASSETS = {
-    "assets/marca-itxpro-escuro.png": {
-        "kind": "image",
-        # WebP lossless preserva o alpha antialiasado e ganha ~39% do PNG
-        "save": dict(format="WEBP", lossless=True, method=6),
-        "mime": "image/webp",
-    },
+    # Foto usada no hero (com fade) e no circulo da dobra 4.
+    # O asset ja esta cortado no alpha (833x1027) para que o preview local e o
+    # bloco final enquadrem a foto exatamente igual - com autocrop so no build,
+    # os dois divergiam.
     "assets/arteiro-recorte.png": {
         "kind": "image",
-        "autocrop": True,      # 23% do arquivo e margem transparente vazia
-        "resize": (720, None),  # exibido a 400px -> cobre 1.8x DPR
-        "save": dict(format="WEBP", quality=68, alpha_quality=80, method=6),
+        "resize": (760, None),
+        "save": dict(format="WEBP", quality=70, alpha_quality=82, method=6),
         "mime": "image/webp",
     },
-    "assets/jost-subset.woff2": {"kind": "font", "mime": "font/woff2"},
+    # A dobra 4 reaproveita a MESMA foto, recortada em quadrado por object-fit.
+    # Embutir um segundo arquivo custaria ~36 KB de base64 sem ganho visual.
+
+    # fontes oficiais da marca (Manual v1.3), com subset
+    "assets/khand-700.woff2": {"kind": "font", "mime": "font/woff2", "subset": True},
+    "assets/archivo-var.woff2": {"kind": "font", "mime": "font/woff2", "subset": True},
 }
+
+# Glifos preservados no subset: ASCII + acentuacao do portugues + a pontuacao
+# usada na pagina. Manter folga aqui e barato; se a copy trouxer um caractere
+# novo fora desta lista, ele cai na fonte de fallback.
+SUBSET_CHARS = (
+    " !\"#$%&'()*+,-./0123456789:;<=>?@"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+    "abcdefghijklmnopqrstuvwxyz{|}~"
+    " "                     # espaco insecavel
+    "ÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ"
+    "àáâãäçèéêëìíîïñòóôõöùúûüýÿ"
+    "ªº°·—–…“”‘’«»€©®™→↑↓×÷±§¶"
+)
+
+
+def subset_font(raw):
+    """Reduz a fonte aos glifos usados. Preserva o eixo de peso das variaveis."""
+    from fontTools.subset import Subsetter, Options
+    from fontTools.ttLib import TTFont
+    import io as _io
+
+    f = TTFont(_io.BytesIO(raw))
+    opts = Options()
+    opts.layout_features = ["*"]      # mantem kerning/ligaduras
+    opts.name_IDs = ["*"]
+    opts.notdef_outline = True
+    opts.retain_gids = False
+    if "fvar" in f:                   # variavel: nao instanciar, manter wght
+        opts.drop_tables = []
+    sub = Subsetter(options=opts)
+    sub.populate(text=SUBSET_CHARS)
+    sub.subset(f)
+    f.flavor = "woff2"
+    out = _io.BytesIO()
+    f.save(out)
+    return out.getvalue()
 
 
 def encode_image(path, spec):
@@ -200,7 +238,12 @@ for path, spec in ASSETS.items():
         raw = encode_image(full, spec)
     else:
         raw = open(full, "rb").read()
-        print("  %-34s %6.1f KB" % (os.path.basename(path), len(raw) / 1024))
+        antes = len(raw)
+        if spec.get("subset"):
+            raw = subset_font(raw)
+        print("  %-34s %6.1f KB%s" % (
+            os.path.basename(path), len(raw) / 1024,
+            "  (subset de %.1f KB)" % (antes / 1024) if spec.get("subset") else ""))
     uri = data_uri(raw, spec["mime"])
     body = body.replace('src="%s"' % path, 'src="%s"' % uri)
     css = css.replace("url(%s)" % path, "url(%s)" % uri)
