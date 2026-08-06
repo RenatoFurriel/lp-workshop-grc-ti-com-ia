@@ -174,7 +174,10 @@ def validate(block):
     if not block.isascii():
         bad = sorted({c for c in block if ord(c) > 127})[:12]
         errs.append("bloco contem nao-ASCII: %r" % bad)
-    if re.search(r'src="assets/|url\(assets/', block):
+    # ignora comentarios HTML: as instrucoes de "como trocar pelo asset real"
+    # citam caminhos assets/... de proposito e nao sao referencias de verdade
+    sem_comentario = re.sub(r"<!--.*?-->", "", block, flags=re.S)
+    if re.search(r'src="assets/|url\(assets/', sem_comentario):
         errs.append("sobrou referencia a assets/ nao embutida")
     if "SUBSTITUIR" in block:
         print("  AVISO: FORM_URL ainda e o placeholder SUBSTITUIR.")

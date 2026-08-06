@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Criativo LinkedIn — Workshop GRC TI com IA</title>
+<style>
+@font-face{font-family:'Khand';font-style:normal;font-weight:700;
+  src:url(../assets/khand-700.woff2) format('woff2')}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400 700;
+  src:url(../assets/archivo-var.woff2) format('woff2')}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#555}
+
+/* ---------- TOKENS (Manual da Marca v1.3) ---------- */
+.c{
+  --preto:#0D0D0D;
+  --osso:#F0EBE1;
+  --laranja:#F26101;
+  --laranja-texto:#B84300;      /* laranja sobre fundo claro: 4,60:1 AA */
+  --display:'Khand',Impact,sans-serif;
+  --corpo:'Archivo',sans-serif;
+
+  --fundo:var(--osso);
+  --fundo-rgb:240,235,225;
+  --texto:var(--preto);
+  --tinta:rgba(13,13,13,.80);
+  --tinta-fraca:rgba(13,13,13,.60);
+  --caixa:#1A1A1A;              /* caixa escura sobre o osso */
+  --caixa-txt:rgba(240,235,225,.88);
+  --caixa-linha:rgba(240,235,225,.16);
+}
+.c.b{
+  --fundo:var(--preto);
+  --fundo-rgb:13,13,13;
+  --texto:var(--osso);
+  --laranja-texto:var(--laranja);  /* sobre preto o laranja puro da 6,00:1 AA */
+  --tinta:rgba(240,235,225,.82);
+  --tinta-fraca:rgba(240,235,225,.62);
+  --caixa:#1F1F1F;
+  --caixa-txt:rgba(240,235,225,.88);
+  --caixa-linha:rgba(240,235,225,.18);
+}
+
+/* ---------- TELA ---------- */
+.c{
+  position:relative;width:1080px;height:1350px;overflow:hidden;
+  background:var(--fundo);color:var(--texto);
+  font-family:var(--corpo);margin:0 auto 40px;
+}
+
+/* ---------- FOTO: sobe ate o topo, sem sobra acima da cabeca ----------
+   Origem 833x1027. A cabeca ocupa x 0,263-0,639 da largura; do meio para
+   baixo o corpo ocupa a largura toda. Por isso a foto e ampliada e sangra
+   249px pela direita: o braco esquerdo sai pelo corte (recurso normal de
+   criativo) e a cabeca fica alta e a direita, onde deve estar. */
+.foto{position:absolute;left:411px;top:104px;width:918px;height:1132px;z-index:1;
+  background:url(../assets/arteiro-recorte.png) no-repeat bottom center/contain;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 88%,rgba(0,0,0,.45) 96%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0,#000 88%,rgba(0,0,0,.45) 96%,transparent 100%)}
+
+/* veu na esquerda: devolve a coluna de texto sem cortar a foto */
+.veu{position:absolute;left:0;top:0;width:660px;height:1242px;z-index:2;
+  background:linear-gradient(to right,
+    rgba(var(--fundo-rgb),1) 0,
+    rgba(var(--fundo-rgb),1) 46%,
+    rgba(var(--fundo-rgb),.92) 66%,
+    rgba(var(--fundo-rgb),0) 100%)}
+/* halo laranja discreto no canto superior esquerdo */
+.c::before{content:"";position:absolute;left:-200px;top:-240px;width:800px;height:800px;
+  border-radius:50%;background:radial-gradient(circle,rgba(242,97,1,.17),transparent 62%);z-index:3}
+
+.pad{position:absolute;left:68px;top:56px;width:640px;z-index:4}
+
+/* ---------- MARCA + TARJA ---------- */
+.marca{display:flex;align-items:center;gap:12px}
+.marca svg{width:36px;height:36px;color:var(--texto)}
+.marca b{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--texto);line-height:1}
+
+/* 20px bold: branco sobre laranja da 3,24:1 -> passa AA-grande (>=18,66px bold) */
+.tarja{display:inline-block;margin-top:24px;background:var(--laranja);color:#fff;
+  border-radius:7px;padding:12px 20px 10px;font-weight:700;font-size:20px;
+  letter-spacing:.035em;text-transform:uppercase;line-height:1}
+
+/* ---------- TITULO ---------- */
+.kicker{margin-top:26px;font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:48px;line-height:1;color:var(--laranja-texto);letter-spacing:.015em}
+h1{font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:112px;line-height:.90;letter-spacing:.005em;margin-top:2px}
+.mark{display:inline-block;background:var(--laranja);color:#fff;
+  line-height:.8;padding:.122em .13em 0;border-radius:5px}
+
+.lede{margin-top:22px;width:490px;font-size:27px;line-height:1.44;color:var(--tinta)}
+.lede b{color:var(--texto);font-weight:700}
+
+/* ---------- CAIXA DE CONTEUDO ----------
+   Termo + explicacao na MESMA linha: cada item ocupa 2 linhas em vez de 3,
+   e as 5 explicacoes cabem sem comer o espaco do titulo nem da assinatura. */
+.caixa{margin-top:24px;width:490px;background:var(--caixa);border-radius:14px;
+  padding:22px 26px 20px}
+.caixa h2{font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:31px;line-height:1;color:#fff;letter-spacing:.02em}
+.caixa ul{margin-top:16px;list-style:none}
+.caixa li{position:relative;padding-left:24px;font-size:18.5px;line-height:1.38;
+  color:rgba(240,235,225,.78);margin-bottom:12px}
+.caixa li:last-child{margin-bottom:0}
+.caixa li b{color:#fff;font-weight:700}
+.caixa li::before{content:"";position:absolute;left:2px;top:.56em;width:8px;height:8px;
+  border-radius:50%;background:var(--laranja)}
+.caixa p{margin-top:15px;padding-top:14px;border-top:1px solid var(--caixa-linha);
+  font-size:18.5px;line-height:1.38;color:rgba(240,235,225,.72)}
+.caixa p b{color:#fff;font-weight:700}
+
+/* ---------- ASSINATURA + PROVA ---------- */
+.assin{margin-top:20px;border-left:5px solid var(--laranja);padding-left:18px}
+.assin i{display:block;font-style:normal;font-size:15px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--tinta-fraca);font-weight:700;margin-bottom:3px}
+.assin strong{display:block;font-family:var(--display);font-weight:700;font-size:40px;
+  line-height:1;text-transform:uppercase;color:var(--texto)}
+.assin em{display:block;font-style:normal;margin-top:7px;font-size:18px;font-weight:700;
+  letter-spacing:.03em;color:var(--laranja-texto)}
+
+.prova{margin-top:18px;width:470px;font-size:18px;line-height:1.4;color:var(--tinta-fraca)}
+.prova b{color:var(--texto);font-weight:700}
+
+/* ---------- CTA ---------- */
+.cta{position:absolute;left:0;right:0;bottom:0;height:108px;background:var(--laranja);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  z-index:5;color:#fff}
+.cta strong{font-family:var(--display);font-weight:700;font-size:47px;line-height:1;
+  text-transform:uppercase;letter-spacing:.02em}
+/* 19px bold: passa a contar como texto grande (>=18,66px bold); a 18px
+   o branco sobre laranja (3,24:1) reprovaria. */
+.cta span{font-size:19px;font-weight:700;letter-spacing:.03em;color:rgba(255,255,255,.92)}
+</style>
+</head>
+<body>
+
+<div class="c" id="a">
+  <div class="foto"></div>
+  <div class="veu"></div>
+
+  <div class="pad">
+    <div class="marca">
+      <svg viewBox="0 0 1000 1000" role="img" aria-label="ITXPRO">
+        <g stroke="currentColor" stroke-width="30" stroke-linecap="round">
+          <path d="M420 206 285 284M206 422v156M285 716l135 78M580 794l135-78M794 578V422M715 284 580 206"/>
+        </g>
+        <g fill="currentColor">
+          <circle cx="500" cy="160" r="72"/><circle cx="206" cy="330" r="72"/>
+          <circle cx="206" cy="670" r="72"/><circle cx="500" cy="840" r="72"/>
+          <circle cx="794" cy="670" r="72"/><circle cx="794" cy="330" r="72"/>
+        </g>
+        <circle cx="500" cy="500" r="131" fill="none" stroke="#F26101" stroke-width="26"/>
+        <circle cx="500" cy="500" r="92" fill="#F26101"/>
+      </svg>
+      <b>ITXPRO</b>
+    </div>
+
+    <div class="tarja">3ª edição · ao vivo e gratuito · sábado, 22/08</div>
+
+    <div class="kicker">Workshop</div>
+    <h1>GRC TI<br><span class="mark">com IA</span></h1>
+
+    <p class="lede">Monte do zero, ao vivo, uma arquitetura de IA
+      <b>auditável</b> que executa em horas o que hoje leva semanas.</p>
+
+    <div class="caixa">
+      <h2>O que você vai ver, na prática</h2>
+      <ul>
+        <li><b>Claude</b> — chat, cowork e code: qual usar em cada etapa,
+            com auditabilidade e privacidade.</li>
+        <li><b>Segundo cérebro (RAG)</b> — COBIT, NIST e ISO 27001 como
+            fonte 100% rastreável.</li>
+        <li><b>Skills</b> — seus POPs viram procedimento versionado, acionado
+            em linguagem natural.</li>
+        <li><b>Agentes</b> — execução, não sugestão: eles rodam as Skills
+            de forma estruturada e sistemática.</li>
+        <li><b>MCPs</b> — a arquitetura conectada, com segurança, às
+            ferramentas que você já usa.</li>
+      </ul>
+      <p><b>Workbook com o passo a passo + certificado</b>
+         para quem estiver ao vivo.</p>
+    </div>
+
+    <div class="assin">
+      <i>com</i>
+      <strong>Roberto Arteiro</strong>
+      <em>M.Sc. · CGEIT · Fundador da ITXPRO</em>
+    </div>
+
+  </div>
+
+  <div class="cta">
+    <strong>Inscreva-se gratuitamente</strong>
+    <span>Sábado, 22/08 · 9h às 18h · vagas limitadas pela sala do Zoom</span>
+  </div>
+</div>
+
+</body>
+</html>

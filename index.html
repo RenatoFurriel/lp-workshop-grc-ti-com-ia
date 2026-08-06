@@ -223,16 +223,37 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.96;
 .ix-escuro-head h2 em{font-style:normal;color:var(--laranja)}
 .ix-apoio{border-top:2px solid var(--laranja);padding-top:20px;margin-top:clamp(8px,2vw,30px)}
 .ix-apoio p{font-size:clamp(15.5px,1.7vw,19px);color:var(--osso);max-width:40ch}
-@media(max-width:900px){.ix-escuro-head{grid-template-columns:minmax(0,1fr)}}
+/* as duas colunas do cabecalho seguem lado a lado ate 720px; abaixo disso a
+   regua laranja encolhe para nao virar um divisor de pagina inteira */
+@media(max-width:720px){
+  .ix-escuro-head{grid-template-columns:minmax(0,1fr);gap:22px}
+  .ix-apoio{margin-top:0;border-top-width:0;padding-top:0;
+    border-left:3px solid var(--laranja);padding-left:16px}
+}
 
-/* sem align-items:start - os <li> precisam esticar para que o height:100% dos
-   cards iguale as alturas (antes: 346/345/305/325/346, o MCP 41px mais baixo) */
-.ix-blocos{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(12px,1.4vw,20px)}
+/* Flex com quebra em vez de grade: com 5 itens, qualquer grade de 2 ou 3
+   colunas deixa o ultimo sozinho encostado a esquerda. Com flex-wrap +
+   justify-content:center a ultima linha se centraliza sozinha em qualquer
+   largura. align-items fica em stretch, entao o height:100% dos cards
+   continua igualando as alturas de cada linha. */
+/* row-gap bem maior que o column-gap: quando os blocos quebram de linha, o
+   rotulo "BLOCO N" da linha de baixo encostava no rodape do card de cima e
+   parecia pertencer a ele. align-content:flex-start impede que as linhas
+   estiquem para alturas iguais entre si. */
+.ix-blocos{display:flex;flex-wrap:wrap;justify-content:center;
+  align-content:flex-start;
+  gap:clamp(34px,3.4vw,44px) clamp(14px,1.4vw,20px)}
+/* o item vira coluna flex e o card cresce para ocupar o resto: com
+   .ix-card{height:100%} o card resolvia 100% da altura do ITEM e era
+   empurrado para baixo do rotulo, transbordando exatamente 36px (a altura do
+   rotulo) e encostando na linha de baixo */
+.ix-bloco-item{display:flex;flex-direction:column;flex:1 1 190px;
+  min-width:0;max-width:320px}
 .ix-bloco-num{font-family:var(--display);font-weight:700;font-size:clamp(15px,1.7vw,21px);
   letter-spacing:.06em;text-transform:uppercase;color:var(--laranja);
   text-align:center;margin-bottom:12px}
 .ix-card{background:var(--card)!important;border-radius:var(--r-card);padding:26px 20px 28px;
-  height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;
+  flex:1 1 auto;display:flex;flex-direction:column;align-items:center;text-align:center;
   transition:transform .25s ease,background .25s ease}
 .ix-card:hover{transform:translateY(-4px);background:var(--card-hover,#212121)!important}
 .ix-card-ico{width:56px;height:56px;margin-bottom:20px;color:var(--laranja);flex:0 0 auto}
@@ -245,16 +266,11 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.96;
   min-height:calc(2.3em + 18px);display:flex;align-items:center;justify-content:center;
   text-align:center}
 .ix-card p{font-size:13.6px;line-height:1.5;color:var(--osso-mute);max-width:32ch}
-@media(max-width:1080px){
-  .ix-blocos{grid-template-columns:repeat(3,1fr);gap:18px}
-  .ix-bloco-item:nth-child(4),.ix-bloco-item:nth-child(5){grid-column:span 1}
-}
+/* a quebra dos blocos agora e automatica (flex-wrap); so o respiro muda */
 @media(max-width:720px){
-  .ix-blocos{grid-template-columns:repeat(2,1fr);gap:14px}
   .ix-card{padding:22px 16px 24px}
   .ix-card p{font-size:13px}
 }
-@media(max-width:430px){.ix-blocos{grid-template-columns:1fr}}
 
 /* ---------- DOBRA 3 - ENTREGAVEIS ---------- */
 .ix-receber h2{font-size:clamp(34px,7vw,88px);text-align:center;
@@ -282,32 +298,67 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.96;
   .ix-entrega-fig{order:-1}
 }
 
-/* mockup do workbook: construido em CSS/SVG (nao existe asset no kit).
-   container-type + unidades cqw fazem o texto escalar junto com a capa, para
-   ocupa-la de ponta a ponta em vez de ficar numa faixa no topo. */
-.ix-book{width:min(215px,55vw);aspect-ratio:1/1.26;position:relative;
-  container-type:inline-size;
-  transform:rotate(-7deg);filter:drop-shadow(0 16px 24px rgba(13,13,13,.28))}
-.ix-book-face{position:absolute;inset:0;background:var(--osso-2);
-  border-radius:3px 8px 8px 3px;overflow:hidden;
-  border-left:4.5cqw solid var(--preto)}
-.ix-book-face::before{content:"";position:absolute;top:0;right:0;
+/* ==========================================================================
+   MOCKUP DO WORKBOOK
+   Nao existe asset do livro no kit da marca, entao ele e montado em CSS:
+   bloco de paginas a direita, lombada a esquerda, iluminacao diagonal e
+   sombra de contato no chao. As unidades sao cqw (container query), entao a
+   capa inteira escala junto com o mockup em qualquer largura.
+   >>> PARA TROCAR POR UM RENDER REAL: ver o comentario no HTML, logo acima
+       de .ix-book - basta descomentar o <img> e apagar o .ix-livro.
+   ========================================================================== */
+.ix-book{position:relative;width:min(232px,58vw);aspect-ratio:1/1.29;
+  container-type:inline-size;transform:rotate(-5deg)}
+/* sombra de contato: elipse no chao, separada da sombra do proprio livro */
+.ix-book::after{content:"";position:absolute;left:4%;right:-4%;bottom:-5%;height:7%;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(0,0,0,.55),transparent 72%);
+  filter:blur(5px);z-index:0}
+.ix-livro{position:absolute;inset:0;z-index:1}
+
+/* bloco de paginas: faixa a direita com o serrilhado das folhas */
+.ix-livro-corte{position:absolute;top:1.5%;bottom:2.5%;right:-3.4cqw;width:3.8cqw;
+  border-radius:0 2px 3px 0;transform:skewY(-1.1deg);
+  background:
+    repeating-linear-gradient(to right,
+      #fffdf8 0 .5px,#e8e3d8 .5px 1.1px,#cdc7ba 1.1px 1.7px);
+  box-shadow:inset -1.5px 0 3px rgba(0,0,0,.25)}
+
+/* capa */
+.ix-livro-capa{position:absolute;inset:0;overflow:hidden;
+  border-radius:2px 7px 7px 2px;background:var(--osso-2);
+  box-shadow:0 22px 34px rgba(0,0,0,.34),0 3px 8px rgba(0,0,0,.22)}
+/* canto laranja e cunha preta da arte da capa */
+.ix-livro-capa::before{content:"";position:absolute;top:0;right:0;z-index:1;
   border-top:26cqw solid var(--laranja);border-left:26cqw solid transparent}
-.ix-book-face::after{content:"";position:absolute;bottom:0;left:0;right:0;height:34%;
-  background:var(--preto);
-  clip-path:polygon(0 42%,100% 0,100% 100%,0 100%)}
-.ix-book-txt{position:absolute;left:7cqw;right:7cqw;top:11cqw;z-index:2}
-/* a capa e uma superficie clara propria - tintas fixas, nao seguem o tema */
+.ix-livro-capa::after{content:"";position:absolute;bottom:0;left:0;right:0;height:34%;
+  z-index:1;background:var(--preto);clip-path:polygon(0 42%,100% 0,100% 100%,0 100%)}
+
+/* lombada: sombra propria junto a dobra */
+.ix-livro-lombada{position:absolute;top:0;bottom:0;left:0;width:5.4cqw;z-index:4;
+  background:linear-gradient(to right,
+    rgba(0,0,0,.42) 0%,rgba(0,0,0,.10) 42%,rgba(0,0,0,0) 72%,rgba(0,0,0,.16) 100%)}
+/* iluminacao diagonal por cima de tudo */
+.ix-livro-luz{position:absolute;inset:0;z-index:5;pointer-events:none;
+  border-radius:2px 7px 7px 2px;
+  background:linear-gradient(107deg,
+    rgba(255,255,255,.50) 0%,rgba(255,255,255,.10) 17%,
+    rgba(255,255,255,0) 42%,rgba(0,0,0,.10) 88%,rgba(0,0,0,.20) 100%)}
+
+/* texto da capa - superficie clara propria, tintas fixas (nao seguem o tema) */
+.ix-book-txt{position:absolute;left:9cqw;right:7cqw;top:11cqw;z-index:2}
 .ix-book-txt i{display:block;font-family:var(--corpo);font-style:normal;font-weight:600;
-  font-size:5.4cqw;letter-spacing:.2em;text-transform:uppercase;color:rgba(13,13,13,.58);
+  font-size:5.2cqw;letter-spacing:.2em;text-transform:uppercase;color:rgba(13,13,13,.55);
   margin-bottom:1.5cqw}
 .ix-book-txt b{display:block;font-family:var(--display);font-weight:700;
-  font-size:20cqw;line-height:.86;text-transform:uppercase;color:var(--preto)}
+  font-size:20cqw;line-height:.86;text-transform:uppercase;color:#0D0D0D}
 .ix-book-txt b em{font-style:normal;color:var(--laranja)}
-.ix-book-foot{position:absolute;left:7cqw;right:7cqw;bottom:7cqw;z-index:3;
-  font-family:var(--corpo);font-size:4.4cqw;font-weight:600;letter-spacing:.1em;
-  line-height:1.5;text-transform:uppercase;color:var(--osso)}
+.ix-book-foot{position:absolute;left:9cqw;right:7cqw;bottom:7cqw;z-index:3;
+  font-family:var(--corpo);font-size:4.3cqw;font-weight:600;letter-spacing:.1em;
+  line-height:1.5;text-transform:uppercase;color:#F0EBE1}
 .ix-book-foot span{color:var(--laranja)}
+/* quando o render real chegar, esta classe segura a imagem no mesmo espaco */
+.ix-book-img{width:100%!important;height:auto!important;
+  filter:drop-shadow(0 22px 30px rgba(0,0,0,.34))}
 
 .ix-selo{width:min(168px,42vw);color:var(--laranja)}
 /* O negativo do selo (halo, anel e check) e recorte: acompanha o fundo.
@@ -552,14 +603,31 @@ r.className+=(r.className?" ":"")+c;})();</script>
            própria arquitetura cognitiva.</p>
       </div>
       <div class="ix-entrega-fig">
-        <!-- capa do workbook montada em CSS: o kit da marca nao tem esse mockup -->
+        <!-- ============================================================
+             MOCKUP DO WORKBOOK, montado em CSS (o kit nao tem esse asset).
+
+             PARA TROCAR PELO RENDER REAL quando ele chegar:
+               1. salvar o arquivo em assets/workbook.png (fundo TRANSPARENTE,
+                  ~900px de largura, ja com a sombra embutida no PNG);
+               2. trocar todo o <div class="ix-book"> abaixo por:
+                    <img class="ix-book-img" src="assets/workbook.png"
+                         alt="Workbook GRC TI com IA" width="900" height="1160"
+                         loading="lazy" decoding="async">
+               3. registrar o arquivo em ASSETS no build_greatpages.py, para
+                  ele ser otimizado e embutido como os demais.
+             ============================================================ -->
         <div class="ix-book" role="img" aria-label="Workbook GRC TI com IA">
-          <div class="ix-book-face">
-            <div class="ix-book-txt">
-              <i>Workbook</i>
-              <b>GRC TI<br><em>com IA</em></b>
+          <div class="ix-livro">
+            <span class="ix-livro-corte"></span>
+            <div class="ix-livro-capa">
+              <div class="ix-book-txt">
+                <i>Workbook</i>
+                <b>GRC TI<br><em>com IA</em></b>
+              </div>
+              <div class="ix-book-foot">Workshop <span>22/08/26</span><br>Com Roberto Arteiro</div>
             </div>
-            <div class="ix-book-foot">Workshop <span>22/08/26</span><br>Com Roberto Arteiro</div>
+            <span class="ix-livro-lombada"></span>
+            <span class="ix-livro-luz"></span>
           </div>
         </div>
       </div>
@@ -575,6 +643,10 @@ r.className+=(r.className?" ":"")+c;})();</script>
         <!-- Roseta redesenhada a partir do PDF: 12 lobulos suaves (uniao de
              circulos), anel cor de osso, centro laranja, check em osso e duas
              fitas. As proporcoes vieram da medicao do original. -->
+        <!-- Selo desenhado a partir do PDF. Para trocar pelo arte final:
+             salvar em assets/selo.svg (ou .png com fundo transparente) e usar
+               <img class="ix-selo" src="assets/selo.svg" alt="Certificado">
+             registrando o arquivo em ASSETS no build_greatpages.py. -->
         <svg class="ix-selo" viewBox="0 0 200 252" role="img" aria-label="Certificado">
           <g fill="currentColor">
             <path d="M32.3 165.5 L0 222.4 L44.3 212.3 L53.3 251.9 L93.4 190.7Z"/>
