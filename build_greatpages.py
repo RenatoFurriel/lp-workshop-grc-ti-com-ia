@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
-Gera o bloco GreatPages (dist/greatpages-block.html) a partir de index.html.
+Gera os blocos GreatPages a partir dos HTMLs de origem.
+
+  A (fundo osso)   index.html                -> dist/greatpages-block.html
+  B (fundo preto)  index.html + classe ix-b  -> dist/greatpages-block-b.html
+  C (blueprint)    index-c.html              -> dist/greatpages-block-c.html
+
+A e B saem da MESMA fonte (a unica diferenca e a classe no elemento raiz, para
+que o teste A/B meca a cor de fundo e nada mais). C e um terceiro layout, com
+fonte propria: mantem copy, fontes, paleta e as duas fotos do mentor, e troca
+todo o resto pela linguagem visual "blueprint de sala de comando".
 
 O que este script resolve:
   1. Escopa TODO o CSS em #ix-ws3 (nada vaza para a pagina hospedeira).
@@ -10,8 +19,8 @@ O que este script resolve:
   4. Relatorio de peso com limite rigido.
 
 Uso:
-    python3 build_greatpages.py            # gera o bloco
-    python3 build_greatpages.py --check    # valida o bloco ja gerado
+    python3 build_greatpages.py            # gera os blocos
+    python3 build_greatpages.py --check    # valida os blocos ja gerados
 Requer: Pillow
 """
 
@@ -24,16 +33,23 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "index.html")
+SRC_C = os.path.join(HERE, "index-c.html")
 OUT_DIR = os.path.join(HERE, "dist")
 OUT = os.path.join(OUT_DIR, "greatpages-block.html")
+OUT_B = os.path.join(OUT_DIR, "greatpages-block-b.html")
+OUT_C = os.path.join(OUT_DIR, "greatpages-block-c.html")
 
 ROOT_ID = "ix-ws3"
 ROOT = "#" + ROOT_ID
-# Limite rigido de peso. 140 KB deixa folga real sobre os ~129 KB atuais (fontes
-# da marca + foto + os tokens das duas versoes). O guard existe para pegar
-# regressao - ja pegou duas: a foto embutida em duplicidade e o <head> vazando
-# para dentro do bloco.
-MAX_RAW = 140 * 1024
+# Limite rigido de peso. O peso e dominado pelos assets embutidos (fontes da
+# marca + foto, os mesmos nas tres versoes): ~118 KB de data URI. Sobre essa
+# base, A/B custam ~13 KB de CSS+HTML e a C ~43 KB (rede de nos, objetos 3D,
+# grao, cantos e os estados da pilha). 175 KB deixa folga sobre a mais gorda
+# sem virar cheque em branco. O que viaja e o gzip: ~85 KB em A/B e ~89 KB na C
+# - abaixo dos 96 KB da LP anterior, que ainda baixava fontes do Google.
+# O guard existe para pegar regressao - ja pegou duas: a foto embutida em
+# duplicidade e o <head> vazando para dentro do bloco.
+MAX_RAW = 175 * 1024
 
 # ---------------------------------------------------------------- assets
 # receita declarativa: caminho no index.html -> como embutir
@@ -184,8 +200,16 @@ def validate(block):
     # nenhum seletor fora de escopo dentro do <style>
     css = re.search(r"<style>(.*?)</style>", block, re.S)
     if css:
-        for m in re.finditer(r"(?m)^([^@{}\n][^{}\n]*)\{", css.group(1)):
+        corpo_css = css.group(1)
+        # @keyframes fica fora do escopo de proposito (nome global, nao seletor).
+        # Sem remove-lo daqui, um passo como "0%{...}" no inicio da linha era
+        # lido como seletor sem escopo - falso positivo que reprovava o build.
+        corpo_css = re.sub(r"@keyframes[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}",
+                           "", corpo_css, flags=re.S)
+        for m in re.finditer(r"(?m)^([^@{}\n][^{}\n]*)\{", corpo_css):
             sel = m.group(1).strip()
+            if not sel or sel.startswith("@"):
+                continue
             if sel and not all(p.strip().startswith(ROOT) for p in sel.split(",") if p.strip()):
                 errs.append("seletor sem escopo: %s" % sel[:70])
                 break
@@ -204,7 +228,8 @@ def report(block):
 # ---------------------------------------------------------------- main
 if "--check" in sys.argv:
     alvos = [("A (fundo osso)", OUT),
-             ("B (fundo preto)", os.path.join(OUT_DIR, "greatpages-block-b.html"))]
+             ("B (fundo preto)", OUT_B),
+             ("C (blueprint)", OUT_C)]
     problemas = []
     for nome, caminho in alvos:
         if not os.path.exists(caminho):
@@ -217,61 +242,16 @@ if "--check" in sys.argv:
             problemas.append("%s: %s" % (nome, "; ".join(errs)))
     if problemas:
         sys.exit("FALHOU:\n  - " + "\n  - ".join(problemas))
-    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas duas versoes.")
+    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas tres versoes.")
     sys.exit(0)
 
 from PIL import Image  # noqa: E402  (so necessario para gerar)
 
-html = open(SRC, encoding="utf-8").read()
 
-# Corta o documento no </head> ANTES de procurar o corpo. Sem isso, uma tag
-# escrita dentro de um comentario no <head> (ex.: citar "<body>" num comentario)
-# faz o regex casar no lugar errado e arrastar o head inteiro para o bloco.
-_split = re.search(r"</head\s*>", html, re.I)
-head = html[:_split.start()] if _split else html
-after_head = html[_split.end():] if _split else html
-
-css = re.search(r"<style[^>]*>(.*?)</style>", head, re.S).group(1)
-_b = re.search(r"<body[^>]*>(.*)</body\s*>", after_head, re.S)
-if not _b:
-    sys.exit("nao encontrei o <body> depois do </head>")
-body = _b.group(1)
-
-# hints de fonte do <head> seguem no fragmento (validos no body)
-font_hints = "".join(
-    m.group(0) + "\n" for m in re.finditer(
-        r'<link rel="(?:preconnect|preload)"[^>]*fonts\.gstatic\.com[^>]*>', head)
-)
-
-print("assets:")
-for path, spec in ASSETS.items():
-    full = os.path.join(HERE, path)
-    if not os.path.exists(full):
-        sys.exit("asset ausente: " + path)
-    if spec["kind"] == "image":
-        raw = encode_image(full, spec)
-    else:
-        raw = open(full, "rb").read()
-        antes = len(raw)
-        if spec.get("subset"):
-            raw = subset_font(raw)
-        print("  %-34s %6.1f KB%s" % (
-            os.path.basename(path), len(raw) / 1024,
-            "  (subset de %.1f KB)" % (antes / 1024) if spec.get("subset") else ""))
-    uri = data_uri(raw, spec["mime"])
-    body = body.replace('src="%s"' % path, 'src="%s"' % uri)
-    css = css.replace("url(%s)" % path, "url(%s)" % uri)
-
-# comentarios /* */ fora, depois escopo
-css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
-css = transform(css)
-
-# ASCII: CSS usa \XX (com espaco final), HTML usa entidades, JS usa \uXXXX
-css = re.sub(r"[^\x00-\x7F]", lambda m: "\\%X " % ord(m.group()), css)
-
-# ASCII no body: cada <script> escapa com \uXXXX, o resto com entidades HTML.
-# Percorre regiao por regiao para suportar varios blocos de script.
+# ---------------------------------------------------------------- ASCII
 def escape_body(text):
+    """ASCII no body: cada <script> escapa com \\uXXXX, o resto com entidades
+    HTML. Percorre regiao por regiao para suportar varios blocos de script."""
     parts, pos = [], 0
     for m in re.finditer(r"<script\b[^>]*>.*?</script>", text, re.S):
         chunk = text[pos:m.start()]
@@ -283,16 +263,90 @@ def escape_body(text):
     return "".join(parts)
 
 
-body = escape_body(body)
+# ---------------------------------------------------------------- assets
+# Cache: as tres versoes embutem os MESMOS assets. Sem cache, o subset das
+# fontes e a recompressao da foto rodariam duas vezes (uma por arquivo-fonte).
+_URI_CACHE = {}
 
-def montar(classe, fundo_pagina):
-    """Monta o bloco. A unica diferenca entre A e B e a classe no elemento raiz."""
+
+def uris():
+    if _URI_CACHE:
+        return _URI_CACHE
+    print("assets:")
+    for path, spec in ASSETS.items():
+        full = os.path.join(HERE, path)
+        if not os.path.exists(full):
+            sys.exit("asset ausente: " + path)
+        if spec["kind"] == "image":
+            raw = encode_image(full, spec)
+        else:
+            raw = open(full, "rb").read()
+            antes = len(raw)
+            if spec.get("subset"):
+                raw = subset_font(raw)
+            print("  %-34s %6.1f KB%s" % (
+                os.path.basename(path), len(raw) / 1024,
+                "  (subset de %.1f KB)" % (antes / 1024) if spec.get("subset") else ""))
+        _URI_CACHE[path] = data_uri(raw, spec["mime"])
+    return _URI_CACHE
+
+
+# ---------------------------------------------------------------- preparo
+def preparar(src):
+    """Le um HTML de origem e devolve (css escopado, body, hints de fonte),
+    tudo em ASCII e com os assets embutidos."""
+    html = open(src, encoding="utf-8").read()
+
+    # Corta o documento no </head> ANTES de procurar o corpo. Sem isso, uma tag
+    # escrita dentro de um comentario no <head> (ex.: citar "<body>" num
+    # comentario) faz o regex casar no lugar errado e arrastar o head inteiro
+    # para o bloco.
+    _split = re.search(r"</head\s*>", html, re.I)
+    head = html[:_split.start()] if _split else html
+    after_head = html[_split.end():] if _split else html
+
+    css = re.search(r"<style[^>]*>(.*?)</style>", head, re.S).group(1)
+    _b = re.search(r"<body[^>]*>(.*)</body\s*>", after_head, re.S)
+    if not _b:
+        sys.exit("nao encontrei o <body> depois do </head> em " + src)
+    body = _b.group(1)
+
+    # hints de fonte do <head> seguem no fragmento (validos no body)
+    font_hints = "".join(
+        m.group(0) + "\n" for m in re.finditer(
+            r'<link rel="(?:preconnect|preload)"[^>]*fonts\.gstatic\.com[^>]*>', head)
+    )
+
+    # Comentarios HTML fora do bloco publicado. Eles documentam a fonte (como
+    # trocar o mockup por um render real, por que cada decisao existe) e nao tem
+    # nada a fazer numa pagina servida ao publico - alem de pesarem alguns KB.
+    # Roda ANTES de embutir os assets: assim os caminhos assets/... citados
+    # dentro dos comentarios desaparecem e a validacao para de precisar
+    # ignora-los para nao dar falso positivo.
+    body = re.sub(r"<!--.*?-->\s*", "", body, flags=re.S)
+
+    for path, uri in uris().items():
+        body = body.replace('src="%s"' % path, 'src="%s"' % uri)
+        css = css.replace("url(%s)" % path, "url(%s)" % uri)
+
+    # comentarios /* */ fora, depois escopo
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = transform(css)
+    # ASCII: CSS usa \XX (com espaco final), HTML usa entidades, JS usa \uXXXX
+    css = re.sub(r"[^\x00-\x7F]", lambda m: "\\%X " % ord(m.group()), css)
+
+    return css, escape_body(body), font_hints, html
+
+
+def montar(pecas, rotulo, classe, fundo_pagina):
+    """Monta o bloco final a partir das pecas de um HTML de origem."""
+    css, body, font_hints, _ = pecas
     cls = (' class="%s"' % classe) if classe else ""
     return (
         "<!-- ===== INICIO DO BLOCO GREATPAGES - LP WORKSHOP GRC TI COM IA (3a ed.) ===== -->\n"
         "<!-- Versao %s. Colar em UM bloco de HTML/Codigo; nao reabrir no editor visual. -->\n"
         "<!-- Fundo da pagina no GreatPages deve ser %s.                              -->\n"
-        % (classe or "A (fundo claro)", fundo_pagina)
+        % (rotulo, fundo_pagina)
         + font_hints
         + "<style>\n" + css + "\n</style>\n"
         + '<div id="' + ROOT_ID + '"' + cls + ' lang="pt-BR">' + body + "</div>\n"
@@ -300,18 +354,21 @@ def montar(classe, fundo_pagina):
     )
 
 
-# A = fundo Branco Osso (padrao) . B = fundo Preto Comando
+# A e B saem de index.html (mesma fonte, so a classe muda) . C de index-c.html
+pecas_ab = preparar(SRC)
+pecas_c = preparar(SRC_C)
+
 VARIANTES = [
-    ("", "#F0EBE1", OUT),
-    ("ix-b", "#0D0D0D", os.path.join(OUT_DIR, "greatpages-block-b.html")),
+    ("A (fundo osso)",  pecas_ab, "",     "#F0EBE1", OUT),
+    ("B (fundo preto)", pecas_ab, "ix-b", "#0D0D0D", OUT_B),
+    ("C (blueprint)", pecas_c,  "",     "#0D0D0D", OUT_C),
 ]
 
 os.makedirs(OUT_DIR, exist_ok=True)
 falhas = []
-for classe, fundo, destino in VARIANTES:
-    bloco = montar(classe, fundo)
+for nome, pecas, classe, fundo, destino in VARIANTES:
+    bloco = montar(pecas, nome, classe, fundo)
     open(destino, "w", encoding="utf-8").write(bloco)
-    nome = "B (fundo preto)" if classe else "A (fundo osso)"
     print("\n  --- versao %s ---" % nome)
     errs = validate(bloco)
     report(bloco)
@@ -319,12 +376,12 @@ for classe, fundo, destino in VARIANTES:
     if errs:
         falhas.append("%s: %s" % (nome, "; ".join(errs)))
 
-# preview local da B: mesma fonte, so com a classe no <body>
+# preview local da B: mesma fonte da A, so com a classe no <body>
 prev_b = os.path.join(HERE, "index-b.html")
 open(prev_b, "w", encoding="utf-8").write(
-    html.replace("<body>", '<body class="ix-b">', 1))
+    pecas_ab[3].replace("<body>", '<body class="ix-b">', 1))
 print("\n  preview local da B: %s" % os.path.relpath(prev_b, HERE))
 
 if falhas:
     sys.exit("FALHOU:\n  - " + "\n  - ".join(falhas))
-print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas duas versoes.")
+print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas tres versoes.")

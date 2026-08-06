@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8753"],
       "port": 8753
+    },
+    {
+      "name": "lp-preview-c",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8761"],
+      "port": 8761
     }
   ]
 }

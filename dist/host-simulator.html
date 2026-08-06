@@ -55,9 +55,13 @@
 <pre id="probe">carregando…</pre>
 
 <script>
-var VAR_B=/[?&]bloco=b/.test(location.search);
-document.title=(VAR_B?'B':'A')+' - QA host hostil';
-fetch(VAR_B?'greatpages-block-b.html':'greatpages-block.html').then(function(r){return r.text();}).then(function(html){
+// ?bloco=b ou ?bloco=c ; sem parametro, testa a A
+var m=/[?&]bloco=([abc])/.exec(location.search);
+var VAR=m?m[1]:'a';
+var VAR_B=(VAR==='b'), VAR_C=(VAR==='c');
+var ARQ={a:'greatpages-block.html',b:'greatpages-block-b.html',c:'greatpages-block-c.html'};
+document.title=VAR.toUpperCase()+' - QA host hostil';
+fetch(ARQ[VAR]).then(function(r){return r.text();}).then(function(html){
   var slot=document.getElementById('slot');
   slot.innerHTML=html;
   // innerHTML nao executa <script>: recria como o construtor faz
@@ -70,9 +74,22 @@ fetch(VAR_B?'greatpages-block-b.html':'greatpages-block.html').then(function(r){
 });
 
 var LARANJA='rgb(242, 97, 1)', PRETO='rgb(13, 13, 13)', OSSO='rgb(240, 235, 225)';
-// a unica coisa que muda entre A e B sao estas duas superficies
-var FUNDO_ESPERADO=function(){return VAR_B?PRETO:OSSO};
-var SEC2_ESPERADO=function(){return VAR_B?'rgb(19, 19, 19)':PRETO};
+var VERDE_HOST='rgb(0, 255, 0)', AMARELO_HOST='rgb(255, 255, 0)';
+
+// A e B compartilham layout; a C e outro layout, com outros nomes de classe.
+// Tudo o que difere mora aqui - o resto do audit e igual para as tres.
+var PERFIL={
+  a:{ fundo:OSSO,  raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:PRETO,
+      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos' },
+  b:{ fundo:PRETO, raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:'rgb(19, 19, 19)',
+      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos' },
+  // a dobra 2 da C tem fundo em GRADIENTE, entao nao ha cor solida para
+  // comparar: dobra2Bg fica nulo e a checagem passa a ser "nao pegou o verde
+  // do host", que e o que o teste realmente quer saber.
+  c:{ fundo:PRETO, raioCta:'999px', dobra2:'.ix-arq',    dobra2Bg:null,
+      card:'.ix-camada-p',  icone:'.ix-camada-ico svg', lista:'.ix-pilha' }
+};
+var P=PERFIL[VAR];
 
 function audit(){
   var d=document.documentElement, out=[];
@@ -100,12 +117,14 @@ function audit(){
      /Archivo/.test(getComputedStyle(R.querySelector('.ix-lede')).fontFamily));
   var btn=R.querySelector('.ix-btn'), bcs=getComputedStyle(btn);
   ok('CTA laranja da marca', bcs.backgroundColor===LARANJA, bcs.backgroundColor);
-  ok('CTA com raio 8px (nao 30px do host)', bcs.borderRadius==='8px', bcs.borderRadius);
+  ok('CTA com o raio da versao (nao 30px do host)',
+     bcs.borderRadius===P.raioCta, bcs.borderRadius+' esperado '+P.raioCta);
   ok('box-sizing border-box no bloco', getComputedStyle(R).boxSizing==='border-box');
   var fundoReal=getComputedStyle(R).backgroundColor;
-  ok('fundo da pagina correto para a versao', fundoReal===FUNDO_ESPERADO(), fundoReal);
-  var sec2=getComputedStyle(R.querySelector('.ix-escuro')).backgroundColor;
-  ok('faixa da dobra 2 correta', sec2===SEC2_ESPERADO(), sec2);
+  ok('fundo da pagina correto para a versao', fundoReal===P.fundo, fundoReal);
+  var sec2=getComputedStyle(R.querySelector(P.dobra2)).backgroundColor;
+  if(P.dobra2Bg) ok('faixa da dobra 2 correta', sec2===P.dobra2Bg, sec2);
+  else ok('dobra 2 manteve o proprio fundo', sec2!==VERDE_HOST, sec2);
   // contraste real do texto sobre o fundo desta versao
   var h1c=getComputedStyle(R.querySelector('h1')).color;
   ok('titulo contrasta com o fundo', h1c!==fundoReal, h1c+' vs '+fundoReal);
@@ -115,15 +134,14 @@ function audit(){
   ok('check do selo nao foi preenchido', neg.fill==='none', neg.fill);
   ok('rodape do bloco = Preto Comando',
      getComputedStyle(R.querySelector('footer')).backgroundColor===PRETO);
-  var card=R.querySelector('.ix-card');
+  var card=R.querySelector(P.card);
   ok('card nao virou amarelo do host',
-     getComputedStyle(card).backgroundColor!=='rgb(255, 255, 0)');
+     getComputedStyle(card).backgroundColor!==AMARELO_HOST);
   ok('card sem a borda magenta do host', getComputedStyle(card).borderTopWidth==='0px');
-  ok('secao nao virou verde do host',
-     getComputedStyle(R.querySelector('.ix-escuro')).backgroundColor!=='rgb(0, 255, 0)');
+  ok('secao nao virou verde do host', sec2!==VERDE_HOST);
 
   // 3. graficos nao esmagados pelo host
-  var ico=R.querySelector('.ix-card-ico svg');
+  var ico=R.querySelector(P.icone);
   ok('icone do card nao foi esmagado a 50px',
      ico.getBoundingClientRect().width>20 && ico.getBoundingClientRect().width<=60,
      Math.round(ico.getBoundingClientRect().width)+'px');
@@ -135,7 +153,7 @@ function audit(){
      getComputedStyle(circ).borderRadius==='50%' &&
      Math.abs(circ.getBoundingClientRect().width-circ.getBoundingClientRect().height)<2);
   ok('camadas sem marcador de lista',
-     getComputedStyle(R.querySelector('.ix-blocos')).listStyleType==='none');
+     getComputedStyle(R.querySelector(P.lista)).listStyleType==='none');
 
   // 4. conteudo visivel (rede de seguranca do reveal)
   var tot=R.querySelectorAll('.reveal').length, vis=0;
@@ -152,9 +170,28 @@ function audit(){
   if(!bar) out.push('sticky: AUSENTE');
   else if(getComputedStyle(bar).display==='none')
     out.push('sticky: N/A com >=880px - testar em 390px');
-  else ok('sticky colada na viewport',
-          bar.parentNode===document.body ||
-          Math.abs(bar.getBoundingClientRect().bottom-window.innerHeight)<5);
+  else {
+    // Nao basta ter sido reancorada no body: como o CSS do bloco e escopado em
+    // #ix-ws3, sair da raiz faz a barra perder TODAS as regras. Verifica o que
+    // interessa - colada na viewport E ainda estilizada.
+    // Mede no estado ABERTO: fechada, a barra esta deslocada por
+    // transform:translateY(120%) e o bottom nao diz nada sobre o ancoramento.
+    // transition:none antes de abrir - senao a medida cai no meio dos 300ms da
+    // transicao e le o deslocamento antigo.
+    var jaAberta=bar.classList.contains('is-visible');
+    var trAntes=bar.style.transition;
+    bar.style.transition='none';
+    if(!jaAberta) bar.classList.add('is-visible');
+    var bcs2=getComputedStyle(bar), brect=bar.getBoundingClientRect();
+    if(!jaAberta) bar.classList.remove('is-visible');
+    bar.style.transition=trAntes;
+    ok('sticky colada na viewport',
+       Math.abs(brect.bottom-window.innerHeight)<5,
+       'bottom '+Math.round(brect.bottom)+' vs '+window.innerHeight);
+    ok('sticky manteve o estilo fora da raiz',
+       bcs2.position==='fixed' && bcs2.backgroundColor!=='rgba(0, 0, 0, 0)',
+       bcs2.position+' / '+bcs2.backgroundColor);
+  }
 
   var falhas=out.filter(function(l){return /FALHOU/.test(l)}).length;
   out.unshift(falhas? '>>> '+falhas+' FALHA(S)' : '>>> TUDO OK');
