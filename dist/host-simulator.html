@@ -70,8 +70,23 @@ fetch(ARQ[VAR]).then(function(r){return r.text();}).then(function(html){
     if(old.src){s.src=old.src;} else {s.textContent=old.textContent;}
     old.parentNode.replaceChild(s,old);
   });
-  setTimeout(audit,2400);
+  setTimeout(passear,2000);
 });
+
+// O reveal e disparado por rolagem. Auditar a pagina PARADA sempre acusava
+// "reveal visiveis (4/26)" - a checagem media a pagina que ninguem rolou.
+// Aqui o QA percorre a pagina inteira (em passos, como um usuario) e volta ao
+// topo antes de auditar. Se algum bloco continuar invisivel depois disso, e bug
+// de verdade.
+function passear(){
+  var H=document.documentElement.scrollHeight, y=0;
+  var passo=function(){
+    y+=180; window.scrollTo(0,y);
+    if(y<H){ setTimeout(passo,45); }
+    else { window.scrollTo(0,0); setTimeout(audit,500); }
+  };
+  passo();
+}
 
 var LARANJA='rgb(242, 97, 1)', PRETO='rgb(13, 13, 13)', OSSO='rgb(240, 235, 225)';
 var VERDE_HOST='rgb(0, 255, 0)', AMARELO_HOST='rgb(255, 255, 0)';

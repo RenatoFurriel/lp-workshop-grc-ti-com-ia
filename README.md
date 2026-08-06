@@ -70,7 +70,7 @@ O build avisa enquanto o placeholder existir:
 `fbclid`, `ttclid`, `msclkid`, `src` e `sck` da URL da página para o formulário.
 Sem isso o lead chega sem origem. Cada CTA tem um `data-form` próprio
 para rastrear qual botão converteu: `hero`, `entregaveis`, `mentor` e `sticky` em
-A/B; `topo`, `hero`, `entregaveis`, `fecho` e `sticky` na C.
+A/B; `topo`, `hero`, `entregaveis`, `mentor` e `sticky` na C.
 
 ---
 
@@ -301,6 +301,7 @@ numerais de seção `01`–`04` são navegação, não copy.
 | **Cantos em colchete** | 8 gradientes de fundo posicionados, não `border` — construtores injetam `border:6px solid!important` e um border próprio perderia a briga. |
 | **Progresso de leitura** | 2px de laranja no fio inferior da barra do topo, via `scaleX`. |
 | **Numerais fantasma** | `content:attr(data-n)` a 3% de opacidade, cortado no canto do painel. Peso editorial a custo zero. |
+| **Ficha tecnica** | No desktop, 3 celulas divididas por fio. No mobile viram uma **esteira** que corre devagar: o conteudo entra duas vezes e a trilha anda `-50%`, entao o loop e continuo e sem salto (empilhadas, as 3 celulas comiam 180px de altura). |
 | **Credenciais como números** | As duas primeiras viram `40.000` e `200` em corpo grande. O texto é o mesmo — só a hierarquia tipográfica muda. |
 
 ### Os dois objetos em 3D
@@ -342,6 +343,28 @@ chegarem, é salvar em `assets/`, trocar o bloco pelo `<img>` e registrar em
 Os dois tons derivados (`--laranja-luz`, `--laranja-fundo`) aparecem **só** em
 brilho, gradiente e halo — nunca como cor de texto ou preenchimento sólido. Texto
 e CTA seguem no `#F26101` puro (6,00:1 sobre o Preto Comando, AA).
+
+### Duas armadilhas de escala que custaram caro
+
+**O certificado ficava em branco no mobile.** Tudo dentro da folha e medido em
+`cqw` (largura do proprio container), entao quando a folha encolhe o texto
+encolhe junto: em 375px de tela os rotulos caiam para **5,7px** e a folha parecia
+vazia, com so a rubrica (vetor) visivel. A correcao nao e "aumentar a fonte" e
+sim **subir a escala tipografica inteira no mobile**, dar toda a largura util a
+folha e reduzir a rotacao para o texto nao entortar.
+
+**O reveal podia deixar conteudo invisivel para sempre.** O
+`IntersectionObserver` amostra o estado por frame: num SALTO de rolagem
+(arrastar a barra, tecla End, deep link com `#ancora`) o elemento entra e sai
+entre duas amostras e nunca recebe callback — e como o reveal usa `opacity:0`,
+aquele bloco nao aparece nunca mais. Medido com saltos de 600px: **4 de 26
+elementos** ficavam invisiveis. A C ganhou uma varredura de retaguarda no mesmo
+`requestAnimationFrame` do progresso de leitura: se o topo do elemento ja passou
+pela base da viewport, ele tem de estar visivel. A lista se esvazia sozinha.
+
+> O host-simulator tambem estava medindo isso errado: auditava a pagina **parada**
+> e por isso acusava "reveal visiveis (4/26)". Agora ele percorre a pagina inteira
+> em passos, como um usuario, e so depois audita.
 
 **Sem `@property`** em nenhum lugar: o build o trataria como seletor e o quebraria.
 

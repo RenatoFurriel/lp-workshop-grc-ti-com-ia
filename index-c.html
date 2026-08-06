@@ -125,8 +125,10 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 /* !important nas superficies: construtores estilizam section/footer por TAG e
    com !important (ex.: section{background:#0f0!important}). Sem isto as dobras
    perdem a cor da marca. Verificado no dist/host-simulator.html. */
+/* 9vw dava 130px de padding em 1440px - somado a dobra vizinha, 260px de vao.
+   Com 4,6vw o vao entre dobras cai para ~132px no desktop. */
 .ix-sec{position:relative;background:transparent!important;
-  padding:clamp(72px,9vw,132px) 0!important}
+  padding:clamp(56px,4.6vw,84px) 0!important}
 /* No mobile o clamp travava no piso de 72px, e como as dobras vizinhas somam
    os dois paddings dava 144px de vao entre elas - respiro de desktop numa tela
    de 390px. Aqui o vao total cai para ~76px. */
@@ -347,15 +349,45 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   .ix-vagas{font-size:10px;letter-spacing:.18em}
 }
 
-/* ficha tecnica: 3 celulas divididas por fio, no rodape do hero */
-.ix-ficha{position:relative;z-index:2;display:flex;flex-wrap:wrap;
+/* ---------- FICHA TECNICA ----------
+   No desktop: 3 celulas divididas por fio, no rodape do hero.
+   No mobile: as 3 celulas nao caberiam lado a lado e empilhavam em 3 linhas
+   (60px de altura cada). Viram uma ESTEIRA que corre devagar - o conteudo
+   entra duas vezes e a trilha anda -50%, entao o loop e continuo e sem salto.
+   O segundo jogo e aria-hidden para o leitor de tela nao ler tudo duas vezes. */
+.ix-ficha{position:relative;z-index:2;overflow:hidden;
   border-top:1px solid var(--fio);border-bottom:1px solid var(--fio)}
-.ix-ficha div{flex:1 1 180px;min-width:0;padding:20px clamp(14px,2vw,28px);
+.ix-ficha-track{display:flex}
+/* display:contents dissolve o jogo e os itens viram filhos diretos da trilha,
+   entao no desktop e uma linha de 3 celulas iguais, como antes */
+.ix-ficha-set{display:contents}
+.ix-ficha-set + .ix-ficha-set{display:none}
+.ix-ficha span{flex:1 1 180px;min-width:0;padding:20px clamp(14px,2vw,28px);
   font-family:var(--display);font-weight:700;text-transform:uppercase;
   font-size:clamp(15px,1.7vw,20px);letter-spacing:.05em;line-height:1.1;
   color:var(--osso)}
-.ix-ficha div + div{box-shadow:inset 1px 0 0 0 var(--fio)}
-.ix-ficha div:last-child{color:var(--laranja)}
+.ix-ficha span + span{box-shadow:inset 1px 0 0 0 var(--fio)}
+.ix-ficha span:nth-child(3n){color:var(--laranja)}
+
+@media(max-width:760px){
+  /* mascara nas pontas: os itens entram e saem sem cortar seco na borda */
+  .ix-ficha{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+  .ix-ficha-track{width:max-content;animation:ix-esteira 24s linear infinite}
+  .ix-ficha-set,.ix-ficha-set + .ix-ficha-set{display:flex;flex:0 0 auto}
+  .ix-ficha span{flex:0 0 auto;display:flex;align-items:center;gap:16px;
+    padding:15px 0 15px 16px;font-size:15px;white-space:nowrap}
+  /* precisa repetir o `+ span`: ele tem especificidade maior que `.ix-ficha
+     span` e o fio vertical sobrevivia ao box-shadow:none la de cima */
+  .ix-ficha span,.ix-ficha span + span{box-shadow:none}
+  /* losango laranja separando os itens - marcador, nao texto */
+  .ix-ficha span::after{content:"";flex:0 0 auto;width:5px;height:5px;
+    margin-left:16px;background:var(--laranja);rotate:45deg}
+}
+@keyframes ix-esteira{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
 
 /* a foto: mesmo recorte de A/B, agora sobre o nucleo de luz e o piso */
 .ix-hero-foto{position:relative;display:flex;justify-content:center;align-items:flex-end}
@@ -384,12 +416,6 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   .ix-hero-foto i{max-width:370px}
   .ix-ficha div{text-align:center}
   .ix-piso{height:36%}
-}
-/* a ficha empilha: o divisor tem de virar horizontal, senao sobra um fio
-   vertical solto na lateral de cada celula */
-@media(max-width:640px){
-  .ix-ficha div{flex:1 1 100%;padding-block:16px}
-  .ix-ficha div + div{box-shadow:inset 0 1px 0 0 var(--fio)}
 }
 
 /* ==========================================================================
@@ -721,6 +747,31 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-selo .ix-neg{fill:#F2EDE4}
 .ix-selo .ix-neg-linha{fill:none;stroke:#F2EDE4}
 
+/* --- o certificado no mobile ---
+   Tudo dentro da folha e medido em cqw (largura do proprio container), entao
+   quando a folha encolhe o texto encolhe junto: em 375px de tela os rotulos
+   caiam para 5,7px e a data/assinatura para 9px. A folha parecia EM BRANCO,
+   com so a rubrica (vetor) visivel. Aqui a folha ganha toda a largura util e a
+   escala tipografica sobe, com menos rotacao para o texto nao entortar. */
+@media(max-width:760px){
+  .ix-palco{padding-inline:12px}
+  .ix-cert{--cw:min(420px,100%)}
+  .ix-cert-obj{transform:rotateX(7deg) rotateY(-8deg) rotateZ(-.6deg)}
+  .ix-entrega:hover .ix-cert-obj{transform:rotateX(5deg) rotateY(-5deg) rotateZ(-.3deg)}
+  .ix-folha-in{inset:8.4cqw 8.8cqw}
+  .ix-folha-marca svg{width:4.6cqw!important;height:4.6cqw!important}
+  .ix-folha-marca b{font-size:3.8cqw}
+  .ix-folha h4{font-size:8.2cqw}
+  .ix-folha-obj{font-size:3.4cqw;letter-spacing:.12em;margin-top:2cqw}
+  .ix-folha-linha{margin-top:4.4cqw}
+  /* 34% nao cabia "ROBERTO ARTEIRO" em 9px e o nome saia com reticencias */
+  .ix-folha-pe span{font-size:2.9cqw;letter-spacing:.02em}
+  .ix-folha-pe div{flex:0 0 40%}
+  /* selo menor: em 19cqw ele encostava na linha "WORKSHOP GRC TI COM IA" */
+  .ix-selo{width:15.5cqw;bottom:2.4cqw}
+  .ix-folha-rub{height:4.6cqw}
+}
+
 /* ==========================================================================
    DOBRA 4 - MENTOR
    ========================================================================== */
@@ -783,11 +834,17 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-cred-l svg{flex:0 0 auto;width:19px!important;height:19px!important;margin-top:1px;
   color:var(--laranja);stroke:currentColor;fill:none;stroke-width:2.2;
   stroke-linecap:round;stroke-linejoin:round}
+/* CTA final: fecha a dobra do mentor. Respiro generoso acima, sem caixa. */
+.ix-fecho{display:flex;flex-direction:column;align-items:center;gap:16px;
+  margin-top:clamp(40px,4.6vw,68px);text-align:center}
 @media(max-width:960px){
   .ix-mentor-grid{grid-template-columns:minmax(0,1fr);gap:38px}
   .ix-mentor-txt h2{text-align:center}
   .ix-mentor-txt > p{margin-inline:auto;text-align:center}
   .ix-cred{max-width:34rem;margin-inline:auto}
+}
+@media(max-width:640px){
+  .ix-fecho .ix-btn{width:100%;max-width:22rem}
 }
 @media(max-width:520px){
   .ix-cred{grid-template-columns:minmax(0,1fr)}
@@ -795,21 +852,12 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 }
 
 /* ==========================================================================
-   FECHAMENTO + RODAPE
+   RODAPE
+   A CTA final nao tem mais caixa propria: ela fecha a dobra do mentor, logo
+   depois das credenciais. A caixa com cantos em colchete criava um segundo
+   "cartao de encerramento" que nao levava informacao nova e empurrava o botao
+   para longe do texto que o justifica.
    ========================================================================== */
-.ix-fecho{position:relative;isolation:isolate;overflow:hidden;
-  background:transparent!important;padding:clamp(64px,8vw,110px) 0!important}
-.ix-fecho-in{position:relative;display:flex;flex-direction:column;align-items:center;
-  gap:22px;text-align:center;padding:clamp(36px,4.4vw,58px) clamp(22px,4vw,52px);
-  border-radius:4px;
-  background:
-    radial-gradient(80% 120% at 50% 0%,rgba(242,97,1,.16),rgba(242,97,1,0) 66%),
-    var(--n1)!important;
-  box-shadow:inset 0 0 0 1px var(--fio)}
-.ix-fecho-in::before{content:"";position:absolute;top:0;left:24%;right:24%;height:1px;
-  background:linear-gradient(90deg,rgba(242,97,1,0),var(--laranja-luz),rgba(242,97,1,0))}
-.ix-fecho h2{font-size:clamp(28px,4.4vw,54px);max-width:24ch}
-
 footer{position:relative;isolation:isolate;overflow:hidden;
   background:var(--preto)!important;padding:clamp(58px,7vw,84px) 0 34px!important;
   box-shadow:inset 0 1px 0 0 var(--fio)}
@@ -853,6 +901,10 @@ body.ix-noanim .reveal{opacity:1!important;transform:none!important;transition:n
   body.ix-js .reveal{opacity:1;transform:none;transition:none}
   .ix-btn,.ix-camada-p,.ix-no,.ix-wb-obj,.ix-cert-obj{transition:none}
   .ix-nucleo,.ix-rede .fluxo,.ix-pill i,.ix-orbita,.ix-wb-obj,.ix-cert-obj{animation:none}
+  /* esteira parada: o segundo jogo sai e a trilha volta a quebrar linha, senao
+     metade da ficha ficaria fora da mascara para sempre */
+  .ix-ficha-track{animation:none;width:auto;flex-wrap:wrap}
+  .ix-ficha-set + .ix-ficha-set{display:none}
 }
 .ix-cv{content-visibility:auto;contain-intrinsic-size:auto 1200px}
 </style>
@@ -972,9 +1024,18 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
 
   <div class="ix-wrap">
     <div class="ix-ficha reveal" style="--d:340ms">
-      <div>Sáb 22/08</div>
-      <div>9h–18h</div>
-      <div>Ao vivo e gratuito</div>
+      <div class="ix-ficha-track">
+        <div class="ix-ficha-set">
+          <span>Sáb 22/08</span>
+          <span>9h–18h</span>
+          <span>Ao vivo e gratuito</span>
+        </div>
+        <div class="ix-ficha-set" aria-hidden="true">
+          <span>Sáb 22/08</span>
+          <span>9h–18h</span>
+          <span>Ao vivo e gratuito</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1281,17 +1342,9 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
         </ul>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- ============ FECHAMENTO ============ -->
-<section class="ix-fecho ix-cv">
-  <div class="ix-wrap">
-    <div class="ix-fecho-in reveal">
-      <span class="ix-cantos" aria-hidden="true"></span>
-      <p class="ix-pill"><i aria-hidden="true"></i>3ª edição · ao vivo e gratuito · sábado, 22 de agosto</p>
-      <h2>GRC TI <span class="ix-mark">com IA</span></h2>
-      <a class="ix-btn" data-form="fecho" href="https://form.respondi.app/SUBSTITUIR">
+    <div class="ix-fecho reveal">
+      <a class="ix-btn" data-form="mentor" href="https://form.respondi.app/SUBSTITUIR">
         <span>Quero me atualizar em GRC TI com IA</span>
         <span class="ix-btn-arw" aria-hidden="true"><svg viewBox="0 0 24 24">
           <path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
@@ -1376,6 +1429,26 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     if(host) host.classList.add("ix-noanim");
     Array.prototype.forEach.call(els, function(el){ el.classList.add("is-visible"); });
   };
+
+  /* Varredura de retaguarda para o reveal.
+     O IntersectionObserver amostra o estado por frame: num SALTO de rolagem
+     (arrastar a barra, tecla End, deep link com #ancora) o elemento pode entrar
+     e sair entre duas amostras e nunca receber callback - e como o reveal usa
+     opacity:0, aquele bloco fica invisivel PARA SEMPRE. Medido: com saltos de
+     600px, 4 de 26 elementos nunca apareciam.
+     A regra aqui e simples: se o topo do elemento ja passou pela base da
+     viewport, ele tem de estar visivel. A lista se esvazia sozinha, entao o
+     custo vira zero depois das primeiras rolagens. */
+  var pendentes = Array.prototype.slice.call(els);
+  var varrerReveal = function(){
+    if(!pendentes.length) return;
+    var base = window.innerHeight;
+    pendentes = pendentes.filter(function(el){
+      if(el.classList.contains("is-visible")) return false;
+      if(el.getBoundingClientRect().top < base){ el.classList.add("is-visible"); return false; }
+      return true;
+    });
+  };
   if("IntersectionObserver" in window && !reduce){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
@@ -1421,26 +1494,28 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     }
   }
 
-  /* --- progresso de leitura na barra do topo --- */
+  /* --- progresso de leitura na barra do topo + varredura do reveal ---
+     Um unico rAF por rolagem serve as duas coisas: le o layout uma vez so. */
   var prog = document.getElementById("ix-prog");
-  if(prog && root){
-    var tick = false;
-    var pintar = function(){
-      tick = false;
+  var tick = false;
+  var pintar = function(){
+    tick = false;
+    if(prog && root){
       var r = root.getBoundingClientRect();
       var total = r.height - window.innerHeight;
       var p = total > 0 ? (-r.top) / total : 0;
       prog.style.setProperty("--p", Math.max(0, Math.min(1, p)).toFixed(4));
-    };
-    var agendar = function(){
-      if(tick) return;
-      tick = true;
-      requestAnimationFrame(pintar);
-    };
-    window.addEventListener("scroll", agendar, {passive:true});
-    window.addEventListener("resize", agendar);
-    pintar();
-  }
+    }
+    if(!reduce) varrerReveal();
+  };
+  var agendar = function(){
+    if(tick) return;
+    tick = true;
+    requestAnimationFrame(pintar);
+  };
+  window.addEventListener("scroll", agendar, {passive:true});
+  window.addEventListener("resize", agendar);
+  pintar();
 
   /* --- CTA fixa mobile --- */
   var bar = document.getElementById("ix-sticky");
