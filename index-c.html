@@ -127,14 +127,18 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    perdem a cor da marca. Verificado no dist/host-simulator.html. */
 .ix-sec{position:relative;background:transparent!important;
   padding:clamp(72px,9vw,132px) 0!important}
+/* No mobile o clamp travava no piso de 72px, e como as dobras vizinhas somam
+   os dois paddings dava 144px de vao entre elas - respiro de desktop numa tela
+   de 390px. Aqui o vao total cai para ~76px. */
+@media(max-width:760px){
+  .ix-sec{padding:38px 0!important}
+}
 
-/* Cabecalho de secao: numero, fio com tique, rotulo. E a assinatura tecnica. */
+/* Cabecalho de secao: tique laranja + rotulo. Sem numeracao de secao - o fio
+   curto sozinho ja marca o inicio da dobra. */
 .ix-num{display:flex;align-items:center;gap:14px;margin-bottom:clamp(22px,3vw,34px)}
-.ix-num i{font-style:normal;font-family:var(--display);font-weight:700;
-  font-size:clamp(20px,2.2vw,26px);line-height:1;color:var(--laranja);
-  letter-spacing:.04em}
-.ix-num s{flex:1 1 auto;max-width:120px;height:1px;text-decoration:none;
-  background:linear-gradient(90deg,var(--laranja),rgba(242,97,1,0))}
+.ix-num s{flex:0 0 auto;width:clamp(26px,3.4vw,44px);height:2px;text-decoration:none;
+  background:linear-gradient(90deg,var(--laranja),rgba(242,97,1,.25))}
 .ix-num span{font-weight:600;font-size:clamp(10.5px,1.15vw,12px);letter-spacing:.28em;
   text-transform:uppercase;color:var(--tinta-fraca)}
 
@@ -178,13 +182,16 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   100%{box-shadow:0 0 0 0 rgba(242,97,1,0)}
 }
 
-/* ---------- CTA ---------- */
+/* ---------- CTA ----------
+   Raio de 6px, nao pilula: o resto da pagina e canto reto (paineis em 4px) e a
+   pilula era o unico elemento redondo. Vale para TODOS os botoes, inclusive o
+   do topo, o da CTA fixa e a copia sem escopo do fallback no JS. */
 .ix-btn{
   position:relative;isolation:isolate;overflow:hidden;
   display:inline-flex;align-items:center;justify-content:center;gap:14px;
   text-align:center;font-family:var(--corpo);font-weight:700;
   font-size:clamp(13.5px,1.45vw,16px);letter-spacing:.04em;text-transform:uppercase;
-  cursor:pointer;border:0;border-radius:999px;padding:20px 26px 20px 34px;
+  cursor:pointer;border:0;border-radius:6px;padding:20px 26px 20px 34px;
   background:var(--laranja)!important;color:#fff!important;
   box-shadow:
     0 1px 0 0 rgba(255,255,255,.34) inset,
@@ -207,7 +214,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-btn:hover::before{transform:translateX(120%)}
 .ix-btn > *{position:relative;z-index:1}
 .ix-btn-arw{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
-  width:27px;height:27px;border-radius:50%;background:rgba(13,13,13,.22);
+  width:26px;height:26px;border-radius:4px;background:rgba(13,13,13,.22);
   transition:transform .35s var(--mola)}
 .ix-btn-arw svg{width:13px!important;height:13px!important;stroke:#fff;fill:none;
   stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -231,7 +238,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-topo-acoes{display:flex;align-items:center;gap:20px}
 .ix-topo-data{font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--tinta-fraca);white-space:nowrap}
-.ix-btn-mini{padding:11px 22px;font-size:11.5px;gap:0;letter-spacing:.1em}
+.ix-btn-mini{padding:11px 20px;font-size:11.5px;gap:0;letter-spacing:.1em;border-radius:5px}
 /* progresso de leitura: 2px de laranja no fio inferior da barra */
 .ix-prog{position:absolute;left:0;bottom:-1px;height:2px;width:100%;
   transform:scaleX(var(--p,0));transform-origin:0 50%;
@@ -327,7 +334,18 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   margin-top:clamp(28px,3.2vw,40px)}
 .ix-vagas{font-weight:600;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
   color:var(--tinta-fraca)}
-.ix-btn-wrap{display:flex;justify-content:center;margin-top:clamp(40px,5vw,64px)}
+.ix-btn-wrap{display:flex;justify-content:center;margin-top:clamp(32px,5vw,64px)}
+
+/* --- botoes no mobile: menos altura, menos corpo, rotulo em uma linha ---
+   Com o padding de desktop (20px) e 13,5px de corpo, a CTA do hero quebrava em
+   duas linhas e passava de 80px de altura numa tela de 390px. */
+@media(max-width:640px){
+  .ix-btn{padding:14px 16px 14px 20px;font-size:12px;letter-spacing:.03em;gap:10px}
+  .ix-btn-arw{width:22px;height:22px}
+  .ix-btn-arw svg{width:11px!important;height:11px!important}
+  .ix-btn-mini{padding:9px 14px;font-size:10.5px}
+  .ix-vagas{font-size:10px;letter-spacing:.18em}
+}
 
 /* ficha tecnica: 3 celulas divididas por fio, no rodape do hero */
 .ix-ficha{position:relative;z-index:2;display:flex;flex-wrap:wrap;
@@ -361,7 +379,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   .ix-hero .ix-num{justify-content:center}
   .ix-hero .ix-num s{max-width:56px}
   .ix-hero .ix-cta{align-items:center}
-  .ix-hero .ix-btn{width:100%;max-width:25rem}
+  .ix-hero .ix-btn{width:100%;max-width:22rem}
   .ix-hero-foto{order:1;margin-bottom:-10px;padding-top:28px}
   .ix-hero-foto i{max-width:370px}
   .ix-ficha div{text-align:center}
@@ -817,7 +835,8 @@ footer p{max-width:none;text-align:center;font-size:12.5px;color:var(--tinta-fra
 .ix-sticky p{flex:1;margin:0;font-size:11px;line-height:1.3;color:var(--tinta-fraca);
   max-width:none}
 .ix-sticky b{color:var(--osso);display:block;font-size:12.5px;letter-spacing:.02em}
-.ix-sticky .ix-btn{padding:13px 19px;font-size:11.5px;gap:0;letter-spacing:.08em;
+.ix-sticky .ix-btn{padding:12px 16px;font-size:11px;gap:0;letter-spacing:.07em;
+  border-radius:5px;
   box-shadow:0 1px 0 0 rgba(255,255,255,.3) inset,0 0 0 1px rgba(242,97,1,.5)}
 @media(min-width:880px){.ix-sticky{display:none}}
 
@@ -928,7 +947,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
       <div class="ix-hero-txt">
         <p class="ix-pill reveal"><i aria-hidden="true"></i>3ª edição · ao vivo e gratuito · sábado, 22 de agosto</p>
         <div class="ix-num reveal" style="--d:80ms">
-          <i>01</i><s></s><span class="ix-kicker">Workshop</span>
+          <s></s><span class="ix-kicker">Workshop</span>
         </div>
         <h1 class="reveal" style="--d:140ms"><span class="ix-prata">GRC TI</span>
           <span class="ix-mark">com IA</span></h1>
@@ -966,7 +985,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     <div class="ix-arq-head">
       <div>
         <div class="ix-num reveal">
-          <i>02</i><s></s><span>como vai ser o conteúdo do workshop</span>
+          <s></s><span>como vai ser o conteúdo do workshop</span>
         </div>
         <h2 class="reveal" style="--d:70ms">A <em>arquitetura cognitiva</em> completa,
           diante dos seus olhos, peça por peça.</h2>
@@ -1088,7 +1107,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
 <!-- ============ DOBRA 3 - ENTREGAVEIS ============ -->
 <section class="ix-sec ix-receber ix-cv">
   <div class="ix-wrap">
-    <div class="ix-num reveal"><i>03</i><s></s><span>o que você leva do workshop</span></div>
+    <div class="ix-num reveal"><s></s><span>o que você leva do workshop</span></div>
     <h2 class="reveal" style="--d:70ms">E você ainda vai receber</h2>
 
     <div class="ix-entregas">
@@ -1128,7 +1147,6 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
           </div>
         </div>
         <div class="ix-entrega-txt">
-          <span class="ix-rotulo">Entregável 01</span>
           <h3>Workbook com o passo a passo</h3>
           <p>Para você acompanhar ao vivo e usar como guia para configurar e rodar a sua
              própria arquitetura cognitiva.</p>
@@ -1217,7 +1235,6 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
           </div>
         </div>
         <div class="ix-entrega-txt">
-          <span class="ix-rotulo">Entregável 02</span>
           <h3>Certificado de participação</h3>
           <p>Para você fortalecer o seu posicionamento no LinkedIn e dar o recado ao mercado
              de que você está na frente de 99% dos profissionais de GRC TI.</p>
@@ -1245,7 +1262,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
       </div>
 
       <div class="ix-mentor-txt">
-        <div class="ix-num reveal"><i>04</i><s></s><span>quem monta a arquitetura</span></div>
+        <div class="ix-num reveal"><s></s><span>quem monta a arquitetura</span></div>
         <h2 class="reveal" style="--d:70ms">Quem será o seu mentor?</h2>
         <p class="reveal" style="--d:140ms">
           Roberto implementa governança desde 2007 e aplica o que ensina: conduz a própria
@@ -1458,8 +1475,8 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
         'color:rgba(240,235,225,.52)!important;text-transform:none}' +
       '#ix-sticky b{display:block;font-size:12.5px;font-weight:700;color:#F0EBE1!important}' +
       '#ix-sticky .ix-btn{display:inline-flex;align-items:center;justify-content:center;' +
-        'padding:13px 19px!important;border-radius:999px!important;' +
-        'font:700 11.5px/1.2 Archivo,sans-serif;letter-spacing:.08em;' +
+        'padding:12px 16px!important;border-radius:5px!important;' +
+        'font:700 11px/1.2 Archivo,sans-serif;letter-spacing:.07em;' +
         'text-transform:uppercase;text-decoration:none!important;white-space:nowrap;' +
         'background:#F26101!important;color:#fff!important;box-shadow:none!important}';
 

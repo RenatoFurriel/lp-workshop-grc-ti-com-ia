@@ -86,7 +86,7 @@ var PERFIL={
   // a dobra 2 da C tem fundo em GRADIENTE, entao nao ha cor solida para
   // comparar: dobra2Bg fica nulo e a checagem passa a ser "nao pegou o verde
   // do host", que e o que o teste realmente quer saber.
-  c:{ fundo:PRETO, raioCta:'999px', dobra2:'.ix-arq',    dobra2Bg:null,
+  c:{ fundo:PRETO, raioCta:'6px',   dobra2:'.ix-arq',    dobra2Bg:null,
       card:'.ix-camada-p',  icone:'.ix-camada-ico svg', lista:'.ix-pilha' }
 };
 var P=PERFIL[VAR];
@@ -115,7 +115,10 @@ function audit(){
   ok('h1 do bloco em CAIXA ALTA', cs.textTransform==='uppercase');
   ok('corpo em Archivo',
      /Archivo/.test(getComputedStyle(R.querySelector('.ix-lede')).fontFamily));
-  var btn=R.querySelector('.ix-btn'), bcs=getComputedStyle(btn);
+  // :not(.ix-btn-mini) para pegar a CTA PRINCIPAL. Sem isso, abaixo de 880px o
+  // primeiro .ix-btn do DOM e o botao compacto do topo, que tem raio proprio -
+  // a checagem media o botao errado e reprovava por 1px.
+  var btn=R.querySelector('.ix-btn:not(.ix-btn-mini)'), bcs=getComputedStyle(btn);
   ok('CTA laranja da marca', bcs.backgroundColor===LARANJA, bcs.backgroundColor);
   ok('CTA com o raio da versao (nao 30px do host)',
      bcs.borderRadius===P.raioCta, bcs.borderRadius+' esperado '+P.raioCta);
