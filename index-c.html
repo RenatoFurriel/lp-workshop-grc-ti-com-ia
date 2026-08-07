@@ -342,7 +342,9 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    Com o padding de desktop (20px) e 13,5px de corpo, a CTA do hero quebrava em
    duas linhas e passava de 80px de altura numa tela de 390px. */
 @media(max-width:640px){
-  .ix-btn{padding:14px 16px 14px 20px;font-size:12px;letter-spacing:.03em;gap:10px}
+  /* 12px com .03em fazia "QUERO ME ATUALIZAR EM GRC TI COM IA" quebrar em duas
+     linhas numa tela de 360px */
+  .ix-btn{padding:14px 14px 14px 18px;font-size:11.5px;letter-spacing:.02em;gap:9px}
   .ix-btn-arw{width:22px;height:22px}
   .ix-btn-arw svg{width:11px!important;height:11px!important}
   .ix-btn-mini{padding:9px 14px;font-size:10.5px}
@@ -680,9 +682,13 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    Roberto Arteiro . ITXPRO).
    >>> PARA TROCAR POR UM RENDER REAL: mesmo caminho do workbook.
    -------------------------------------------------------------------------- */
-.ix-cert{--cw:min(372px,80vw);position:relative;width:var(--cw);
+.ix-cert{--cw:min(400px,82vw);position:relative;width:var(--cw);
   aspect-ratio:1.414/1;perspective:1400px;perspective-origin:50% 40%}
-.ix-cert-obj{position:absolute;inset:0;transform-style:preserve-3d;
+/* SEM transform-style:preserve-3d aqui, ao contrario do livro: a folha e uma
+   face unica, entao preserve-3d nao acrescenta nada - e ele e uma fonte
+   conhecida de texto que desaparece ou sai borrado no Safari do iOS. Rotacao
+   simples num plano so renderiza igual e nao corre esse risco. */
+.ix-cert-obj{position:absolute;inset:0;
   transform:rotateX(11deg) rotateY(-13deg) rotateZ(-1deg);
   animation:ix-flutua 10.5s ease-in-out infinite .6s;
   transition:transform .8s var(--mola)}
@@ -709,25 +715,25 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-folha-in{position:absolute;inset:9.6cqw 10.2cqw;z-index:2;display:flex;
   flex-direction:column;align-items:center;text-align:center}
 .ix-folha-marca{display:flex;align-items:center;gap:1.5cqw;margin-bottom:auto}
-.ix-folha-marca svg{width:3.6cqw!important;height:3.6cqw!important;color:#0D0D0D}
-.ix-folha-marca b{font-family:var(--display);font-weight:700;font-size:3cqw;
+.ix-folha-marca svg{width:4cqw!important;height:4cqw!important;color:#0D0D0D}
+.ix-folha-marca b{font-family:var(--display);font-weight:700;font-size:3.2cqw;
   letter-spacing:.2em;text-transform:uppercase;color:#0D0D0D;line-height:1}
-.ix-folha h4{font-family:var(--display);font-weight:700;font-size:6.6cqw;line-height:.94;
+.ix-folha h4{font-family:var(--display);font-weight:700;font-size:7cqw;line-height:.94;
   letter-spacing:.02em;text-transform:uppercase;color:#0D0D0D;max-width:16ch}
 .ix-folha h4 em{font-style:normal;color:#B84300}
-.ix-folha-obj{font-family:var(--corpo);font-weight:600;font-size:2.5cqw;
-  letter-spacing:.2em;text-transform:uppercase;color:rgba(13,13,13,.55);
+.ix-folha-obj{font-family:var(--corpo);font-weight:600;font-size:2.8cqw;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(13,13,13,.55);
   margin-top:2.4cqw}
 /* linha de nome, em branco, como num certificado de verdade */
 .ix-folha-linha{width:62%;height:1px;background:rgba(13,13,13,.4);margin-top:5.6cqw}
 /* rodape da folha: data a esquerda, rubrica a direita, selo no vao do meio */
 .ix-folha-pe{display:flex;align-items:flex-end;justify-content:space-between;
   width:100%;margin-top:auto;gap:2cqw}
-.ix-folha-pe div{flex:0 0 31%;min-width:0}
+.ix-folha-pe div{flex:0 0 38%;min-width:0}
 .ix-folha-pe s{display:block;height:1px;text-decoration:none;
   background:rgba(13,13,13,.38);margin-bottom:1.1cqw}
 .ix-folha-pe span{display:block;font-family:var(--corpo);font-weight:600;
-  font-size:1.95cqw;letter-spacing:.1em;text-transform:uppercase;
+  font-size:2.6cqw;letter-spacing:.04em;text-transform:uppercase;
   color:rgba(13,13,13,.6);line-height:1.3;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
 .ix-folha-rub{height:5.4cqw;display:flex;align-items:flex-end;justify-content:center}
@@ -753,23 +759,34 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    caiam para 5,7px e a data/assinatura para 9px. A folha parecia EM BRANCO,
    com so a rubrica (vetor) visivel. Aqui a folha ganha toda a largura util e a
    escala tipografica sobe, com menos rotacao para o texto nao entortar. */
-@media(max-width:760px){
+@media(max-width:860px){
   .ix-palco{padding-inline:12px}
-  .ix-cert{--cw:min(420px,100%)}
-  .ix-cert-obj{transform:rotateX(7deg) rotateY(-8deg) rotateZ(-.6deg)}
-  .ix-entrega:hover .ix-cert-obj{transform:rotateX(5deg) rotateY(-5deg) rotateZ(-.3deg)}
+  .ix-cert{--cw:min(440px,100%)}
+  .ix-cert-obj{transform:rotateX(6deg) rotateY(-7deg) rotateZ(-.6deg)}
+  .ix-entrega:hover .ix-cert-obj{transform:rotateX(4deg) rotateY(-4deg) rotateZ(-.3deg)}
   .ix-folha-in{inset:8.4cqw 8.8cqw}
-  .ix-folha-marca svg{width:4.6cqw!important;height:4.6cqw!important}
-  .ix-folha-marca b{font-size:3.8cqw}
-  .ix-folha h4{font-size:8.2cqw}
-  .ix-folha-obj{font-size:3.4cqw;letter-spacing:.12em;margin-top:2cqw}
+  .ix-folha-marca svg{width:5cqw!important;height:5cqw!important}
+  .ix-folha-marca b{font-size:4.2cqw}
+  .ix-folha h4{font-size:9cqw}
+  .ix-folha-obj{font-size:3.8cqw;letter-spacing:.1em;margin-top:2cqw}
   .ix-folha-linha{margin-top:4.4cqw}
-  /* 34% nao cabia "ROBERTO ARTEIRO" em 9px e o nome saia com reticencias */
-  .ix-folha-pe span{font-size:2.9cqw;letter-spacing:.02em}
-  .ix-folha-pe div{flex:0 0 40%}
-  /* selo menor: em 19cqw ele encostava na linha "WORKSHOP GRC TI COM IA" */
-  .ix-selo{width:15.5cqw;bottom:2.4cqw}
+  /* piso de 10px: com 2,6cqw numa folha de 310px o nome caia para 8px */
+  .ix-folha-pe span{font-size:3.4cqw;letter-spacing:0}
+  /* Data e assinatura encostadas a esquerda, celulas assimetricas ("22/08/26"
+     cabe em 26%, "ROBERTO ARTEIRO" precisa de 44%), e o selo sai do meio para o
+     canto inferior direito - centralizado ele cobria o nome, e o canto e onde
+     um certificado de verdade leva o selo mesmo. */
+  .ix-folha-pe{justify-content:flex-start;gap:5cqw}
+  .ix-folha-pe div:first-child{flex:0 0 26%}
+  .ix-folha-pe div:last-child{flex:0 0 44%}
+  .ix-selo{left:auto;right:2.5cqw;bottom:2.2cqw;width:15cqw;translate:none}
   .ix-folha-rub{height:4.6cqw}
+  /* brilho de folha mais discreto: a lavagem branca de 60% podia apagar o
+     texto em telas com gama diferente */
+  .ix-folha::after{background:
+    linear-gradient(104deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 30%,
+      rgba(255,255,255,0) 66%,rgba(13,13,13,.06) 100%)}
+}
 }
 
 /* ==========================================================================

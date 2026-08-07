@@ -83,7 +83,10 @@ function passear(){
   var passo=function(){
     y+=180; window.scrollTo(0,y);
     if(y<H){ setTimeout(passo,45); }
-    else { window.scrollTo(0,0); setTimeout(audit,500); }
+    // 1,6s antes de auditar: o reveal tem transicao de .8s mais atraso de ate
+    // .34s, e a checagem le OPACIDADE. Com 500ms os ultimos elementos ainda
+    // estavam a meio caminho e apareciam como "ocultos" - falso positivo.
+    else { window.scrollTo(0,0); setTimeout(audit,1600); }
   };
   passo();
 }
