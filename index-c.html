@@ -9,6 +9,13 @@
      para o GreatPages. Nao entra no bloco: o build usa somente estilo e corpo.
      Sem tags literais neste comentario - o build procura o corpo por regex. -->
 <meta name="robots" content="noindex,nofollow">
+<!-- Preload das fontes da marca. Vale SO para este preview: aqui elas vem por
+     HTTP, e sem o preload o navegador so as pede quando encontra o primeiro
+     texto que as usa - o que abre uma janela de texto invisivel (o "block
+     period" do font-display:swap). No bloco final elas ja sao data URI dentro
+     do proprio HTML e nao existe requisicao nenhuma. -->
+<link rel="preload" href="assets/khand-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* ==========================================================================
    LP WORKSHOP GRC TI COM IA - 3a EDICAO . VERSAO C
@@ -605,22 +612,21 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-wb-face{position:absolute;backface-visibility:hidden}
 /* capa */
 .ix-wb-capa{inset:0;transform:translateZ(calc(var(--d) / 2));overflow:hidden;
-  border-radius:2px 4px 4px 2px;background:#F7F4EE;
-  container-type:inline-size}
+  border-radius:2px 4px 4px 2px;background:#F7F4EE}
 /* arte da capa: cunha laranja no topo e faixa preta na base */
 .ix-wb-capa::before{content:"";position:absolute;top:0;right:0;z-index:1;
-  border-top:26cqw solid var(--laranja);border-left:26cqw solid transparent}
+  border-top:min(58.24px,13.52vw) solid var(--laranja);border-left:min(58.24px,13.52vw) solid transparent}
 .ix-wb-capa::after{content:"";position:absolute;bottom:0;left:0;right:0;height:33%;
   z-index:1;background:var(--preto);clip-path:polygon(0 44%,100% 0,100% 100%,0 100%)}
-.ix-wb-txt{position:absolute;left:9cqw;right:7cqw;top:10cqw;z-index:2}
+.ix-wb-txt{position:absolute;left:min(20.16px,4.68vw);right:min(15.68px,3.64vw);top:min(22.4px,5.2vw);z-index:2}
 .ix-wb-txt i{display:block;font-family:var(--corpo);font-style:normal;font-weight:600;
-  font-size:4.9cqw;letter-spacing:.24em;text-transform:uppercase;
-  color:rgba(13,13,13,.5);margin-bottom:1.6cqw}
-.ix-wb-txt b{display:block;font-family:var(--display);font-weight:700;font-size:20cqw;
+  font-size:min(10.976px,2.548vw);letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(13,13,13,.5);margin-bottom:min(3.584px,0.832vw)}
+.ix-wb-txt b{display:block;font-family:var(--display);font-weight:700;font-size:min(44.8px,10.4vw);
   line-height:.85;text-transform:uppercase;color:#0D0D0D}
 .ix-wb-txt b em{font-style:normal;color:var(--laranja)}
-.ix-wb-pe{position:absolute;left:9cqw;right:7cqw;bottom:6.5cqw;z-index:3;
-  font-family:var(--corpo);font-size:4cqw;font-weight:600;letter-spacing:.11em;
+.ix-wb-pe{position:absolute;left:min(20.16px,4.68vw);right:min(15.68px,3.64vw);bottom:min(14.56px,3.38vw);z-index:3;
+  font-family:var(--corpo);font-size:min(8.96px,2.08vw);font-weight:600;letter-spacing:.11em;
   line-height:1.55;text-transform:uppercase;color:#F0EBE1}
 .ix-wb-pe span{color:var(--laranja)}
 /* especular: luz varrendo a capa na diagonal, por cima da arte */
@@ -682,8 +688,22 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    Roberto Arteiro . ITXPRO).
    >>> PARA TROCAR POR UM RENDER REAL: mesmo caminho do workbook.
    -------------------------------------------------------------------------- */
-.ix-cert{--cw:min(400px,82vw);position:relative;width:var(--cw);
+.ix-cert{--cw:min(400px,100%);position:relative;width:var(--cw);
   aspect-ratio:1.414/1;perspective:1400px;perspective-origin:50% 40%}
+/* ==========================================================================
+   POR QUE O CERTIFICADO NAO USA CONTAINER QUERY
+   A folha era dimensionada em cqw (percentual da largura do proprio
+   container). No Safari do iOS o resultado, num aparelho real, era: o SVG do
+   simbolo, as reguas, a rubrica e o selo apareciam, mas o TEXTO do titulo, do
+   "ITXPRO" e do "WORKSHOP GRC TI COM IA" nao - e aparecia depois de um tempo.
+   Sintoma classico de unidade de container resolvendo em zero na primeira
+   passada de layout, com o texto em font-size:0.
+   A troca: cada medida virou min(<teto em px>, calc(<N>vw - <N*0,64>px)).
+   Nas larguras estreitas a folha mede exatamente 100vw-64px (20px de padding
+   do wrap + 12px do palco, dos dois lados), entao a formula em vw reproduz o
+   cqw ao pixel; acima de ~500px a folha bate no teto de 400px e o min() troca
+   para o valor fixo. Resolve na PRIMEIRA passada, sem container-type.
+   ========================================================================== */
 /* SEM transform-style:preserve-3d aqui, ao contrario do livro: a folha e uma
    face unica, entao preserve-3d nao acrescenta nada - e ele e uma fonte
    conhecida de texto que desaparece ou sai borrado no Safari do iOS. Rotacao
@@ -694,7 +714,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
   transition:transform .8s var(--mola)}
 .ix-entrega:hover .ix-cert-obj{transform:rotateX(6deg) rotateY(-6deg) rotateZ(-.4deg)}
 /* a folha */
-.ix-folha{position:absolute;inset:0;container-type:inline-size;overflow:hidden;
+.ix-folha{position:absolute;inset:0;overflow:hidden;
   background:
     radial-gradient(120% 90% at 18% 0%,#FFFDF9,rgba(255,253,249,0) 60%),
     linear-gradient(158deg,#F6F2EA,#EDE7DC 62%,#E4DDD0);
@@ -702,48 +722,48 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
     0 0 0 1px rgba(13,13,13,.18)}
 /* Moldura dupla em DOIS FIOS: border faz o de dentro, outline o de fora, com
    outline-offset abrindo o vao. Com box-shadow e spread eu tinha uma faixa
-   cinza CHEIA de 1,6cqw - o spread pinta o anel inteiro, nao a borda dele. */
-.ix-folha::before{content:"";position:absolute;inset:6cqw;z-index:1;
+   cinza CHEIA de 1,min(24px,calc(6vw - 3.84px)) - o spread pinta o anel inteiro, nao a borda dele. */
+.ix-folha::before{content:"";position:absolute;inset:min(24px,calc(6vw - 3.84px));z-index:1;
   border:1px solid rgba(13,13,13,.5);
-  outline:1px solid rgba(13,13,13,.24);outline-offset:1.5cqw}
+  outline:1px solid rgba(13,13,13,.24);outline-offset:min(6px,calc(1.5vw - 0.96px))}
 /* textura de papel + brilho de folha */
 .ix-folha::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;
   background:
     linear-gradient(104deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,0) 26%,
       rgba(255,255,255,0) 62%,rgba(13,13,13,.07) 100%),
     repeating-linear-gradient(92deg,rgba(13,13,13,.022) 0 1px,transparent 1px 3px)}
-.ix-folha-in{position:absolute;inset:9.6cqw 10.2cqw;z-index:2;display:flex;
+.ix-folha-in{position:absolute;inset:min(38.4px,calc(9.6vw - 6.14px)) min(40.8px,calc(10.2vw - 6.53px));z-index:2;display:flex;
   flex-direction:column;align-items:center;text-align:center}
-.ix-folha-marca{display:flex;align-items:center;gap:1.5cqw;margin-bottom:auto}
-.ix-folha-marca svg{width:4cqw!important;height:4cqw!important;color:#0D0D0D}
-.ix-folha-marca b{font-family:var(--display);font-weight:700;font-size:3.2cqw;
+.ix-folha-marca{display:flex;align-items:center;gap:min(6px,calc(1.5vw - 0.96px));margin-bottom:auto}
+.ix-folha-marca svg{width:min(16px,calc(4vw - 2.56px))!important;height:min(16px,calc(4vw - 2.56px))!important;color:#0D0D0D}
+.ix-folha-marca b{font-family:var(--display);font-weight:700;font-size:min(12.8px,calc(3.2vw - 2.05px));
   letter-spacing:.2em;text-transform:uppercase;color:#0D0D0D;line-height:1}
-.ix-folha h4{font-family:var(--display);font-weight:700;font-size:7cqw;line-height:.94;
+.ix-folha h4{font-family:var(--display);font-weight:700;font-size:min(28px,calc(7vw - 4.48px));line-height:.94;
   letter-spacing:.02em;text-transform:uppercase;color:#0D0D0D;max-width:16ch}
 .ix-folha h4 em{font-style:normal;color:#B84300}
-.ix-folha-obj{font-family:var(--corpo);font-weight:600;font-size:2.8cqw;
+.ix-folha-obj{font-family:var(--corpo);font-weight:600;font-size:min(11.2px,calc(2.8vw - 1.79px));
   letter-spacing:.16em;text-transform:uppercase;color:rgba(13,13,13,.55);
-  margin-top:2.4cqw}
+  margin-top:min(9.6px,calc(2.4vw - 1.54px))}
 /* linha de nome, em branco, como num certificado de verdade */
-.ix-folha-linha{width:62%;height:1px;background:rgba(13,13,13,.4);margin-top:5.6cqw}
+.ix-folha-linha{width:62%;height:1px;background:rgba(13,13,13,.4);margin-top:min(22.4px,calc(5.6vw - 3.58px))}
 /* rodape da folha: data a esquerda, rubrica a direita, selo no vao do meio */
 .ix-folha-pe{display:flex;align-items:flex-end;justify-content:space-between;
-  width:100%;margin-top:auto;gap:2cqw}
+  width:100%;margin-top:auto;gap:min(8px,calc(2vw - 1.28px))}
 .ix-folha-pe div{flex:0 0 38%;min-width:0}
 .ix-folha-pe s{display:block;height:1px;text-decoration:none;
-  background:rgba(13,13,13,.38);margin-bottom:1.1cqw}
+  background:rgba(13,13,13,.38);margin-bottom:min(4.4px,calc(1.1vw - 0.7px))}
 .ix-folha-pe span{display:block;font-family:var(--corpo);font-weight:600;
-  font-size:2.6cqw;letter-spacing:.04em;text-transform:uppercase;
+  font-size:min(10.4px,calc(2.6vw - 1.66px));letter-spacing:.04em;text-transform:uppercase;
   color:rgba(13,13,13,.6);line-height:1.3;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
-.ix-folha-rub{height:5.4cqw;display:flex;align-items:flex-end;justify-content:center}
+.ix-folha-rub{height:min(21.6px,calc(5.4vw - 3.46px));display:flex;align-items:flex-end;justify-content:center}
 .ix-folha-rub svg{width:86%!important;height:auto!important;fill:none;
   stroke:rgba(13,13,13,.72);stroke-width:2.2;stroke-linecap:round;
   stroke-linejoin:round}
 /* selo em relevo: alto-relevo por duas sombras - uma clara em cima (a luz bate
    na borda erguida) e uma escura embaixo (o papel afunda em volta). */
-.ix-selo{position:absolute;left:50%;bottom:3.4cqw;translate:-50% 0;z-index:4;
-  width:17cqw;color:var(--laranja);
+.ix-selo{position:absolute;left:50%;bottom:min(13.6px,calc(3.4vw - 2.18px));translate:-50% 0;z-index:4;
+  width:min(68px,calc(17vw - 10.88px));color:var(--laranja);
   filter:drop-shadow(0 -1px 0 rgba(255,255,255,.9))
          drop-shadow(0 1px 0 rgba(13,13,13,.25))
          drop-shadow(0 4px 6px rgba(13,13,13,.35))}
@@ -753,34 +773,30 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
 .ix-selo .ix-neg{fill:#F2EDE4}
 .ix-selo .ix-neg-linha{fill:none;stroke:#F2EDE4}
 
-/* --- o certificado no mobile ---
-   Tudo dentro da folha e medido em cqw (largura do proprio container), entao
-   quando a folha encolhe o texto encolhe junto: em 375px de tela os rotulos
-   caiam para 5,7px e a data/assinatura para 9px. A folha parecia EM BRANCO,
-   com so a rubrica (vetor) visivel. Aqui a folha ganha toda a largura util e a
-   escala tipografica sobe, com menos rotacao para o texto nao entortar. */
+/* --- o certificado no mobile: escala maior e menos rotacao ---
+   A folha ganha toda a largura util e a escala tipografica sobe, com piso de
+   ~10px no menor rotulo. */
 @media(max-width:860px){
   .ix-palco{padding-inline:12px}
-  .ix-cert{--cw:min(440px,100%)}
   .ix-cert-obj{transform:rotateX(6deg) rotateY(-7deg) rotateZ(-.6deg)}
   .ix-entrega:hover .ix-cert-obj{transform:rotateX(4deg) rotateY(-4deg) rotateZ(-.3deg)}
-  .ix-folha-in{inset:8.4cqw 8.8cqw}
-  .ix-folha-marca svg{width:5cqw!important;height:5cqw!important}
-  .ix-folha-marca b{font-size:4.2cqw}
-  .ix-folha h4{font-size:9cqw}
-  .ix-folha-obj{font-size:3.8cqw;letter-spacing:.1em;margin-top:2cqw}
-  .ix-folha-linha{margin-top:4.4cqw}
-  /* piso de 10px: com 2,6cqw numa folha de 310px o nome caia para 8px */
-  .ix-folha-pe span{font-size:3.4cqw;letter-spacing:0}
+  .ix-folha-in{inset:min(33.6px,calc(8.4vw - 5.38px)) min(35.2px,calc(8.8vw - 5.63px))}
+  .ix-folha-marca svg{width:min(20px,calc(5vw - 3.2px))!important;height:min(20px,calc(5vw - 3.2px))!important}
+  .ix-folha-marca b{font-size:min(16.8px,calc(4.2vw - 2.69px))}
+  .ix-folha h4{font-size:min(36px,calc(9vw - 5.76px))}
+  .ix-folha-obj{font-size:min(15.2px,calc(3.8vw - 2.43px));letter-spacing:.1em;margin-top:min(8px,calc(2vw - 1.28px))}
+  .ix-folha-linha{margin-top:min(17.6px,calc(4.4vw - 2.82px))}
+  /* piso de 10px: com 2,min(24px,calc(6vw - 3.84px)) numa folha de 310px o nome caia para 8px */
+  .ix-folha-pe span{font-size:min(13.6px,calc(3.4vw - 2.18px));letter-spacing:0}
   /* Data e assinatura encostadas a esquerda, celulas assimetricas ("22/08/26"
      cabe em 26%, "ROBERTO ARTEIRO" precisa de 44%), e o selo sai do meio para o
      canto inferior direito - centralizado ele cobria o nome, e o canto e onde
      um certificado de verdade leva o selo mesmo. */
-  .ix-folha-pe{justify-content:flex-start;gap:5cqw}
+  .ix-folha-pe{justify-content:flex-start;gap:min(20px,calc(5vw - 3.2px))}
   .ix-folha-pe div:first-child{flex:0 0 26%}
   .ix-folha-pe div:last-child{flex:0 0 44%}
-  .ix-selo{left:auto;right:2.5cqw;bottom:2.2cqw;width:15cqw;translate:none}
-  .ix-folha-rub{height:4.6cqw}
+  .ix-selo{left:auto;right:min(10px,calc(2.5vw - 1.6px));bottom:min(8.8px,calc(2.2vw - 1.41px));width:min(60px,calc(15vw - 9.6px));translate:none}
+  .ix-folha-rub{height:min(18.4px,calc(4.6vw - 2.94px))}
   /* brilho de folha mais discreto: a lavagem branca de 60% podia apagar o
      texto em telas com gama diferente */
   .ix-folha::after{background:
