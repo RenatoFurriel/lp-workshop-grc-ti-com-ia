@@ -152,7 +152,7 @@ Peso atual, com **zero requisições externas**:
 | Versão | Cru | Gzip |
 |---|---|---|
 | A / B | ~130 KB | ~84 KB |
-| C | ~162 KB | ~90 KB |
+| C | ~168 KB | ~93 KB |
 
 Os ~118 KB de assets embutidos (fontes + foto) são os mesmos nas três; a
 diferença é só o CSS/HTML de cada layout. Para referência, a LP anterior
@@ -220,9 +220,16 @@ Testar em 390px e em ≥1180px: a CTA fixa só aparece abaixo de 880px.
 se o fundo, a faixa da dobra 2, o raio do CTA, o símbolo da marca e o negativo do
 selo estão corretos **para aquela versão**.
 
-> **A e B falham duas verificações da CTA fixa em 390px** — ver
-> [§9, ao final](#o-bug-da-cta-fixa-que-a-c-corrigiu). É um bug pré-existente,
-> não uma regressão da C.
+> **A e B falham três verificações — todas pré-existentes, nenhuma é regressão da C:**
+>
+> | Verificação | O que acontece | Correção |
+> |---|---|---|
+> | `sticky colada na viewport` (390px) | ver [§9, ao final](#o-bug-da-cta-fixa-que-a-c-corrigiu) | portar `CSS_SOLTO` + `anchor` de `index-c.html` |
+> | `sticky manteve o estilo fora da raiz` (390px) | idem | idem |
+> | `logo com tamanho util` | o host força `svg{width:50px!important}` e o símbolo do cabeçalho infla de 30px para **50×50** — `.ix-marca svg` em `index.html` não tem `!important` no tamanho | `width:30px!important;height:30px!important` |
+>
+> A C não tem nenhum dos três: a CTA fixa injeta as regras sem escopo, e a logo
+> não é `<svg>` (é máscara CSS), então o `svg{50px}` do host não a alcança.
 
 ---
 
@@ -301,6 +308,7 @@ numerais de seção `01`–`04` são navegação, não copy.
 | **Cantos em colchete** | 8 gradientes de fundo posicionados, não `border` — construtores injetam `border:6px solid!important` e um border próprio perderia a briga. |
 | **Progresso de leitura** | 2px de laranja no fio inferior da barra do topo, via `scaleX`. |
 | **Numerais fantasma** | `content:attr(data-n)` a 3% de opacidade, cortado no canto do painel. Peso editorial a custo zero. |
+| **Logo em mascara CSS** | A logo oficial (`assets/marca-itxpro-escuro.png`) foi vetorizada com potrace e entra como `mask-image` em data URI — 5,3 KB contra 15 KB do raster em base64, e nitida em qualquer tamanho. Como o arquivo e preto sobre transparente, quem pinta e o `background-color`: **um arquivo serve as quatro cores** de que a pagina precisa (laranja no topo e no rodape, tinta escura no certificado, osso apagado na marca d'agua). Efeito colateral util: nao sendo `<img>` nem `<svg>`, passa ilesa por `img{width:100%!important}` e `svg{width:50px!important}` do host. |
 | **Ficha tecnica** | No desktop, 3 celulas divididas por fio. No mobile viram uma **esteira** que corre devagar: o conteudo entra duas vezes e a trilha anda `-50%`, entao o loop e continuo e sem salto (empilhadas, as 3 celulas comiam 180px de altura). |
 | **Credenciais como números** | As duas primeiras viram `40.000` e `200` em corpo grande. O texto é o mesmo — só a hierarquia tipográfica muda. |
 

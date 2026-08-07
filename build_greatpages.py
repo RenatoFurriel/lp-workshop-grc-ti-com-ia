@@ -43,7 +43,7 @@ ROOT_ID = "ix-ws3"
 ROOT = "#" + ROOT_ID
 # Limite rigido de peso. O peso e dominado pelos assets embutidos (fontes da
 # marca + foto, os mesmos nas tres versoes): ~118 KB de data URI. Sobre essa
-# base, A/B custam ~13 KB de CSS+HTML e a C ~43 KB (rede de nos, objetos 3D,
+# base, A/B custam ~13 KB de CSS+HTML e a C ~49 KB (rede de nos, objetos 3D, logo vetorizada,
 # grao, cantos e os estados da pilha). 175 KB deixa folga sobre a mais gorda
 # sem virar cheque em branco. O que viaja e o gzip: ~85 KB em A/B e ~89 KB na C
 # - abaixo dos 96 KB da LP anterior, que ainda baixava fontes do Google.
@@ -66,6 +66,11 @@ ASSETS = {
     },
     # A dobra 4 reaproveita a MESMA foto, recortada em quadrado por object-fit.
     # Embutir um segundo arquivo custaria ~36 KB de base64 sem ganho visual.
+    #
+    # A logo NAO entra aqui: ela e um vetor inline no CSS da versao C (ver o
+    # token --marca em index-c.html). Vetorizada do assets/marca-itxpro-escuro.png,
+    # pesa 5,3 KB contra 15 KB do mesmo desenho em WEBP base64 - e nao borra na
+    # marca d'agua do rodape, que usa 680px de largura.
 
     # fontes oficiais da marca (Manual v1.3), com subset
     "assets/khand-700.woff2": {"kind": "font", "mime": "font/woff2", "subset": True},

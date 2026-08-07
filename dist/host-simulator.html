@@ -98,14 +98,20 @@ var VERDE_HOST='rgb(0, 255, 0)', AMARELO_HOST='rgb(255, 255, 0)';
 // Tudo o que difere mora aqui - o resto do audit e igual para as tres.
 var PERFIL={
   a:{ fundo:OSSO,  raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:PRETO,
-      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos' },
+      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos',
+      marca:'.ix-marca svg', marcaProp:'color', marcaMin:[20,20] },
   b:{ fundo:PRETO, raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:'rgb(19, 19, 19)',
-      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos' },
+      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos',
+      marca:'.ix-marca svg', marcaProp:'color', marcaMin:[20,20] },
   // a dobra 2 da C tem fundo em GRADIENTE, entao nao ha cor solida para
   // comparar: dobra2Bg fica nulo e a checagem passa a ser "nao pegou o verde
   // do host", que e o que o teste realmente quer saber.
+  // A logo da C nao e <svg> nem <img>: e um <span> com a logo em mascara CSS,
+  // pintado pelo background-color. Efeito colateral util - passa ilesa por
+  // img{width:100%!important} e svg{width:50px!important} do host.
   c:{ fundo:PRETO, raioCta:'6px',   dobra2:'.ix-arq',    dobra2Bg:null,
-      card:'.ix-camada-p',  icone:'.ix-camada-ico svg', lista:'.ix-pilha' }
+      card:'.ix-camada-p',  icone:'.ix-camada-ico svg', lista:'.ix-pilha',
+      marca:'.ix-marca .ix-logo', marcaProp:'backgroundColor', marcaMin:[60,10] }
 };
 var P=PERFIL[VAR];
 
@@ -149,8 +155,14 @@ function audit(){
   // contraste real do texto sobre o fundo desta versao
   var h1c=getComputedStyle(R.querySelector('h1')).color;
   ok('titulo contrasta com o fundo', h1c!==fundoReal, h1c+' vs '+fundoReal);
-  var simb=getComputedStyle(R.querySelector('.ix-marca svg')).color;
-  ok('simbolo da marca visivel', simb!==fundoReal, simb);
+  var marcaEl=R.querySelector(P.marca);
+  var simb=marcaEl?getComputedStyle(marcaEl)[P.marcaProp]:'AUSENTE';
+  var marcaR=marcaEl?marcaEl.getBoundingClientRect():{width:0,height:0};
+  ok('logo da marca visivel', simb!==fundoReal && simb!=='AUSENTE', simb);
+  var mw=Math.round(marcaR.width), mh=Math.round(marcaR.height);
+  ok('logo com tamanho util (nao esmagada pelo host)',
+     mw>=P.marcaMin[0] && mh>=P.marcaMin[1] && !(mw===50 && mh===50),
+     mw+'x'+mh+(mw===50&&mh===50?' - o host forcou svg{50px}':''));
   var neg=getComputedStyle(R.querySelector('.ix-selo .ix-neg-linha'));
   ok('check do selo nao foi preenchido', neg.fill==='none', neg.fill);
   ok('rodape do bloco = Preto Comando',
@@ -177,9 +189,16 @@ function audit(){
      getComputedStyle(R.querySelector(P.lista)).listStyleType==='none');
 
   // 4. conteudo visivel (rede de seguranca do reveal)
-  var tot=R.querySelectorAll('.reveal').length, vis=0;
-  R.querySelectorAll('.reveal').forEach(function(e){ if(+getComputedStyle(e).opacity>0.9) vis++; });
-  ok('reveal visiveis ('+vis+'/'+tot+')', vis===tot);
+  // Mede a CLASSE, nao a opacidade. A classe e o que o codigo da pagina
+  // controla; a opacidade e assunto da transicao de .8s, e com a aba em
+  // segundo plano os timers do passeio sao estrangulados e a medida caia no
+  // meio da animacao - falso positivo que ja apareceu duas vezes aqui.
+  var revs=R.querySelectorAll('.reveal'), tot=revs.length, vis=0, meio=0;
+  Array.prototype.forEach.call(revs, function(e){
+    if(e.classList.contains('is-visible')){ vis++; if(+getComputedStyle(e).opacity<=0.9) meio++; }
+  });
+  ok('reveal armados ('+vis+'/'+tot+')', vis===tot);
+  if(meio) out.push('  (' + meio + ' ainda em transicao no momento da medida - normal)');
 
   // 5. atribuicao de campanha
   var a=R.querySelector('a[data-form]');
