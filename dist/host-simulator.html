@@ -79,10 +79,15 @@ fetch(ARQ[VAR]).then(function(r){return r.text();}).then(function(html){
 // topo antes de auditar. Se algum bloco continuar invisivel depois disso, e bug
 // de verdade.
 function passear(){
-  var H=document.documentElement.scrollHeight, y=0;
+  var y=0, voltas=0;
   var passo=function(){
     y+=180; window.scrollTo(0,y);
-    if(y<H){ setTimeout(passo,45); }
+    // A altura e relida A CADA PASSO. Lendo uma vez no inicio, o passeio
+    // encerrava cedo: as secoes com content-visibility:auto ainda estavam em
+    // tamanho estimado e a pagina "media" menos do que mede de verdade -
+    // resultado, o audit rodava com so o topo revelado (4/26).
+    // O teto de 400 voltas e so trava contra pagina de altura infinita.
+    if(y < document.documentElement.scrollHeight && ++voltas < 400){ setTimeout(passo,45); }
     // 1,6s antes de auditar: o reveal tem transicao de .8s mais atraso de ate
     // .34s, e a checagem le OPACIDADE. Com 500ms os ultimos elementos ainda
     // estavam a meio caminho e apareciam como "ocultos" - falso positivo.
@@ -197,8 +202,15 @@ function audit(){
   Array.prototype.forEach.call(revs, function(e){
     if(e.classList.contains('is-visible')){ vis++; if(+getComputedStyle(e).opacity<=0.9) meio++; }
   });
-  ok('reveal armados ('+vis+'/'+tot+')', vis===tot);
-  if(meio) out.push('  (' + meio + ' ainda em transicao no momento da medida - normal)');
+  // Pagina OCULTA nao roda requestAnimationFrame nem entrega
+  // IntersectionObserver, entao a varredura do reveal fica parada e a medida
+  // nao diz nada sobre a pagina. So audita com a aba na frente.
+  if(document.visibilityState!=='visible'){
+    out.push('reveal: N/A - aba em segundo plano (rAF pausado). Traga a aba para a frente e recarregue.');
+  } else {
+    ok('reveal armados ('+vis+'/'+tot+')', vis===tot);
+    if(meio) out.push('  (' + meio + ' ainda em transicao no momento da medida - normal)');
+  }
 
   // 5. atribuicao de campanha
   var a=R.querySelector('a[data-form]');

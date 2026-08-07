@@ -913,17 +913,28 @@ h1,h2,h3{font-family:var(--display);font-weight:700;line-height:.94;
    para longe do texto que o justifica.
    ========================================================================== */
 footer{position:relative;isolation:isolate;overflow:hidden;
-  background:var(--preto)!important;padding:clamp(58px,7vw,84px) 0 34px!important;
+  background:var(--preto)!important;padding:clamp(58px,7vw,84px) 0 52px!important;
   box-shadow:inset 0 1px 0 0 var(--fio)}
 /* marca d'agua: a propria logo em corpo gigante, quase apagada. Como e a logo
    mascarada e nao mais o nome em Khand, as letras sao as da marca de verdade. */
-/* bem baixa e bem cortada: assim ela passa ATRAS da linha legal e nao disputa
-   com a logo pequena, que fica centralizada acima */
-.ix-agua{position:absolute;left:50%;bottom:-16%;translate:-50% 0;z-index:0;
-  width:min(44vw,340px);color:rgba(240,235,225,.055);
+/* A marca d'agua e ancorada na LINHA LEGAL, nao no rodape.
+   Antes era bottom:-16% do rodape, e o recorte dependia da altura dele: no
+   desktop cortava um fio da base das letras; no mobile - rodape mais baixo e
+   logo menor - os -16% comiam quase 30px de uma logo de 39px e sobrava so o
+   topo. Trocar por um deslocamento fixo resolvia o corte, mas ai a distancia
+   ate a logo pequena passava a variar com a altura do rodape (que muda porque
+   a linha legal quebra em 1 ou 3 linhas).
+   Centrada na propria linha legal, a relacao fica igual em qualquer largura:
+   inteira, atras do texto e sempre livre da logo pequena. */
+/* z-index NEGATIVO: um elemento posicionado com z-index:0 pinta ACIMA do texto
+   em fluxo, entao a "marca d'agua" ficaria na frente da linha legal. Com -1 ela
+   cai atras do texto e ainda acima do fundo do rodape. */
+.ix-rodape-legal{position:relative}
+.ix-agua{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:-1;
+  width:min(52vw,320px);color:rgba(240,235,225,.05);
   pointer-events:none;user-select:none}
 footer .ix-wrap{position:relative;z-index:2}
-.ix-rodape-marca{display:flex;justify-content:center;margin-bottom:24px}
+.ix-rodape-marca{display:flex;justify-content:center;margin-bottom:36px}
 .ix-rodape-marca .ix-logo{width:66px}
 footer p{max-width:none;text-align:center;font-size:12.5px;color:var(--tinta-fraca);
   line-height:1.7}
@@ -1387,15 +1398,19 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
 </section>
 
 <footer>
-  <span class="ix-agua ix-logo" aria-hidden="true"></span>
   <div class="ix-wrap">
     <div class="ix-rodape-marca">
       <div class="ix-marca">
         <span class="ix-logo" role="img" aria-label="ITXPRO"></span>
       </div>
     </div>
-    <p>© Conexão Arteiro Marketing e Desenvolvimento Profissional LTDA ·
-       CNPJ 34.591.318/0001-06 · Todos os direitos reservados.</p>
+    <!-- a marca d'agua fica DENTRO deste bloco: e centrada na linha legal, e
+         nao no rodape, para nao depender da altura dele (ver .ix-agua no CSS) -->
+    <div class="ix-rodape-legal">
+      <span class="ix-agua ix-logo" aria-hidden="true"></span>
+      <p>© Conexão Arteiro Marketing e Desenvolvimento Profissional LTDA ·
+         CNPJ 34.591.318/0001-06 · Todos os direitos reservados.</p>
+    </div>
   </div>
 </footer>
 
@@ -1536,6 +1551,13 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
   };
   window.addEventListener("scroll", agendar, {passive:true});
   window.addEventListener("resize", agendar);
+  /* Aba em segundo plano nao roda requestAnimationFrame - entao a varredura do
+     reveal fica parada e, se o IntersectionObserver tambem nao entregar (o que
+     acontece em pagina oculta), o conteudo continua invisivel. Ao voltar para a
+     frente, varre uma vez, sem esperar rolagem. */
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible") agendar();
+  });
   pintar();
 
   /* --- CTA fixa mobile --- */
