@@ -995,7 +995,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     </div>
     <div class="ix-topo-acoes">
       <span class="ix-topo-data">Sáb 22/08 · 9h–18h</span>
-      <a class="ix-btn ix-btn-mini" data-form="topo" href="https://link.robertoarteiro.com.br/insc-grcti-ia-form">
+      <a class="ix-btn ix-btn-mini" data-form="topo" href="https://link.itxpro.com.br/insc-grcti-ia-form?utm_term=01-topo">
         <span>Quero minha vaga</span></a>
     </div>
   </div>
@@ -1065,7 +1065,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
           o que hoje leva semanas pra fazer.
         </p>
         <div class="ix-cta reveal" style="--d:270ms">
-          <a class="ix-btn" data-form="hero" href="https://link.robertoarteiro.com.br/insc-grcti-ia-form">
+          <a class="ix-btn" data-form="hero" href="https://link.itxpro.com.br/insc-grcti-ia-form?utm_term=02-hero">
             <span>Quero me atualizar em GRC TI com IA</span>
             <span class="ix-btn-arw" aria-hidden="true"><svg viewBox="0 0 24 24">
               <path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
@@ -1348,7 +1348,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     </div>
 
     <div class="ix-btn-wrap reveal" style="--d:260ms">
-      <a class="ix-btn" data-form="entregaveis" href="https://link.robertoarteiro.com.br/insc-grcti-ia-form">
+      <a class="ix-btn" data-form="entregaveis" href="https://link.itxpro.com.br/insc-grcti-ia-form?utm_term=03-entregaveis">
         <span>Quero me atualizar em GRC TI com IA</span>
         <span class="ix-btn-arw" aria-hidden="true"><svg viewBox="0 0 24 24">
           <path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
@@ -1388,7 +1388,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
     </div>
 
     <div class="ix-fecho reveal">
-      <a class="ix-btn" data-form="mentor" href="https://link.robertoarteiro.com.br/insc-grcti-ia-form">
+      <a class="ix-btn" data-form="mentor" href="https://link.itxpro.com.br/insc-grcti-ia-form?utm_term=04-mentor">
         <span>Quero me atualizar em GRC TI com IA</span>
         <span class="ix-btn-arw" aria-hidden="true"><svg viewBox="0 0 24 24">
           <path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
@@ -1417,7 +1417,7 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
 <!-- CTA fixa mobile -->
 <div class="ix-sticky" id="ix-sticky">
   <p><b>Sáb 22/08 · 9h–18h</b>Gratuito · vagas limitadas</p>
-  <a class="ix-btn" data-form="sticky" href="https://link.robertoarteiro.com.br/insc-grcti-ia-form">
+  <a class="ix-btn" data-form="sticky" href="https://link.itxpro.com.br/insc-grcti-ia-form?utm_term=05-sticky-mobile">
     <span>Quero minha vaga</span></a>
 </div>
 
@@ -1430,23 +1430,49 @@ if(!r)return;r.className+=(r.className?" ":"")+"ix-js";})();</script>
      Os dois lugares de proposito: o href real garante que o botao funcione
      com o JS desligado; o JS so acrescenta os parametros de campanha.
      ========================================================= */
-  var FORM_URL = "https://link.robertoarteiro.com.br/insc-grcti-ia-form";
+  var FORM_URL = "https://link.itxpro.com.br/insc-grcti-ia-form";
+
+  /* Referencia de cada botao, na ordem em que aparecem na pagina. Vai no
+     utm_term para dar para ver, no formulario, QUAL botao converteu.
+     Numerado com zero a esquerda de proposito: assim ordena certo em qualquer
+     relatorio que trate o campo como texto. */
+  var BOTOES = {
+    topo:        "01-topo",
+    hero:        "02-hero",
+    entregaveis: "03-entregaveis",
+    mentor:      "04-mentor",
+    sticky:      "05-sticky-mobile"
+  };
 
   var R = document.getElementById("ix-ws3") || document;
   var host = document.getElementById("ix-ws3") || document.body;
   var q = function(s){ return R.querySelectorAll(s); };
 
-  /* --- CTA: propaga utm_/gclid/fbclid para nao perder atribuicao --- */
+  /* --- CTA: propaga utm_/gclid/fbclid para nao perder atribuicao, e marca no
+         utm_term qual botao foi clicado.
+     O utm_term e montado POR LINK, nao uma vez para todos: cada botao tem a
+     sua referencia. E ele e escrito DEPOIS da propagacao, de proposito - se a
+     pagina chegou com utm_term na URL, a referencia do botao tem precedencia
+     (ver a nota no README sobre isso). --- */
   var KEEP = /^(utm_[a-z_]+|gclid|fbclid|ttclid|msclkid|src|sck)$/i;
-  var target = FORM_URL;
-  try{
-    var u = new URL(FORM_URL, location.href);
-    new URLSearchParams(location.search).forEach(function(v,k){
-      if(KEEP.test(k)) u.searchParams.set(k,v);
-    });
-    target = u.toString();
-  }catch(e){}
-  Array.prototype.forEach.call(q("a[data-form]"), function(a){ a.href = target; });
+  var entrada = null;
+  try{ entrada = new URLSearchParams(location.search); }catch(e){}
+
+  Array.prototype.forEach.call(q("a[data-form]"), function(a){
+    var chave = a.getAttribute("data-form");
+    var ref = BOTOES[chave] || chave;
+    try{
+      var u = new URL(FORM_URL, location.href);
+      if(entrada){
+        entrada.forEach(function(v,k){ if(KEEP.test(k)) u.searchParams.set(k,v); });
+      }
+      u.searchParams.set("utm_term", ref);
+      a.href = u.toString();
+    }catch(e){
+      /* Sem URL()/URLSearchParams o href do HTML fica valendo - e ele ja traz o
+         utm_term certo, so nao leva as UTMs da pagina. */
+    }
+  });
 
   /* --- largura real da janela: escapa a caixa do GreatPages sem criar scroll --- */
   var root = document.getElementById("ix-ws3");

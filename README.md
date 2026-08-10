@@ -49,22 +49,45 @@ dist/greatpages-block-c.html   (versão C)
 
 ---
 
-## 2. A única coisa que falta preencher
+## 2. O formulário de inscrição
 
-O formulário de inscrição ainda é um placeholder. Quando a URL do form da 3ª edição
-existir, trocar em **dois lugares no `index.html` e nos mesmos dois lugares no
-`index-c.html`** (a C tem 5 CTAs, contando o do topo) e rodar o build de novo:
+A URL mora em **dois lugares** de cada HTML de origem, de propósito: a constante
+`FORM_URL` no `<script>` e o `href` de cada link `data-form`. O `href` real
+garante que o botão funcione mesmo com o JavaScript desligado; o JS só acrescenta
+os parâmetros de campanha.
 
-1. No `<script>`, a constante no topo:
-   ```js
-   var FORM_URL = "https://form.respondi.app/SUBSTITUIR";
-   ```
-2. Nos 4 links `data-form` (`href="https://form.respondi.app/SUBSTITUIR"`).
-   O `href` real no HTML é intencional: garante que o botão funcione mesmo com o
-   JavaScript desligado. O JS apenas acrescenta os parâmetros de campanha.
+### A versão C tem a URL do formulário; A e B não
 
-O build avisa enquanto o placeholder existir:
-`AVISO: FORM_URL ainda e o placeholder SUBSTITUIR.`
+Só a C aponta para o formulário real
+(`https://link.itxpro.com.br/insc-grcti-ia-form`). A e B seguem com o
+placeholder de propósito — o build avisa
+`AVISO: FORM_URL ainda e o placeholder SUBSTITUIR` nas duas, e esse aviso agora
+é o sinal correto: **apenas a C está pronta para receber tráfego.**
+
+Cada um dos 5 CTAs da C leva a sua referência no **`utm_term`**, para dar para
+ver no formulário qual botão converteu:
+
+| `data-form` | `utm_term` | Onde |
+|---|---|---|
+| `topo` | `01-topo` | barra do cabeçalho |
+| `hero` | `02-hero` | primeira dobra |
+| `entregaveis` | `03-entregaveis` | depois do workbook e do certificado |
+| `mentor` | `04-mentor` | fecha a dobra do mentor |
+| `sticky` | `05-sticky-mobile` | barra fixa do mobile |
+
+Numerado com zero à esquerda para ordenar certo em relatório que trate o campo
+como texto.
+
+> **⚠️ O `utm_term` do botão sobrescreve o que vier na URL da página.** Se os seus
+> anúncios usam `utm_term` para palavra-chave, essa palavra-chave **se perde** ao
+> clicar no CTA. Foi implementado assim porque foi o campo pedido; se você usa
+> `utm_term` para keyword, o campo natural para a referência do botão seria o
+> `utm_content` — é trocar o nome em uma linha no `index-c.html`
+> (`u.searchParams.set("utm_term", ref)`).
+
+O `utm_term` também está nos `href` estáticos do HTML, então a referência do
+botão funciona **mesmo com o JavaScript desligado** — nesse caso só as UTMs da
+página não são propagadas.
 
 **Atribuição de campanha:** os CTAs propagam automaticamente `utm_*`, `gclid`,
 `fbclid`, `ttclid`, `msclkid`, `src` e `sck` da URL da página para o formulário.
