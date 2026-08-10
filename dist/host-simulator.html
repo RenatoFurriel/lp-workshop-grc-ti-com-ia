@@ -55,13 +55,9 @@
 <pre id="probe">carregando…</pre>
 
 <script>
-// ?bloco=b ou ?bloco=c ; sem parametro, testa a A
-var m=/[?&]bloco=([abc])/.exec(location.search);
-var VAR=m?m[1]:'a';
-var VAR_B=(VAR==='b'), VAR_C=(VAR==='c');
-var ARQ={a:'greatpages-block.html',b:'greatpages-block-b.html',c:'greatpages-block-c.html'};
-document.title=VAR.toUpperCase()+' - QA host hostil';
-fetch(ARQ[VAR]).then(function(r){return r.text();}).then(function(html){
+// Um bloco so no projeto. As versoes A e B foram descartadas; se precisar do
+// QA delas, o simulador com os tres perfis esta no historico do git (7dde696).
+fetch('greatpages-block-c.html').then(function(r){return r.text();}).then(function(html){
   var slot=document.getElementById('slot');
   slot.innerHTML=html;
   // innerHTML nao executa <script>: recria como o construtor faz
@@ -99,26 +95,18 @@ function passear(){
 var LARANJA='rgb(242, 97, 1)', PRETO='rgb(13, 13, 13)', OSSO='rgb(240, 235, 225)';
 var VERDE_HOST='rgb(0, 255, 0)', AMARELO_HOST='rgb(255, 255, 0)';
 
-// A e B compartilham layout; a C e outro layout, com outros nomes de classe.
-// Tudo o que difere mora aqui - o resto do audit e igual para as tres.
-var PERFIL={
-  a:{ fundo:OSSO,  raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:PRETO,
-      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos',
-      marca:'.ix-marca svg', marcaProp:'color', marcaMin:[20,20] },
-  b:{ fundo:PRETO, raioCta:'8px',   dobra2:'.ix-escuro', dobra2Bg:'rgb(19, 19, 19)',
-      card:'.ix-card',      icone:'.ix-card-ico svg',   lista:'.ix-blocos',
-      marca:'.ix-marca svg', marcaProp:'color', marcaMin:[20,20] },
-  // a dobra 2 da C tem fundo em GRADIENTE, entao nao ha cor solida para
-  // comparar: dobra2Bg fica nulo e a checagem passa a ser "nao pegou o verde
-  // do host", que e o que o teste realmente quer saber.
-  // A logo da C nao e <svg> nem <img>: e um <span> com a logo em mascara CSS,
-  // pintado pelo background-color. Efeito colateral util - passa ilesa por
-  // img{width:100%!important} e svg{width:50px!important} do host.
-  c:{ fundo:PRETO, raioCta:'6px',   dobra2:'.ix-arq',    dobra2Bg:null,
-      card:'.ix-camada-p',  icone:'.ix-camada-ico svg', lista:'.ix-pilha',
-      marca:'.ix-marca .ix-logo', marcaProp:'backgroundColor', marcaMin:[40,8] }
+// O que e especifico do layout mora aqui; o resto do audit e generico.
+//   dobra2Bg fica NULO porque a dobra 2 tem fundo em GRADIENTE - nao ha cor
+//   solida para comparar, entao a checagem passa a ser "nao pegou o verde do
+//   host", que e o que o teste realmente quer saber.
+//   A logo nao e <svg> nem <img>: e um <span> com a logo em mascara CSS,
+//   pintado pelo background-color. Efeito colateral util - passa ilesa por
+//   img{width:100%!important} e svg{width:50px!important} do host.
+var P={
+  fundo:PRETO, raioCta:'6px', dobra2:'.ix-arq', dobra2Bg:null,
+  card:'.ix-camada-p', icone:'.ix-camada-ico svg', lista:'.ix-pilha',
+  marca:'.ix-marca .ix-logo', marcaProp:'backgroundColor', marcaMin:[40,8]
 };
-var P=PERFIL[VAR];
 
 function audit(){
   var d=document.documentElement, out=[];
@@ -149,11 +137,11 @@ function audit(){
   // a checagem media o botao errado e reprovava por 1px.
   var btn=R.querySelector('.ix-btn:not(.ix-btn-mini)'), bcs=getComputedStyle(btn);
   ok('CTA laranja da marca', bcs.backgroundColor===LARANJA, bcs.backgroundColor);
-  ok('CTA com o raio da versao (nao 30px do host)',
+  ok('CTA com o raio certo (nao 30px do host)',
      bcs.borderRadius===P.raioCta, bcs.borderRadius+' esperado '+P.raioCta);
   ok('box-sizing border-box no bloco', getComputedStyle(R).boxSizing==='border-box');
   var fundoReal=getComputedStyle(R).backgroundColor;
-  ok('fundo da pagina correto para a versao', fundoReal===P.fundo, fundoReal);
+  ok('fundo da pagina correto', fundoReal===P.fundo, fundoReal);
   var sec2=getComputedStyle(R.querySelector(P.dobra2)).backgroundColor;
   if(P.dobra2Bg) ok('faixa da dobra 2 correta', sec2===P.dobra2Bg, sec2);
   else ok('dobra 2 manteve o proprio fundo', sec2!==VERDE_HOST, sec2);

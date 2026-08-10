@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
-Gera os blocos GreatPages a partir dos HTMLs de origem.
+Gera o bloco GreatPages a partir do HTML de origem.
 
-  A (fundo osso)   index.html                -> dist/greatpages-block.html
-  B (fundo preto)  index.html + classe ix-b  -> dist/greatpages-block-b.html
-  C (blueprint)    index-c.html              -> dist/greatpages-block-c.html
+    index-c.html  ->  dist/greatpages-block-c.html
 
-A e B saem da MESMA fonte (a unica diferenca e a classe no elemento raiz, para
-que o teste A/B meca a cor de fundo e nada mais). C e um terceiro layout, com
-fonte propria: mantem copy, fontes, paleta e as duas fotos do mentor, e troca
-todo o resto pela linguagem visual "blueprint de sala de comando".
+Layout "blueprint de sala de comando". As versoes A e B (as 4 dobras do PDF, em
+fundo claro e escuro) foram descartadas do projeto; se precisar delas, estao no
+historico do git, ate o commit 7dde696.
 
 O que este script resolve:
   1. Escopa TODO o CSS em #ix-ws3 (nada vaza para a pagina hospedeira).
@@ -19,8 +16,8 @@ O que este script resolve:
   4. Relatorio de peso com limite rigido.
 
 Uso:
-    python3 build_greatpages.py            # gera os blocos
-    python3 build_greatpages.py --check    # valida os blocos ja gerados
+    python3 build_greatpages.py            # gera o bloco
+    python3 build_greatpages.py --check    # valida o bloco ja gerado
 Requer: Pillow
 """
 
@@ -32,27 +29,24 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "index.html")
-SRC_C = os.path.join(HERE, "index-c.html")
+SRC = os.path.join(HERE, "index-c.html")
 OUT_DIR = os.path.join(HERE, "dist")
-OUT = os.path.join(OUT_DIR, "greatpages-block.html")
-OUT_B = os.path.join(OUT_DIR, "greatpages-block-b.html")
-OUT_C = os.path.join(OUT_DIR, "greatpages-block-c.html")
+OUT = os.path.join(OUT_DIR, "greatpages-block-c.html")
 
 ROOT_ID = "ix-ws3"
 ROOT = "#" + ROOT_ID
 # Limite rigido de peso. O peso e dominado pelos assets embutidos (fontes da
-# marca + foto, os mesmos nas tres versoes): ~118 KB de data URI. Sobre essa
-# base, A/B custam ~13 KB de CSS+HTML e a C ~49 KB (rede de nos, objetos 3D, logo vetorizada,
-# grao, cantos e os estados da pilha). 175 KB deixa folga sobre a mais gorda
-# sem virar cheque em branco. O que viaja e o gzip: ~85 KB em A/B e ~89 KB na C
-# - abaixo dos 96 KB da LP anterior, que ainda baixava fontes do Google.
+# marca + foto): ~118 KB de data URI. Sobre essa base, o CSS+HTML do layout
+# custa ~51 KB (rede de nos, objetos 3D, logo vetorizada, grao, cantos e os
+# estados da pilha). 175 KB deixa folga sem virar cheque em branco. O que viaja
+# e o gzip: ~93 KB - abaixo dos 96 KB da LP anterior, que ainda baixava fontes
+# do Google.
 # O guard existe para pegar regressao - ja pegou duas: a foto embutida em
 # duplicidade e o <head> vazando para dentro do bloco.
 MAX_RAW = 175 * 1024
 
 # ---------------------------------------------------------------- assets
-# receita declarativa: caminho no index.html -> como embutir
+# receita declarativa: caminho no index-c.html -> como embutir
 ASSETS = {
     # Foto usada no hero (com fade) e no circulo da dobra 4.
     # O asset ja esta cortado no alpha (833x1027) para que o preview local e o
@@ -67,8 +61,8 @@ ASSETS = {
     # A dobra 4 reaproveita a MESMA foto, recortada em quadrado por object-fit.
     # Embutir um segundo arquivo custaria ~36 KB de base64 sem ganho visual.
     #
-    # A logo NAO entra aqui: ela e um vetor inline no CSS da versao C (ver o
-    # token --marca em index-c.html). Vetorizada do assets/marca-itxpro-escuro.png,
+    # A logo NAO entra aqui: ela e um vetor inline no CSS (ver o token --marca
+    # em index-c.html). Vetorizada do assets/marca-itxpro-escuro.png,
     # pesa 5,3 KB contra 15 KB do mesmo desenho em WEBP base64 - e nao borra na
     # marca d'agua do rodape, que usa 680px de largura.
 
@@ -232,22 +226,14 @@ def report(block):
 
 # ---------------------------------------------------------------- main
 if "--check" in sys.argv:
-    alvos = [("A (fundo osso)", OUT),
-             ("B (fundo preto)", OUT_B),
-             ("C (blueprint)", OUT_C)]
-    problemas = []
-    for nome, caminho in alvos:
-        if not os.path.exists(caminho):
-            sys.exit("nada para checar: %s nao existe" % caminho)
-        bloco = open(caminho, encoding="utf-8").read()
-        print("\n  --- versao %s ---" % nome)
-        errs = validate(bloco)
-        report(bloco)
-        if errs:
-            problemas.append("%s: %s" % (nome, "; ".join(errs)))
-    if problemas:
-        sys.exit("FALHOU:\n  - " + "\n  - ".join(problemas))
-    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas tres versoes.")
+    if not os.path.exists(OUT):
+        sys.exit("nada para checar: %s nao existe" % OUT)
+    bloco = open(OUT, encoding="utf-8").read()
+    errs = validate(bloco)
+    report(bloco)
+    if errs:
+        sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
+    print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")
     sys.exit(0)
 
 from PIL import Image  # noqa: E402  (so necessario para gerar)
@@ -269,8 +255,9 @@ def escape_body(text):
 
 
 # ---------------------------------------------------------------- assets
-# Cache: as tres versoes embutem os MESMOS assets. Sem cache, o subset das
-# fontes e a recompressao da foto rodariam duas vezes (uma por arquivo-fonte).
+# Cache dos data URI. Ficou de quando o build gerava tres blocos de dois
+# arquivos-fonte e o subset das fontes rodava duas vezes. Com uma fonte so ele
+# nao economiza nada, mas nao custa nada e mantem uris() com um ponto de entrada.
 _URI_CACHE = {}
 
 
@@ -343,50 +330,27 @@ def preparar(src):
     return css, escape_body(body), font_hints, html
 
 
-def montar(pecas, rotulo, classe, fundo_pagina):
-    """Monta o bloco final a partir das pecas de um HTML de origem."""
+def montar(pecas):
+    """Monta o bloco final a partir das pecas do HTML de origem."""
     css, body, font_hints, _ = pecas
-    cls = (' class="%s"' % classe) if classe else ""
     return (
         "<!-- ===== INICIO DO BLOCO GREATPAGES - LP WORKSHOP GRC TI COM IA (3a ed.) ===== -->\n"
-        "<!-- Versao %s. Colar em UM bloco de HTML/Codigo; nao reabrir no editor visual. -->\n"
-        "<!-- Fundo da pagina no GreatPages deve ser %s.                              -->\n"
-        % (rotulo, fundo_pagina)
+        "<!-- Colar em UM bloco de HTML/Codigo; nao reabrir no editor visual.           -->\n"
+        "<!-- Fundo da pagina no GreatPages deve ser #0D0D0D.                           -->\n"
         + font_hints
         + "<style>\n" + css + "\n</style>\n"
-        + '<div id="' + ROOT_ID + '"' + cls + ' lang="pt-BR">' + body + "</div>\n"
+        + '<div id="' + ROOT_ID + '" lang="pt-BR">' + body + "</div>\n"
         "<!-- ===== FIM DO BLOCO GREATPAGES ===== -->\n"
     )
 
 
-# A e B saem de index.html (mesma fonte, so a classe muda) . C de index-c.html
-pecas_ab = preparar(SRC)
-pecas_c = preparar(SRC_C)
-
-VARIANTES = [
-    ("A (fundo osso)",  pecas_ab, "",     "#F0EBE1", OUT),
-    ("B (fundo preto)", pecas_ab, "ix-b", "#0D0D0D", OUT_B),
-    ("C (blueprint)", pecas_c,  "",     "#0D0D0D", OUT_C),
-]
-
 os.makedirs(OUT_DIR, exist_ok=True)
-falhas = []
-for nome, pecas, classe, fundo, destino in VARIANTES:
-    bloco = montar(pecas, nome, classe, fundo)
-    open(destino, "w", encoding="utf-8").write(bloco)
-    print("\n  --- versao %s ---" % nome)
-    errs = validate(bloco)
-    report(bloco)
-    print("  escrito: %s" % os.path.relpath(destino, HERE))
-    if errs:
-        falhas.append("%s: %s" % (nome, "; ".join(errs)))
+bloco = montar(preparar(SRC))
+open(OUT, "w", encoding="utf-8").write(bloco)
+errs = validate(bloco)
+report(bloco)
+print("  escrito: %s" % os.path.relpath(OUT, HERE))
 
-# preview local da B: mesma fonte da A, so com a classe no <body>
-prev_b = os.path.join(HERE, "index-b.html")
-open(prev_b, "w", encoding="utf-8").write(
-    pecas_ab[3].replace("<body>", '<body class="ix-b">', 1))
-print("\n  preview local da B: %s" % os.path.relpath(prev_b, HERE))
-
-if falhas:
-    sys.exit("FALHOU:\n  - " + "\n  - ".join(falhas))
-print("  OK: ASCII puro, tudo embutido, CSS 100% escopado nas tres versoes.")
+if errs:
+    sys.exit("FALHOU:\n  - " + "\n  - ".join(errs))
+print("  OK: ASCII puro, tudo embutido, CSS 100% escopado.")

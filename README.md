@@ -8,40 +8,36 @@ Dobras: **Hero** · **Conteúdo (5 blocos)** · **E você ainda vai receber** ·
 
 Feita para ser colada em **um bloco de HTML do GreatPages**.
 
-Existem **três versões** para teste:
+| | |
+|---|---|
+| Fonte de verdade | `index-c.html` |
+| Bloco para colar | `dist/greatpages-block-c.html` |
+| Fundo da página | Preto Comando `#0D0D0D` |
+| Layout | "blueprint de sala de comando" — ver [§9](#9-o-layout-blueprint-de-sala-de-comando) |
 
-| Versão | Fundo | Layout | Arquivo | Preview local |
-|---|---|---|---|---|
-| **A** | Branco Osso `#F0EBE1` | 4 dobras do PDF | `dist/greatpages-block.html` | `index.html` |
-| **B** | Preto Comando `#0D0D0D` | 4 dobras do PDF | `dist/greatpages-block-b.html` | `index-b.html` |
-| **C** | Preto Comando `#0D0D0D` | blueprint | `dist/greatpages-block-c.html` | `index-c.html` |
-
-**A e B** saem da mesma fonte (`index.html`); a única diferença entre elas é um
-bloco de tokens (`body.ix-b`). Estrutura, copy, layout e JavaScript são
-idênticos — o que garante que o teste meça a cor de fundo, e não duas páginas
-diferentes.
-
-**C** é um terceiro layout, com fonte própria (`index-c.html`) — ver a seção
-[§9](#9-versão-c--blueprint-de-sala-de-comando). Ela mantém copy, tipografia, paleta e as duas
-fotos do mentor, e troca todo o resto.
+> **Versões A e B removidas.** O projeto tinha três layouts: A e B (as 4 dobras do
+> PDF, em fundo claro e escuro, saindo de um `index.html` comum) e a C. A e B foram
+> **descartadas** — nada neste repositório as gera mais. Se precisar delas, estão
+> inteiras no histórico do git, até o commit `7dde696`:
+>
+> ```bash
+> git show 7dde696:index.html                     > index.html
+> git show 7dde696:dist/greatpages-block.html     > bloco-a.html
+> git show 7dde696:dist/greatpages-block-b.html   > bloco-b.html
+> ```
+>
+> Elas nunca receberam a URL do formulário (ficaram no placeholder), então não
+> estavam prontas para tráfego.
 
 ---
 
 ## 1. O que entregar no GreatPages
 
-Cada página recebe **um arquivo só**:
+Um arquivo só: **`dist/greatpages-block-c.html`**.
 
-```
-dist/greatpages-block.html     (versão A)
-dist/greatpages-block-b.html   (versão B)
-dist/greatpages-block-c.html   (versão C)
-```
-
-1. No GreatPages, inserir **um bloco de HTML / Código** e colar o arquivo inteiro
-   (`greatpages-block.html` na página A, `-b` na B, `-c` na C).
-2. Definir o **fundo da página** igual ao da versão: **`#F0EBE1`** na A e
-   **`#0D0D0D`** na B e na C. Sem isso, o bloco aparece como um retângulo
-   emoldurado.
+1. No GreatPages, inserir **um bloco de HTML / Código** e colar o arquivo inteiro.
+2. Definir o **fundo da página** como **`#0D0D0D`**. Sem isso, o bloco aparece como
+   um retângulo emoldurado.
 3. Desativar qualquer bloco nativo de hero/título na mesma página — o bloco já traz
    o `<h1>`.
 4. **Não reabrir o bloco no editor visual** depois de colado: o editor pode
@@ -56,16 +52,10 @@ A URL mora em **dois lugares** de cada HTML de origem, de propósito: a constant
 garante que o botão funcione mesmo com o JavaScript desligado; o JS só acrescenta
 os parâmetros de campanha.
 
-### A versão C tem a URL do formulário; A e B não
+A URL atual é `https://link.itxpro.com.br/insc-grcti-ia-form`.
 
-Só a C aponta para o formulário real
-(`https://link.itxpro.com.br/insc-grcti-ia-form`). A e B seguem com o
-placeholder de propósito — o build avisa
-`AVISO: FORM_URL ainda e o placeholder SUBSTITUIR` nas duas, e esse aviso agora
-é o sinal correto: **apenas a C está pronta para receber tráfego.**
-
-Cada um dos 5 CTAs da C leva a sua referência no **`utm_term`**, para dar para
-ver no formulário qual botão converteu:
+Cada um dos 5 CTAs leva a sua referência no **`utm_term`**, para dar para ver no
+formulário qual botão converteu:
 
 | `data-form` | `utm_term` | Onde |
 |---|---|---|
@@ -85,15 +75,18 @@ como texto.
 > `utm_content` — é trocar o nome em uma linha no `index-c.html`
 > (`u.searchParams.set("utm_term", ref)`).
 
+> **`link.itxpro.com.br` é um encurtador.** Quem precisa repassar a query string no
+> redirecionamento é ele. Se descartar, o lead chega sem origem **e sem a referência
+> do botão**. Vale abrir a página com `?utm_source=teste` e conferir o que chega no
+> formulário.
+
 O `utm_term` também está nos `href` estáticos do HTML, então a referência do
 botão funciona **mesmo com o JavaScript desligado** — nesse caso só as UTMs da
 página não são propagadas.
 
 **Atribuição de campanha:** os CTAs propagam automaticamente `utm_*`, `gclid`,
 `fbclid`, `ttclid`, `msclkid`, `src` e `sck` da URL da página para o formulário.
-Sem isso o lead chega sem origem. Cada CTA tem um `data-form` próprio
-para rastrear qual botão converteu: `hero`, `entregaveis`, `mentor` e `sticky` em
-A/B; `topo`, `hero`, `entregaveis`, `mentor` e `sticky` na C.
+Sem isso o lead chega sem origem.
 
 ---
 
@@ -103,28 +96,14 @@ Tudo vem do Manual da Marca v1.3. As três cores e a proporção 70/20/10:
 
 | Cor | HEX | Papel |
 |---|---|---|
-| Preto Comando | `#0D0D0D` | dobra 2 e rodapé |
-| Branco Osso | `#F0EBE1` | base das dobras 1, 3 e 4 |
-| Laranja Núcleo | `#F26101` | CTA, marca-texto, ícones, círculo do mentor |
+| Preto Comando | `#0D0D0D` | fundo de toda a página |
+| Branco Osso | `#F0EBE1` | títulos e texto |
+| Laranja Núcleo | `#F26101` | CTA, marca-texto, logo, ícones, círculo do mentor |
 
 **Tipografia:** **Khand Bold** em títulos (sempre caixa-alta, peso 700, como manda o
 manual) e **Archivo** em todo o texto corrido. Ambas auto-hospedadas em WOFF2 e
 embutidas no bloco — **zero requisição externa de fonte**. Os arquivos vêm do Google
 Fonts (as mesmas famílias do kit), com subset para os glifos usados.
-
-### Por que a versão B é mais fiel à marca
-
-O manual proíbe laranja como texto sobre o osso — e com razão: são 2,73:1. Sobre o
-Preto Comando, o mesmo `#F26101` rende **6,00:1 e passa AA**. Por isso a versão B
-usa o **laranja puro da marca no texto**, enquanto a A precisa do `#B84300`
-escurecido. Contrastes medidos na B:
-
-| Elemento | Sobre `#0D0D0D` | |
-|---|---|---|
-| Títulos em Branco Osso | 16,36:1 | AAA |
-| Corpo (osso 82%) | 11,06:1 | AAA |
-| Laranja da marca como texto | 6,00:1 | AA |
-| Osso sobre card `#1F1F1F` | 14,03:1 | AAA |
 
 ### A regra de contraste que não deve ser desfeita
 
@@ -133,16 +112,15 @@ aqui: **2,73:1** — reprova até para texto grande (mínimo 3,0). Por isso:
 
 | Uso | Cor | Contraste |
 |---|---|---|
-| Preenchimento (CTA, marca-texto, ícones, círculo) | `#F26101` | — |
-| **Texto** laranja sobre fundo claro | `#B84300` | 4,60:1 ✓ AA |
+| Preenchimento (CTA, marca-texto, logo, ícones, círculo) | `#F26101` | — |
 | Texto laranja sobre Preto Comando | `#F26101` | 6,00:1 ✓ AA |
 | Osso sobre Preto Comando | `#F0EBE1` | 16,4:1 ✓ AAA |
+| Corpo (osso 80%) sobre Preto Comando | — | 10,8:1 ✓ AAA |
 
-O `#B84300` é a **única** licença tomada em relação ao PDF: no PDF os títulos
-"Workbook com o passo a passo" e "Certificado de participação" e a palavra
-"WORKSHOP" usam o laranja puro sobre o osso, o que é ilegível para parte do público.
-Se preferir fidelidade absoluta ao PDF, troque uma linha no `index.html`:
-`--laranja-texto:#B84300` → `--laranja-texto:#F26101`.
+Como a página é toda escura, o laranja **puro da marca** pode ser texto. Onde ele
+cai sobre superfície clara — só no certificado — vai em tinta escura `#0D0D0D`,
+porque sobre fundo claro o laranja rende 2,73:1 e o próprio manual o proíbe como
+texto corrido.
 
 ---
 
@@ -170,20 +148,15 @@ O que o build faz — e por que cada passo existe:
 | Remove os **comentários HTML** do bloco | documentam a fonte (por que cada decisão existe, como trocar o mockup por um render); não têm o que fazer numa página servida ao público |
 | Relatório de peso, com corte em 175 KB | impede que a página engorde sem ninguém perceber |
 
-Peso atual, com **zero requisições externas**:
+Peso atual, com **zero requisições externas**: **~169 KB cru / ~93 KB gzip**.
 
-| Versão | Cru | Gzip |
-|---|---|---|
-| A / B | ~130 KB | ~84 KB |
-| C | ~168 KB | ~93 KB |
-
-Os ~118 KB de assets embutidos (fontes + foto) são os mesmos nas três; a
-diferença é só o CSS/HTML de cada layout. Para referência, a LP anterior
-(`insc-hic-b`) tem 152 KB / 96 KB e ainda baixa fontes do Google.
+São ~118 KB de assets embutidos (fontes com subset + foto) e ~51 KB de CSS/HTML.
+Para referência, a LP anterior (`insc-hic-b`) tem 152 KB / 96 KB e ainda baixa
+fontes do Google.
 
 > **O build não é determinístico.** O `fontTools` grava a data da modificação
-> dentro da fonte, então o base64 das duas fontes muda a cada rodada e os
-> arquivos de `dist/` sempre aparecem como modificados no `git status`, mesmo
+> dentro da fonte, então o base64 das duas fontes muda a cada rodada e o
+> arquivo de `dist/` sempre aparece como modificado no `git status`, mesmo
 > sem nenhuma mudança de conteúdo. Para comparar dois builds de verdade, ignore
 > os `data:font/woff2;base64,...`.
 
@@ -192,23 +165,20 @@ diferença é só o CSS/HTML de cada layout. Para referência, a LP anterior
 ## 5. Arquivos
 
 ```
-index.html                  ← FONTE DE VERDADE de A e B. Editar aqui. Abre no navegador.
-index-c.html                ← FONTE DE VERDADE da C. Editar aqui. Abre no navegador.
-build_greatpages.py         ← gera os 3 blocos a partir dos 2 HTMLs
-index-b.html                ← preview local da versao B (gerado pelo build)
-dist/greatpages-block.html  ← ★ versao A (fundo osso)
-dist/greatpages-block-b.html← ★ versao B (fundo preto)
-dist/greatpages-block-c.html← ★ versao C (blueprint)
-dist/host-simulator.html    ← teste: injeta o bloco num host hostil (ver abaixo)
-assets/                     ← fontes da marca + foto (o build otimiza na hora)
-copy/                       ← a copy aprovada, em markdown
+index-c.html                 ← FONTE DE VERDADE. Editar aqui. Abre direto no navegador.
+build_greatpages.py          ← gera o bloco a partir do index-c.html
+dist/greatpages-block-c.html ← ★ o que vai para o GreatPages
+dist/host-simulator.html     ← teste: injeta o bloco num host hostil (ver abaixo)
+assets/                      ← fontes da marca + foto + logo (o build otimiza na hora)
+copy/                        ← a copy aprovada, em markdown
+criativos/                   ← criativos de anúncio (fora do escopo da LP)
 ```
 
-`index-b.html` é **gerado** — não editar. `index.html` e `index-c.html` são as
-duas fontes de verdade.
-
-O `index.html` referencia `assets/` por caminho, não por base64 — assim continua
+O `index-c.html` referencia `assets/` por caminho, não por base64 — assim continua
 legível e com diff limpo. O base64 existe apenas em `dist/`.
+
+`assets/logo-x-512.png` não é usado pela página (é o símbolo isolado do X, do kit da
+marca). Fica como referência.
 
 **A foto do Arteiro entra uma única vez** no bloco, via variável CSS `--foto`, e é
 reaproveitada no hero (com fade) e no círculo do mentor (recortada por
@@ -224,35 +194,25 @@ vezes — 48 KB jogados fora. O arquivo em `assets/` já está cortado no alpha
 python3 -m http.server 8753
 ```
 
-- Páginas: `http://localhost:8753/index.html` · `index-b.html` · `index-c.html`
+- Página: `http://localhost:8753/index-c.html`
 - QA: `http://localhost:8753/dist/host-simulator.html?utm_source=qa`
 
 O host-simulator reproduz de propósito um host hostil (reset `content-box`, fonte
 serifada global, `img{width:100%!important}`, `svg{width:50px!important}`,
 `section{background:#0f0!important}`, `footer{background:#600!important}`, estilos em
 `.btn`/`.card`, container de 1170px e um ancestral com `transform`, que quebra
-`position:fixed`). Ele injeta o bloco e imprime **27 verificações** no canto — entre
-elas: nenhum overflow horizontal, os elementos do host intactos, Khand e Archivo
-aplicadas, a dobra preta e o rodapé mantendo o Preto Comando, os ícones não
-esmagados, o círculo do mentor redondo, todo o conteúdo visível e a UTM propagada.
+`position:fixed`). Ele injeta o bloco, **percorre a página inteira em passos** (o reveal é disparado
+por rolagem) e imprime **29 verificações** no canto — entre elas: nenhum overflow
+horizontal, os elementos do host intactos, Khand e Archivo aplicadas, o fundo e a
+dobra 2 mantendo as cores da marca, os ícones não esmagados, a logo no tamanho
+certo, o círculo do mentor redondo, todo o conteúdo revelado e a UTM propagada.
 
 Testar em 390px e em ≥1180px: a CTA fixa só aparece abaixo de 880px.
 
-**As três versões passam pelo mesmo QA.** Acrescente `?bloco=b` ou `?bloco=c`:
-`dist/host-simulator.html?bloco=c&utm_source=qa`. O painel checa, além do resto,
-se o fundo, a faixa da dobra 2, o raio do CTA, o símbolo da marca e o negativo do
-selo estão corretos **para aquela versão**.
-
-> **A e B falham três verificações — todas pré-existentes, nenhuma é regressão da C:**
->
-> | Verificação | O que acontece | Correção |
-> |---|---|---|
-> | `sticky colada na viewport` (390px) | ver [§9, ao final](#o-bug-da-cta-fixa-que-a-c-corrigiu) | portar `CSS_SOLTO` + `anchor` de `index-c.html` |
-> | `sticky manteve o estilo fora da raiz` (390px) | idem | idem |
-> | `logo com tamanho util` | o host força `svg{width:50px!important}` e o símbolo do cabeçalho infla de 30px para **50×50** — `.ix-marca svg` em `index.html` não tem `!important` no tamanho | `width:30px!important;height:30px!important` |
->
-> A C não tem nenhum dos três: a CTA fixa injeta as regras sem escopo, e a logo
-> não é `<svg>` (é máscara CSS), então o `svg{50px}` do host não a alcança.
+> **Auditar com a aba na frente.** Aba em segundo plano não roda
+> `requestAnimationFrame` nem entrega `IntersectionObserver`, então a varredura do
+> reveal fica parada e o viewport pode colapsar para 0×0 — o painel reporta
+> `reveal: N/A` nesse caso, mas as medidas de largura viram lixo.
 
 ---
 
@@ -261,7 +221,7 @@ selo estão corretos **para aquela versão**.
 **O `!important` em imagens, SVG e nos fundos das superfícies é proposital.**
 Construtores injetam `img{width:100%!important}`, `svg{width:50px!important}` e
 estilizam `section`/`footer` por tag com `!important`. Sem isso a foto estoura, os
-ícones viram selos de 50px e a dobra preta perde a cor da marca. As três falhas
+ícones viram selos de 50px e as dobras perdem a cor da marca. As três falhas
 foram observadas no host-simulator antes da correção.
 
 **A animação de entrada tem duas redes de segurança.** O `opacity:0` só é armado
@@ -291,11 +251,11 @@ Não há dependência de biblioteca de ícones.
 
 ---
 
-## 9. Versão C — blueprint de sala de comando
+## 9. O layout "blueprint de sala de comando"
 
-Terceiro layout, com fonte própria em `index-c.html`. Referência de estilo: a home
-da **asimov.academy** (dark premium, luz, movimento). Mas a C não copia o layout de
-lá — ela tem uma ideia própria, e é dela que sai tudo:
+Referência de estilo: a home da **asimov.academy** (dark premium, luz, movimento).
+Mas a página não copia o layout de lá — ela tem uma ideia própria, e é dela que sai
+tudo:
 
 > **O símbolo da ITXPRO já é um diagrama de nós** — o "diagrama de orquestração" do
 > manual. Se o produto é *arquitetura cognitiva*, a página é o **blueprint** dela.
@@ -306,19 +266,21 @@ uma **pilha de arquitetura** com espinha e nós numerados, e grão fotográfico 
 tudo. Cantos quase retos (4px) nos painéis e pílula só nos CTAs: superfície
 técnica, ação macia.
 
-### O que a C mantém (e não deve mudar)
+### O que veio do PDF de design e não deve mudar
+
+Este layout nasceu como alternativa às versões A e B (as 4 dobras do PDF, hoje
+removidas). Estes quatro pontos foram mantidos por contrato:
 
 | Mantido | Onde |
 |---|---|
-| **A copy**, palavra por palavra | verificado por diff de contagem de palavras contra `index.html` — zero perdas |
+| **A copy**, palavra por palavra | verificada, enquanto A/B existiam, por diff de contagem de palavras — zero perdas |
 | **Tipografia da marca** | Khand Bold caixa-alta nos títulos, Archivo no corpo |
 | **Paleta** | Preto Comando · Branco Osso · Laranja Núcleo |
 | **Foto do mentor no hero** | mesmo recorte com fade da A/B |
 | **Foto do mentor na última dobra** | mesmo círculo com fundo Laranja Núcleo |
 
-Além dos textos de A/B, a C reaproveita strings que já existiam (`Quero minha vaga`
-e `Sáb 22/08 · 9h–18h`, da CTA fixa) na barra do topo e na ficha técnica. Os
-numerais de seção `01`–`04` são navegação, não copy.
+A barra do topo e a ficha técnica reaproveitam strings que já existiam na CTA fixa
+(`Quero minha vaga` e `Sáb 22/08 · 9h–18h`). Nada de copy nova foi inventada.
 
 ### As peças novas
 
@@ -400,7 +362,7 @@ pela base da viewport, ele tem de estar visivel. A lista se esvazia sozinha.
 **Sem `@property`** em nenhum lugar: o build o trataria como seletor e o quebraria.
 
 <a id="o-bug-da-cta-fixa-que-a-c-corrigiu"></a>
-### O bug da CTA fixa que a C corrigiu
+### O bug da CTA fixa
 
 Quando um ancestral com `transform` quebra o `position:fixed`, o JS reancora a
 barra no `<body>`. Só que **todo** o CSS do bloco é escopado em `#ix-ws3` — ao sair
@@ -408,11 +370,11 @@ da raiz, a barra perdia cada uma das suas regras e virava um `<div>` estático, 
 cor, no fim da página. O host-simulator não pegava isso porque a verificação
 aceitava `parentNode === body` como prova de sucesso.
 
-Na C, o reancoramento injeta no mesmo instante uma folha com as regras
+Aqui o reancoramento injeta no mesmo instante uma folha com as regras
 equivalentes **sem escopo**, todas presas a `#ix-sticky` (id que só existe no
 bloco, então não toca em nada do host). E a verificação do QA agora mede o que
 importa: barra colada na viewport **e** ainda estilizada.
 
-**A e B continuam com o bug** — mesmo trecho de JS, em `index.html`. A correção é
-portar o bloco `CSS_SOLTO` + `anchor` de `index-c.html` para lá e regerar. Não foi
-feito para não alterar as duas páginas do teste A/B em andamento.
+As versões A e B carregavam esse bug até serem removidas — o mesmo trecho de JS,
+sem a folha sem escopo. Se alguém ressuscitar aquele código do histórico, é isto
+que precisa ser portado.
