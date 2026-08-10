@@ -266,6 +266,22 @@ uma **pilha de arquitetura** com espinha e nós numerados, e grão fotográfico 
 tudo. Cantos quase retos (4px) nos painéis e pílula só nos CTAs: superfície
 técnica, ação macia.
 
+### O hero no mobile não tem a foto
+
+Na primeira dobra, o mobile **não** mostra a foto do mentor: ela ocupava 441px de
+altura numa tela de 667px e a dobra pedia duas rolagens para ser lida. No lugar
+dela o H1 cresce (19vw, ~71px em 375px de tela, quebrando em duas linhas como no
+desktop) e a atmosfera fica por conta da cena de fundo, que já existia — a rede de
+nós, as auras e a grade do horizonte.
+
+O que garante "uma visualização só" é `min-height:calc(100svh - 66px)` no hero:
+66px é a altura medida do cabeçalho, e **`svh`** (não `vh`) é a altura que sobra com
+a barra do navegador móvel aberta. Com `vh` o hero ficava mais alto que a tela útil
+e voltava a exigir rolagem. Medido — a primeira dobra fecha exatamente na altura da
+tela em 320×568, 360×640, 375×667 e 430×932.
+
+No **desktop nada mudou**: a foto continua na dobra 1 e no círculo da dobra 4.
+
 ### O que veio do PDF de design e não deve mudar
 
 Este layout nasceu como alternativa às versões A e B (as 4 dobras do PDF, hoje
@@ -276,7 +292,7 @@ removidas). Estes quatro pontos foram mantidos por contrato:
 | **A copy**, palavra por palavra | verificada, enquanto A/B existiam, por diff de contagem de palavras — zero perdas |
 | **Tipografia da marca** | Khand Bold caixa-alta nos títulos, Archivo no corpo |
 | **Paleta** | Preto Comando · Branco Osso · Laranja Núcleo |
-| **Foto do mentor no hero** | mesmo recorte com fade da A/B |
+| **Foto do mentor no hero** | mesmo recorte com fade — **só no desktop**, ver acima |
 | **Foto do mentor na última dobra** | mesmo círculo com fundo Laranja Núcleo |
 
 A barra do topo e a ficha técnica reaproveitam strings que já existiam na CTA fixa
