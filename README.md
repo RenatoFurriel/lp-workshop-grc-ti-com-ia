@@ -172,6 +172,10 @@ dist/host-simulator.html     ← teste: injeta o bloco num host hostil (ver abai
 assets/                      ← fontes da marca + foto + logo (o build otimiza na hora)
 copy/                        ← a copy aprovada, em markdown
 criativos/                   ← criativos de anúncio (fora do escopo da LP)
+
+dashboard-leads-grcti-ia.html ← painel de leads deste workshop (ver §10)
+agente-limpeza-leads-ia.gs    ← agente de limpeza da base, roda no Google Apps Script
+regras-negocio-dashboard.md   ← regras do painel. NÃO versionado (critérios comerciais)
 ```
 
 O `index-c.html` referencia `assets/` por caminho, não por base64 — assim continua
@@ -394,3 +398,37 @@ importa: barra colada na viewport **e** ainda estilizada.
 As versões A e B carregavam esse bug até serem removidas — o mesmo trecho de JS,
 sem a folha sem escopo. Se alguém ressuscitar aquele código do histórico, é isto
 que precisa ser portado.
+
+---
+
+## 10. Painel de leads
+
+`dashboard-leads-grcti-ia.html` — painel interno de acompanhamento da captação deste
+workshop, publicado junto com a LP:
+
+**https://renatofurriel.github.io/lp-workshop-grc-ti-com-ia/dashboard-leads-grcti-ia.html**
+
+| | |
+|---|---|
+| Fonte | Planilha do Respondi, lida direto pelo endpoint `gviz` do Google |
+| Contatos | **Não trafegam**: a URL seleciona só as colunas sem nome/e-mail/WhatsApp |
+| Atualização | Relê a planilha a cada 5 min |
+| Regras de negócio | `regras-negocio-dashboard.md` (local, fora do repo — critérios comerciais) |
+
+O painel mostra total de leads, MQL START e MQL PRO, % de MQL contra a meta de 80%,
+linha do tempo diária e 12 gráficos de perfil e de aquisição (incluindo `utm_term`,
+que mostra **qual botão da LP converte** — é o mesmo `utm_term` que o `index-c.html`
+carimba em cada CTA). Todos os gráficos filtram uns aos outros ao clique, estilo BI.
+
+Ele nasceu como cópia do painel do workshop de julho (projeto `O_novo_profissional_de_TI`,
+repositório `Workshop-HIC`), que continua no ar com a base antiga. **Correção estrutural
+feita lá não chega aqui sozinha**, e vice-versa.
+
+`agente-limpeza-leads-ia.gs` roda dentro da planilha (Extensões → Apps Script), de hora
+em hora, e **pinta de vermelho** — nunca apaga — três coisas: cadastros duplicados (mesmo
+e-mail ou WhatsApp), formulários em branco e cadastros sem e-mail nem telefone. O painel
+desconta essas linhas do total. O motivo fica escrito na coluna `Limpeza` da planilha.
+
+**Para abrir o painel localmente**, use o servidor da §6 (`python3 -m http.server 8753`) e
+acesse `/dashboard-leads-grcti-ia.html`. Abrir por duplo clique não funciona: o navegador
+bloqueia a leitura da planilha.

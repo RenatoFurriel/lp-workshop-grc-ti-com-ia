@@ -1,3 +1,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Regras comerciais internas (criterios de MQL): fora do repo publico.
+# Mesmo criterio do projeto O_novo_profissional_de_TI, onde os .md nao sao publicados.
+regras-negocio-dashboard.md
