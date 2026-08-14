@@ -411,14 +411,14 @@ workshop, publicado junto com a LP:
 | | |
 |---|---|
 | Fonte | Planilha do Respondi, lida direto pelo endpoint `gviz` do Google |
-| Contatos | **Trafegam desde 14/08**: a tabela "Leads filtrados" no rodapé mostra nome, e-mail e WhatsApp. Como a página é pública, esses dados ficam visíveis para qualquer um com o link — decisão do Renato, registrada nas regras |
+| Contatos | **Não trafegam**: a URL seleciona só as colunas sem nome/e-mail/WhatsApp |
 | Atualização | Relê a planilha a cada 5 min |
 | Regras de negócio | `regras-negocio-dashboard.md` (local, fora do repo — critérios comerciais) |
 
 O painel mostra total de leads, MQL START e MQL PRO, % de MQL contra a meta de 80%,
 linha do tempo diária e 12 gráficos de perfil e de aquisição (incluindo `utm_term`,
 que mostra **qual botão da LP converte** — é o mesmo `utm_term` que o `index-c.html`
-carimba em cada CTA). No rodapé, a tabela **Leads filtrados** lista nome, e-mail, WhatsApp e origem dos leads do recorte atual, reagindo a todos os filtros. Abaixo dos KPIs há uma fileira de cards de **presença ao vivo** (um por resposta da pergunta "você poderá participar no dia 22/Ago?"), com quantidade e percentual.
+carimba em cada CTA). Abaixo dos KPIs há uma fileira de cards de **presença ao vivo** (um por resposta da pergunta "você poderá participar no dia 22/Ago?"), com quantidade e percentual.
 
 Todos os gráficos filtram uns aos outros ao clique, estilo BI — e **os cards do topo também**: clicar em MQL PRO, por exemplo, filtra o painel inteiro por esse público e zera os demais cards; o card Total limpa os filtros.
 
