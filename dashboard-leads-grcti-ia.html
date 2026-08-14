@@ -60,6 +60,10 @@ header{position:sticky;top:0;z-index:20;background:rgba(17,18,20,.92);backdrop-f
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid .kpi .val{font-size:25px}}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
+.kpi.click{cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.kpi.click:hover{border-color:var(--orange)}
+.kpi.sel{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange)}
+.kpi.sel .label{color:var(--orange)}
 .kpi .label{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
 .kpi .val{font-family:var(--display);font-weight:700;font-size:27px;line-height:1;color:var(--text);white-space:nowrap}
 .kpi .sub{font-family:var(--mono);font-size:11.5px;color:var(--orange);margin-top:8px}
@@ -160,12 +164,12 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
   <!-- KPIs -->
   <section class="section" style="padding:14px 0 0">
     <div class="kpi-grid">
-      <div class="kpi"><div class="label">Total de leads</div><div class="val" id="k-total">0</div><div class="sub" id="k-total-sub">&nbsp;</div></div>
-      <div class="kpi"><div class="label">Leads hoje</div><div class="val" id="k-hoje">0</div><div class="sub" id="k-hoje-sub">&nbsp;</div></div>
-      <div class="kpi"><div class="label">MQL START <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL START (todas as condições):</b></p><p>Status de carreira: desempregado, em transição, recolocação ou quer entrar no mercado <b>OU renda abaixo de 10k</b> (mesmo já atuando) <b>OU idade fora de 35–54</b> no perfil que seria PRO</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-start">—</div><div class="sub" id="k-mql-start-sub">&nbsp;</div></div>
-      <div class="kpi"><div class="label">MQL PRO <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL PRO (todas as condições):</b></p><p>Última faixa de renda entre <b>10k e 25k</b> (acima de 25k: futuro produto executivo)</p><p>Status: já atua (não pode estar desempregado, em transição, nem querendo entrar no mercado)</p><p>Faixa etária <b>35 a 54 anos</b></p><p>Não pode estar <b>totalmente satisfeito</b> com a carreira</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-pro">—</div><div class="sub" id="k-mql-pro-sub">&nbsp;</div></div>
-      <div class="kpi"><div class="label">% MQL <details class="kpi-info"><summary title="Meta de qualidade">&#9432;</summary><div class="pop pop-right"><p><b>Meta do Roberto (17/07):</b></p><p>MQL START + MQL PRO devem somar <b>pelo menos 80%</b> dos leads captados (sem contar alunos).</p><p>Abaixo de 80% = criativo ou segmentação captando o público errado.</p></div></details></div><div class="val" id="k-mql-pct">—</div><div class="sub" id="k-mql-pct-sub">meta &ge; 80%</div></div>
-      <div class="kpi"><div class="label">Alunos</div><div class="val" id="k-alunos">—</div><div class="sub" id="k-alunos-sub">fora dos MQLs</div></div>
+      <div class="kpi click" data-kpi="total" title="Clique para limpar os filtros de clique"><div class="label">Total de leads</div><div class="val" id="k-total">0</div><div class="sub" id="k-total-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="hoje" title="Clique para filtrar tudo pelos leads de hoje"><div class="label">Leads hoje</div><div class="val" id="k-hoje">0</div><div class="sub" id="k-hoje-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="start" title="Clique para filtrar tudo pelos MQL START"><div class="label">MQL START <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL START (todas as condições):</b></p><p>Status de carreira: desempregado, em transição, recolocação ou quer entrar no mercado <b>OU renda abaixo de 10k</b> (mesmo já atuando) <b>OU idade fora de 35–54</b> no perfil que seria PRO</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-start">—</div><div class="sub" id="k-mql-start-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="pro" title="Clique para filtrar tudo pelos MQL PRO"><div class="label">MQL PRO <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL PRO (todas as condições):</b></p><p>Última faixa de renda entre <b>10k e 25k</b> (acima de 25k: futuro produto executivo)</p><p>Status: já atua (não pode estar desempregado, em transição, nem querendo entrar no mercado)</p><p>Faixa etária <b>35 a 54 anos</b></p><p>Não pode estar <b>totalmente satisfeito</b> com a carreira</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-pro">—</div><div class="sub" id="k-mql-pro-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="pct" title="Clique para filtrar tudo pelos MQL (START + PRO)"><div class="label">% MQL <details class="kpi-info"><summary title="Meta de qualidade">&#9432;</summary><div class="pop pop-right"><p><b>Meta do Roberto (17/07):</b></p><p>MQL START + MQL PRO devem somar <b>pelo menos 80%</b> dos leads captados (sem contar alunos).</p><p>Abaixo de 80% = criativo ou segmentação captando o público errado.</p></div></details></div><div class="val" id="k-mql-pct">—</div><div class="sub" id="k-mql-pct-sub">meta &ge; 80%</div></div>
+      <div class="kpi click" data-kpi="alunos" title="Clique para filtrar tudo pelos alunos da mentoria"><div class="label">Alunos</div><div class="val" id="k-alunos">—</div><div class="sub" id="k-alunos-sub">fora dos MQLs</div></div>
     </div>
   </section>
 
@@ -401,15 +405,61 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     utm_medium:function(r){return (r.utm_medium||"").toLowerCase()||"(sem utm_medium)";},
     utm_campaign:function(r){return (r.utm_campaign||"").toLowerCase()||"(sem utm_campaign)";},
     utm_term:function(r){return (r.utm_term||"").toLowerCase()||"(sem utm_term)";},
-    fora:function(r){return foraMotivo(r);}
+    fora:function(r){return foraMotivo(r);},
+    mql:function(r){return classify(r).tipo;}   // ALUNO / START / PRO / FORA
   };
-  var DIM_LABEL={dia:"Dia",criativo:"Criativo",satisfacao:"Satisfação",conhece:"Conhece há",renda:"Renda",situacao:"Situação",estado:"Estado",idade:"Idade",funcao:"Função",utm_source:"Origem",utm_medium:"Mídia",utm_campaign:"Campanha",utm_term:"Posição do CTA",fora:"Fora do MQL"};
+  var DIM_LABEL={dia:"Dia",criativo:"Criativo",satisfacao:"Satisfação",conhece:"Conhece há",renda:"Renda",situacao:"Situação",estado:"Estado",idade:"Idade",funcao:"Função",utm_source:"Origem",utm_medium:"Mídia",utm_campaign:"Campanha",utm_term:"Posição do CTA",fora:"Fora do MQL",mql:"Classificação"};
+  // rotulos amigaveis dos valores da dimensao mql (usados no chip)
+  var MQL_VAL_LABEL={START:"MQL START",PRO:"MQL PRO",ALUNO:"Aluno da mentoria",FORA:"Fora do MQL"};
   function toggleCross(dim,val){
     var a=CROSS[dim]||[]; var i=a.indexOf(val);
     if(i>=0){a.splice(i,1);} else {a.push(val);}
     if(a.length){CROSS[dim]=a;} else {delete CROSS[dim];}
     render();
   }
+  // ===== KPIs clicaveis: os 6 cards do topo filtram tudo (pedido do Renato, 14/08) =====
+  // Os quatro cards de classificacao (START/PRO/%MQL/Alunos) sao um slicer da dimensao
+  // "mql": por isso eles proprios NAO se autofiltram, igual aos graficos.
+  function selMql(){return CROSS.mql||[];}
+  function toggleMqlPar(){                       // card "% MQL": START + PRO juntos
+    var a=selMql().slice();
+    var tem=a.indexOf("START")>=0 && a.indexOf("PRO")>=0;
+    if(tem){ a=a.filter(function(v){return v!=="START"&&v!=="PRO";}); }
+    else { ["START","PRO"].forEach(function(v){ if(a.indexOf(v)<0) a.push(v); }); }
+    if(a.length){CROSS.mql=a;} else {delete CROSS.mql;}
+    render();
+  }
+  function bindKpis(){
+    var grid=document.querySelector(".kpi-grid"); if(!grid) return;
+    grid.addEventListener("click",function(e){
+      if(e.target.closest(".kpi-info")) return;   // o popover "i" nao dispara filtro
+      var card=e.target.closest(".kpi.click"); if(!card) return;
+      var k=card.getAttribute("data-kpi");
+      if(k==="total"){ CROSS={}; render(); }
+      else if(k==="hoje"){ toggleCross("dia", ymd(new Date())); }
+      else if(k==="start"){ toggleCross("mql","START"); }
+      else if(k==="pro"){ toggleCross("mql","PRO"); }
+      else if(k==="alunos"){ toggleCross("mql","ALUNO"); }
+      else if(k==="pct"){ toggleMqlPar(); }
+    });
+  }
+  function pintaKpis(){
+    var m=selMql(), hoje=(CROSS.dia||[]).indexOf(ymd(new Date()))>=0;
+    var sel={ hoje:hoje,
+              start:m.indexOf("START")>=0,
+              pro:m.indexOf("PRO")>=0,
+              alunos:m.indexOf("ALUNO")>=0,
+              pct:m.indexOf("START")>=0 && m.indexOf("PRO")>=0 };
+    Object.keys(sel).forEach(function(k){
+      var el=document.querySelector('.kpi[data-kpi="'+k+'"]');
+      if(el) el.classList.toggle("sel", !!sel[k]);
+    });
+    // o card Total vira o botao de limpar quando ha filtro de clique ativo
+    var tot=document.querySelector('.kpi[data-kpi="total"]');
+    if(tot) tot.title=Object.keys(CROSS).length ? "Clique para limpar os filtros de clique"
+                                                : "Nenhum filtro de clique ativo";
+  }
+
   function renderChips(){
     var box=document.getElementById("xf-chips"); if(!box) return;
     var dims=Object.keys(CROSS);
@@ -420,6 +470,7 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
       var chip=document.createElement("span");
       chip.className="xf-chip";
       var v=val; if(d==="dia"){var pp=val.split("-");v=pp[2]+"/"+pp[1];}
+      if(d==="mql"){v=MQL_VAL_LABEL[val]||val;}
       chip.innerHTML="<b>"+DIM_LABEL[d]+":</b> "+shorten(v,30)+"  ✕";
       chip.title="Clique para remover este filtro";
       chip.addEventListener("click",function(){toggleCross(d,val);});
@@ -605,7 +656,9 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     // KPIs (usam TODOS os filtros, incluindo cross-filter)
     var todayStr=ymd(now);
     var hoje=rows.filter(function(r){return ymd(r.data)===todayStr;}).length;
-    setNum("k-total",rows.length);setNum("k-hoje",hoje);MQL_KPIS(rows);
+    setNum("k-total",rows.length);setNum("k-hoje",hoje);
+    MQL_KPIS(applyFilters("mql"));   // padrao BI: o slicer nao se autofiltra
+    pintaKpis();
     document.getElementById("k-total-sub").textContent=rows.length?("+"+hoje+" hoje"+(descontados?"  ·  −"+descontados+" duplicados/vazios":"")):" ";
     document.getElementById("k-hoje-sub").textContent=" ";
     renderChips();
@@ -723,6 +776,8 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     de.value=ymd(min);de.max=ymd(today);
     datesInit=true;
   }
+
+  bindKpis();
 
   function loadData(){
     if(!CONFIG.csvUrl){
