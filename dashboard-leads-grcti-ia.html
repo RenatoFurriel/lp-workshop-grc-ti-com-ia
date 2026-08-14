@@ -59,6 +59,9 @@ header{position:sticky;top:0;z-index:20;background:rgba(17,18,20,.92);backdrop-f
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid .kpi .val{font-size:25px}}
+.kpi-aovivo{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:12px}
+.kpi-aovivo .kpi .val{font-size:24px}
+.kpi-aovivo .kpi .label{white-space:normal;line-height:1.35;min-height:30px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
 .kpi.click{cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .kpi.click:hover{border-color:var(--orange)}
@@ -166,11 +169,13 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     <div class="kpi-grid">
       <div class="kpi click" data-kpi="total" title="Clique para limpar os filtros de clique"><div class="label">Total de leads</div><div class="val" id="k-total">0</div><div class="sub" id="k-total-sub">&nbsp;</div></div>
       <div class="kpi click" data-kpi="hoje" title="Clique para filtrar tudo pelos leads de hoje"><div class="label">Leads hoje</div><div class="val" id="k-hoje">0</div><div class="sub" id="k-hoje-sub">&nbsp;</div></div>
-      <div class="kpi click" data-kpi="start" title="Clique para filtrar tudo pelos MQL START"><div class="label">MQL START <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL START (todas as condições):</b></p><p>Status de carreira: desempregado, em transição, recolocação ou quer entrar no mercado <b>OU renda abaixo de 10k</b> (mesmo já atuando) <b>OU idade fora de 35–54</b> no perfil que seria PRO</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-start">—</div><div class="sub" id="k-mql-start-sub">&nbsp;</div></div>
-      <div class="kpi click" data-kpi="pro" title="Clique para filtrar tudo pelos MQL PRO"><div class="label">MQL PRO <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL PRO (todas as condições):</b></p><p>Última faixa de renda entre <b>10k e 25k</b> (acima de 25k: futuro produto executivo)</p><p>Status: já atua (não pode estar desempregado, em transição, nem querendo entrar no mercado)</p><p>Faixa etária <b>35 a 54 anos</b></p><p>Não pode estar <b>totalmente satisfeito</b> com a carreira</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-pro">—</div><div class="sub" id="k-mql-pro-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="start" title="Clique para filtrar tudo pelos MQL START"><div class="label">MQL START <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL START (todas as condições):</b></p><p>Status de carreira: desempregado, em transição, recolocação ou quer entrar no mercado <b>OU renda abaixo de 10k</b> (mesmo já atuando)</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-start">—</div><div class="sub" id="k-mql-start-sub">&nbsp;</div></div>
+      <div class="kpi click" data-kpi="pro" title="Clique para filtrar tudo pelos MQL PRO"><div class="label">MQL PRO <details class="kpi-info"><summary title="Como calculamos">&#9432;</summary><div class="pop"><p><b>MQL PRO (todas as condições):</b></p><p>Última faixa de renda entre <b>10k e 25k</b> (acima de 25k: futuro produto executivo)</p><p>Status: já atua (não pode estar desempregado, em transição, nem querendo entrar no mercado)</p><p>Não pode estar <b>totalmente satisfeito</b> com a carreira</p><p>Exclui <b>estudante</b> e <b>aluno da mentoria</b></p></div></details></div><div class="val" id="k-mql-pro">—</div><div class="sub" id="k-mql-pro-sub">&nbsp;</div></div>
       <div class="kpi click" data-kpi="pct" title="Clique para filtrar tudo pelos MQL (START + PRO)"><div class="label">% MQL <details class="kpi-info"><summary title="Meta de qualidade">&#9432;</summary><div class="pop pop-right"><p><b>Meta do Roberto (17/07):</b></p><p>MQL START + MQL PRO devem somar <b>pelo menos 80%</b> dos leads captados (sem contar alunos).</p><p>Abaixo de 80% = criativo ou segmentação captando o público errado.</p></div></details></div><div class="val" id="k-mql-pct">—</div><div class="sub" id="k-mql-pct-sub">meta &ge; 80%</div></div>
       <div class="kpi click" data-kpi="alunos" title="Clique para filtrar tudo pelos alunos da mentoria"><div class="label">Alunos</div><div class="val" id="k-alunos">—</div><div class="sub" id="k-alunos-sub">fora dos MQLs</div></div>
     </div>
+    <!-- presenca ao vivo: um card por resposta encontrada na planilha (Renato, 14/08) -->
+    <div class="kpi-aovivo" id="kpi-aovivo"></div>
   </section>
 
   <!-- filtros ativos do cross-filter -->
@@ -339,17 +344,16 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
 
   // ===== MQL START / PRO (regras fechadas por Renato + Roberto em 17/07) =====
   // PRO: renda 10k-25k + ja atua (nao desempregado/transicao/entrar no mercado)
-  //      + 35-54 anos + nao "totalmente satisfeito" + nao estudante/aluno.
+  //      + nao "totalmente satisfeito" + nao estudante/aluno.
   // START: (status desempregado/transicao/recolocacao/entrar no mercado
-  //      OU renda abaixo de 10k OU idade fora de 35-54 no caminho PRO)
-  //      + nao estudante/aluno. "Aceitaria o desafio" nao e criterio.
+  //      OU renda abaixo de 10k) + nao estudante/aluno.
+  // Nao sao criterio: "Aceitaria o desafio" (17/07) nem faixa etaria (14/08).
   // Aluno ("Ja faco parte da mentoria" no canal) nunca e MQL e tem card proprio.
   // Meta do Roberto: START+PRO >= 80% dos leads captados (base sem alunos).
   var MQL_CONFIG = {
     aluno: /faco parte da mentoria|ja sou alun|sou da mentoria/,
     estudante: /estudante/,
     statusStart: /desempregad|transic|recoloca|entrar no mercado|quero entrar/,
-    idadePro: /35 a 44|45 a 54/,
     totSatisf: /tot\w* satisf/,
     metaPct: 80
   };
@@ -381,8 +385,8 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     if(!x) return {tipo:"FORA",motivo:"Renda não informada"};
     if(/acima|mais de 25|superior|25k\+/.test(x)) return {tipo:"FORA",motivo:"Renda acima de 25k (perfil executivo)"};
     if(!rendaPro(r)) return {tipo:"FORA",motivo:"Renda fora do perfil PRO"};
-    // idade fora da faixa do PRO nao exclui: vira START (Renato, 17/07)
-    if(!MQL_CONFIG.idadePro.test(norm(r.idade))) return {tipo:"START"};
+    // Idade deixou de ser criterio em 14/08 (Renato): a faixa etaria nao entra mais
+    // na classificacao. Continua como grafico, so para leitura de perfil.
     if(MQL_CONFIG.totSatisf.test(norm(r.satisfacao))) return {tipo:"FORA",motivo:"Totalmente satisfeito"};
     return {tipo:"PRO"};
   }
@@ -406,9 +410,10 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     utm_campaign:function(r){return (r.utm_campaign||"").toLowerCase()||"(sem utm_campaign)";},
     utm_term:function(r){return (r.utm_term||"").toLowerCase()||"(sem utm_term)";},
     fora:function(r){return foraMotivo(r);},
-    mql:function(r){return classify(r).tipo;}   // ALUNO / START / PRO / FORA
+    mql:function(r){return classify(r).tipo;},  // ALUNO / START / PRO / FORA
+    aovivo:function(r){return r.aovivo||"(sem resposta)";}
   };
-  var DIM_LABEL={dia:"Dia",criativo:"Criativo",satisfacao:"Satisfação",conhece:"Conhece há",renda:"Renda",situacao:"Situação",estado:"Estado",idade:"Idade",funcao:"Função",utm_source:"Origem",utm_medium:"Mídia",utm_campaign:"Campanha",utm_term:"Posição do CTA",fora:"Fora do MQL",mql:"Classificação"};
+  var DIM_LABEL={dia:"Dia",criativo:"Criativo",satisfacao:"Satisfação",conhece:"Conhece há",renda:"Renda",situacao:"Situação",estado:"Estado",idade:"Idade",funcao:"Função",utm_source:"Origem",utm_medium:"Mídia",utm_campaign:"Campanha",utm_term:"Posição do CTA",fora:"Fora do MQL",mql:"Classificação",aovivo:"Presença ao vivo"};
   // rotulos amigaveis dos valores da dimensao mql (usados no chip)
   var MQL_VAL_LABEL={START:"MQL START",PRO:"MQL PRO",ALUNO:"Aluno da mentoria",FORA:"Fora do MQL"};
   function toggleCross(dim,val){
@@ -418,8 +423,8 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     render();
   }
   // ===== KPIs clicaveis: os 6 cards do topo filtram tudo (pedido do Renato, 14/08) =====
-  // Os quatro cards de classificacao (START/PRO/%MQL/Alunos) sao um slicer da dimensao
-  // "mql": por isso eles proprios NAO se autofiltram, igual aos graficos.
+  // Todos os cards refletem o recorte em tela: clicar em MQL PRO zera MQL START e vice-versa
+  // (Renato, 14/08). Para voltar, clique no card Total ou no chip.
   function selMql(){return CROSS.mql||[];}
   function toggleMqlPar(){                       // card "% MQL": START + PRO juntos
     var a=selMql().slice();
@@ -458,6 +463,48 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     var tot=document.querySelector('.kpi[data-kpi="total"]');
     if(tot) tot.title=Object.keys(CROSS).length ? "Clique para limpar os filtros de clique"
                                                 : "Nenhum filtro de clique ativo";
+  }
+
+  // ===== presenca ao vivo: um card por resposta da coluna "podera participar ao vivo" =====
+  // Os cards nascem dos dados: se a pergunta ganhar outra opcao, ela aparece sozinha.
+  var AOVIVO_ROTULO=[                                  // rotulo curto -> regex da resposta
+    [/sim|estarei/,        "Confirmados ao vivo"],
+    [/talvez/,             "Talvez, não o dia inteiro"],
+    [/organizar|horario/,  "Precisa organizar horários"],
+    [/nao sei|ainda/,      "Não sabe ainda"]
+  ];
+  function rotuloAoVivo(v){
+    var n=norm(v);
+    for(var i=0;i<AOVIVO_ROTULO.length;i++){ if(AOVIVO_ROTULO[i][0].test(n)) return AOVIVO_ROTULO[i][1]; }
+    return v==="(sem resposta)" ? "Sem resposta" : shorten(v,34);
+  }
+  function renderAoVivo(rows,total){
+    var box=document.getElementById("kpi-aovivo"); if(!box) return;
+    var m=count(rows,DIMS.aovivo);
+    // ordem fixa pela contagem na base inteira, para os cards nao dancarem ao filtrar
+    var ordem=sortedEntries(count(ALL_VISIVEL(),DIMS.aovivo)).map(function(e){return e[0];});
+    var sel=CROSS.aovivo||[];
+    box.innerHTML="";
+    ordem.forEach(function(val){
+      var n=m[val]||0;
+      var card=document.createElement("div");
+      card.className="kpi click"+(sel.indexOf(val)>=0?" sel":"");
+      card.setAttribute("data-aovivo",val);
+      card.title="Clique para filtrar tudo por: "+val;
+      var pct=total?Math.round(100*n/total):0;
+      card.innerHTML='<div class="label">'+esc(rotuloAoVivo(val))+'</div>'+
+                     '<div class="val">'+n+'</div>'+
+                     '<div class="sub">'+pct+'% dos leads em tela</div>';
+      card.addEventListener("click",function(){toggleCross("aovivo",val);});
+      box.appendChild(card);
+    });
+  }
+  function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  // base sem cross-filter (so De/Ate/Canal): define a ordem estavel dos cards
+  function ALL_VISIVEL(){
+    var guarda=CROSS; CROSS={};
+    var r=applyFilters();
+    CROSS=guarda; return r;
   }
 
   function renderChips(){
@@ -657,7 +704,8 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     var todayStr=ymd(now);
     var hoje=rows.filter(function(r){return ymd(r.data)===todayStr;}).length;
     setNum("k-total",rows.length);setNum("k-hoje",hoje);
-    MQL_KPIS(applyFilters("mql"));   // padrao BI: o slicer nao se autofiltra
+    MQL_KPIS(rows);   // os cards refletem o que esta em tela: clicar em PRO zera START (Renato, 14/08)
+    renderAoVivo(rows,rows.length);
     pintaKpis();
     document.getElementById("k-total-sub").textContent=rows.length?("+"+hoje+" hoje"+(descontados?"  ·  −"+descontados+" duplicados/vazios":"")):" ";
     document.getElementById("k-hoje-sub").textContent=" ";

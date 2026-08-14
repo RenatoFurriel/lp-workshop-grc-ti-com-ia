@@ -418,7 +418,9 @@ workshop, publicado junto com a LP:
 O painel mostra total de leads, MQL START e MQL PRO, % de MQL contra a meta de 80%,
 linha do tempo diária e 12 gráficos de perfil e de aquisição (incluindo `utm_term`,
 que mostra **qual botão da LP converte** — é o mesmo `utm_term` que o `index-c.html`
-carimba em cada CTA). Todos os gráficos filtram uns aos outros ao clique, estilo BI — e **os 6 cards do topo também**: clicar em MQL PRO, por exemplo, filtra o painel inteiro por esse público, e o card Total limpa os filtros.
+carimba em cada CTA). Abaixo dos KPIs há uma fileira de cards de **presença ao vivo** (um por resposta da pergunta "você poderá participar no dia 22/Ago?"), com quantidade e percentual.
+
+Todos os gráficos filtram uns aos outros ao clique, estilo BI — e **os cards do topo também**: clicar em MQL PRO, por exemplo, filtra o painel inteiro por esse público e zera os demais cards; o card Total limpa os filtros.
 
 Ele nasceu como cópia do painel do workshop de julho (projeto `O_novo_profissional_de_TI`,
 repositório `Workshop-HIC`), que continua no ar com a base antiga. **Correção estrutural
