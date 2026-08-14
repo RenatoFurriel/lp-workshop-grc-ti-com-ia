@@ -59,6 +59,15 @@ header{position:sticky;top:0;z-index:20;background:rgba(17,18,20,.92);backdrop-f
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid .kpi .val{font-size:25px}}
+.leads-wrap{max-height:460px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:8px}
+.leads-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.leads-tbl th{position:sticky;top:0;z-index:1;background:var(--surface-2);color:var(--dim);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+.leads-tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--text);white-space:nowrap}
+.leads-tbl tr:last-child td{border-bottom:none}
+.leads-tbl td.idx,.leads-tbl th.idx{color:var(--dim);font-family:var(--mono);width:40px}
+.leads-tbl a{color:var(--orange);text-decoration:none}
+.leads-tbl a:hover{text-decoration:underline}
+.leads-empty{padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px}
 .kpi-aovivo{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:12px}
 .kpi-aovivo .kpi .val{font-size:24px}
 .kpi-aovivo .kpi .label{white-space:normal;line-height:1.35;min-height:30px}
@@ -207,6 +216,14 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     <div class="card" style="margin-top:12px"><h3>Fora do MQL</h3><div class="hint" id="fora-hint">quem não entrou em START nem PRO · por critério · clique para filtrar</div><div class="chart-box"><canvas id="c-fora"></canvas><div class="empty"><span class="small">sem dados</span></div></div></div>
   </section>
 
+  <section class="section" style="padding:0 0 40px">
+    <div class="card">
+      <h3>Leads filtrados</h3>
+      <div class="hint" id="leads-hint">contato dos leads no filtro atual</div>
+      <div class="leads-wrap"><table class="leads-tbl"><thead><tr><th class="idx">#</th><th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Origem</th></tr></thead><tbody id="leads-body"></tbody></table></div>
+    </div>
+  </section>
+
 </main>
 
 <footer><div class="wrap"><p id="footer-note">ITXPRO · Painel interno de leads</p></div></footer>
@@ -217,11 +234,13 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
 
   // ===== CONFIG =====
   // Fonte: gviz da planilha do Respondi com selecao de colunas (tq=select).
-  // As colunas A/B/C (nome, WhatsApp, e-mail) NAO entram no feed: o painel nunca recebe PII.
+  // ATENCAO: desde 14/08 o feed INCLUI nome, WhatsApp e e-mail (colunas A/B/C), por decisao
+  // do Renato, para alimentar a tabela "Leads filtrados" no rodape. Esta pagina esta publicada
+  // em GitHub Pages publico: qualquer pessoa com o link ve esses contatos.
   // A coluna Z e a "Limpeza" (escrita pelo agente-limpeza-leads-ia.gs): as linhas marcadas
   // sao descontadas da base inteira. Se o agente for removido, tire o ",Z" do select.
   var CONFIG = {
-    csvUrl: "https://docs.google.com/spreadsheets/d/1gkObmsOMZWbCPzq3NQsTAP-8y_5mrUoqEC5AnhnR9Yo/gviz/tq?tqx=out:csv&sheet=P%C3%A1gina1&tq=select%20D,E,F,G,H,I,J,K,L,M,N,O,Q,S,T,U,V,W,Z",  // planilha do Respondi, colunas sem PII (Z = Limpeza) (nome/e-mail/WhatsApp ficam de fora na origem)
+    csvUrl: "https://docs.google.com/spreadsheets/d/1gkObmsOMZWbCPzq3NQsTAP-8y_5mrUoqEC5AnhnR9Yo/gviz/tq?tqx=out:csv&sheet=P%C3%A1gina1&tq=select%20A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,Q,S,T,U,V,W,Z",  // A/B/C = nome, WhatsApp, e-mail (Z = Limpeza) (nome/e-mail/WhatsApp ficam de fora na origem)
     eventDate: "2026-08-22",                 // dia do workshop (marcador + contagem regressiva)
     refreshMs: 5 * 60 * 1000                 // auto-refresh a cada 5 min
   };
@@ -276,6 +295,9 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
   }
   function buildMapper(headers){
     return {
+      nome:fieldFor(headers,["nome"]),
+      email:fieldFor(headers,["e-mail","email"]),
+      telefone:fieldFor(headers,["whatsapp","telefone","celular"]),
       canal:fieldFor(headers,["ficou sabendo","como voce"]),
       estado:fieldFor(headers,["estado","reside"]),
       sexo:fieldFor(headers,["sexo"]),
@@ -305,6 +327,9 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     return raw.map(function(o){
       function g(key){return map[key]?o[map[key]]:"";}
       return {
+        nome:(g("nome")||"").toString().trim(),
+        email:(g("email")||"").toString().trim(),
+        telefone:(g("telefone")||"").toString().trim(),
         canal:(g("canal")||"").toString().trim()||"Não informado",
         estado:(g("estado")||"").toString().trim(),
         sexo:(g("sexo")||"").toString().trim(),
@@ -777,6 +802,7 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
     var hintEl=document.getElementById("fora-hint");
     if(hintEl) hintEl.textContent=nFora+" leads fora do MQL · "+(baseFora?Math.round(100*nFora/baseFora):0)+"% da base sem alunos · clique num critério para filtrar";
 
+    renderLeads(rows);
     buildCanalFilter();
     stampUpdated();
   }
@@ -785,6 +811,22 @@ footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:
   function shorten(s,n){return s.length>n?s.slice(0,n-1)+"…":s;}
 
 
+
+  // ===== tabela de contatos, reagindo a todos os filtros (Renato, 14/08) =====
+  function renderLeads(rows){
+    var body=document.getElementById("leads-body"), hint=document.getElementById("leads-hint");
+    if(!body) return;
+    if(!rows.length){ hint.textContent="nenhum lead no filtro atual"; body.innerHTML='<tr><td colspan="5" class="leads-empty">sem leads para os filtros selecionados</td></tr>'; return; }
+    hint.textContent=rows.length+" lead"+(rows.length===1?"":"s")+" no filtro atual · mais recentes primeiro";
+    var ord=rows.slice().sort(function(a,b){return b.data-a.data;});
+    body.innerHTML=ord.map(function(r,i){
+      var email=r.email||"";
+      var cel=email?('<a href="mailto:'+esc(email)+'">'+esc(email)+'</a>'):"—";
+      var fone=r.telefone||"";
+      var wpp=fone?('<a href="https://wa.me/'+esc(fone.replace(/\D/g,""))+'" target="_blank" rel="noopener">'+esc(fone)+'</a>'):"—";
+      return "<tr><td class='idx'>"+(i+1)+"</td><td>"+esc(r.nome||"—")+"</td><td>"+cel+"</td><td>"+wpp+"</td><td>"+esc(r.canal||"—")+"</td></tr>";
+    }).join("");
+  }
 
   function buildCanalFilter(){
     var sel=document.getElementById("f-canal");if(sel.dataset.built)return;
